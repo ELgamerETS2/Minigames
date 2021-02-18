@@ -4,6 +4,6 @@ import java.util.UUID;
 
 public class HideAndSeekPlayer
 {
-	public UUID uuid;
+	public Player player;
 	public boolean isFound
 }

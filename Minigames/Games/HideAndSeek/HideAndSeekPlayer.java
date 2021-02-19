@@ -7,5 +7,5 @@ import org.bukkit.entity.Player;
 public class HideAndSeekPlayer
 {
 	public Player player;
-	public boolean isFound
+	public boolean isFound;
 }

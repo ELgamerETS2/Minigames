@@ -1,15 +1,16 @@
 package Minigames.Games.HideAndSeek;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import org.bukkit.ChatColor;
-import org.bukkit.Location;
+import org.bukkit.Sound;
 import org.bukkit.entity.Player;
 
 import Minigames.Announce;
 import Minigames.minigamesMain;
 
-public class HideAndSeekGame extends HideAndSeekLobby
+public class HideAndSeekGame
 {
 	public List<HideAndSeekHider> hiders;
 	public List<HideAndSeekFinder> finders;
@@ -25,6 +26,8 @@ public class HideAndSeekGame extends HideAndSeekLobby
 		this.players = players;
 		this.iFinders = iFinders;
 		Map = new HideAndSeekMap(iMap);
+		finders = new ArrayList<HideAndSeekFinder>();
+		hiders = new ArrayList<HideAndSeekHider>();
 	}
 	
 	public void highGameProcesses()
@@ -33,24 +36,22 @@ public class HideAndSeekGame extends HideAndSeekLobby
 		createTeams();
 		
 		//Chooses map
-		chooseMap();
+	//	chooseMap();
 		
-		int minute = (int) 1200L;
-		
-		int iNumber = 10;
-		
-		//Schedulers
-		this.plugin.getServer().getScheduler().scheduleSyncRepeatingTask(this, new Runnable()
+		//Countdown
+		for (int iNumber = 10 ; iNumber > 0 ; iNumber--)
 		{
-			public void run()
+			this.plugin.getServer().getScheduler().scheduleSyncDelayedTask(this.plugin, new Runnable()
 			{
-				Announce.announce(players, "");
-				iNumber--;
-			}
-		}, 0L, minute * config.getInt("timerInterval"));
+				public void run()
+				{
+				}
+			}, 20L);
+			Announce.announce(players, (ChatColor.DARK_PURPLE +""+iNumber +" Seconds until start"));
+		}
 		
 		//Teleport players and get them fitted
-		teleportPlayers();
+	//	teleportPlayers();
 		
 		//Actual gameplay
 		game();
@@ -81,10 +82,10 @@ public class HideAndSeekGame extends HideAndSeekLobby
 			}
 		}
 		
-		Announce.announce(players, (ChatColor.RED +newFinder.player.getDisplayName() +ChatColor.DARK_PURPLE +"is the seeker"));
+		Announce.announce(players, (ChatColor.RED +newFinder.player.getDisplayName() +ChatColor.DARK_PURPLE +" is the seeker"));
 	}
 	
-	public void chooseMap()
+/*	public void chooseMap()
 	{
 		if (Map.iMapID == 0)
 		{
@@ -97,7 +98,7 @@ public class HideAndSeekGame extends HideAndSeekLobby
 		Map.setMapFromMapID();
 		
 		//Announce choice of map
-		Announce.announce(players, (ChatColor.DARK_PURPLE +"The map choosen is "+ChatColor.BLUE +Map.szName +ChatColor.DARK_PURPLE+"by "+ChatColor.BLUE+Map.szCreator));
+		Announce.announce(players, (ChatColor.DARK_PURPLE +"The map choosen is "+ChatColor.BLUE +Map.szName +ChatColor.DARK_PURPLE+" by "+ChatColor.BLUE+Map.szCreator));
 	}
 	
 	public void teleportPlayers()
@@ -109,7 +110,7 @@ public class HideAndSeekGame extends HideAndSeekLobby
 			players[i].teleport(location);
 		}
 	}
-	
+	*/
 	public void game()
 	{
 		int i, j;
@@ -120,21 +121,47 @@ public class HideAndSeekGame extends HideAndSeekLobby
 		for (i = 0 ; i < this.finders.size() ; i++)
 		{
 			finders.get(i).player.sendMessage("You are restricted for 30 seconds");
+			finders.get(i).player.setWalkSpeed(0);
 			for (j = 0 ; j < hiders.size() ; j++)
 			{
 				finders.get(i).player.hidePlayer(hiders.get(j).player);
 			}
 		}
 		
+		//30 second countdown
+		this.plugin.getServer().getScheduler().scheduleSyncDelayedTask(this.plugin, new Runnable()
+		{
+			public void run()
+			{
+			}
+		}, 540L);
+				
+		for (i = 3 ; i > 0 ; i++)
+		{
+			Announce.announce(players, (ChatColor.GOLD +""+i));
+			Announce.playNote(players, Sound.ANVIL_LAND);
+			
+			this.plugin.getServer().getScheduler().scheduleSyncDelayedTask(this.plugin, new Runnable()
+			{
+				public void run()
+				{
+				}
+			}, 20L);
+		}
+				
+		Announce.announce(players, (ChatColor.GREEN +"GO!"));
+		Announce.playNote(players, Sound.FIREWORK_LARGE_BLAST2);
+		
 		//Then allow hiders to be found
 		for (i = 0 ; i < this.finders.size() ; i++)
 		{
-			finders.get(i).player.sendMessage("It is time to begin");
 			for (j = 0 ; j < hiders.size() ; j++)
 			{
 				finders.get(i).player.showPlayer(hiders.get(j).player);
 			}
 		}
+		
+		finders.get(i).player.setWalkSpeed(1);
 		
 		Announce.announce(players, (ChatColor.RED +"The seekers have been release"));
 		

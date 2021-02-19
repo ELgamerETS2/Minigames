@@ -1,9 +1,9 @@
 MySQL_host: LocalHost
 MySQL_port: 3306
-MySQL_database: LiveWeather
+MySQL_database: MinigameStats
 MySQL_username: newuser1
-MySQL_password: xxxx
-MySQL_weatherpreferences: WeatherPreferences
+MySQL_password: Carpet5555
+MySQL_stats: Stats
 timerInterval: 5
 XofSpawn:  
 YofSpawn: 

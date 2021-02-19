@@ -12,6 +12,7 @@ import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import Minigames.Games.HideAndSeek.HideAndSeekLobby;
+import Minigames.commands.HSBTest;
 
 public class minigamesMain extends JavaPlugin
 {
@@ -60,23 +61,13 @@ public class minigamesMain extends JavaPlugin
 		HideAndSeekLobby HSLobby = new HideAndSeekLobby(this);
 		
 		//Listeners
-		new JoinEvent(this);
-		new pTimeEvent(this);
+	//	new JoinEvent(this);
+	//	new pTimeEvent(this);
 		
 		//Commands
-		getCommand("svgsfhj").setExecutor(new CommandTingInnit());
+		getCommand("Test").setExecutor(new HSBTest());
 		
 		int minute = (int) 1200L;
-		
-		//Schedulers
-		this.getServer().getScheduler().scheduleSyncRepeatingTask(this, new Runnable()
-		{
-			public void run()
-			{
-				UpdateCall up = new UpdateCall(instance);
-				up.run();
-			}
-		}, 0L, minute * config.getInt("timerInterval"));
 	}
 	
 	@Override
@@ -179,8 +170,7 @@ public class minigamesMain extends JavaPlugin
 					"  `TimeStamp` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,\n" + 
 					"  `Game` VARCHAR(36) NOT NULL,\n" + 
 					"  `Points` Int NOT NULL,\n" + 
-					"   PRIMARY KEY (`UUID`,`TimeStamp`);\n" + 
-					"";
+					"   PRIMARY KEY (`UUID`,`TimeStamp`));";
 			SQL = connection.createStatement();
 
 			//Executes the update and returns how many rows were changed

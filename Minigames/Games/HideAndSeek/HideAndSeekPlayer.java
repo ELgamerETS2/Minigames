@@ -2,8 +2,10 @@ package Minigames.Games.HideAndSeek;
 
 import java.util.UUID;
 
+import org.bukkit.entity.Player;
+
 public class HideAndSeekPlayer
 {
-	public UUID uuid;
+	public Player player;
 	public boolean isFound
 }

@@ -9,10 +9,12 @@ import java.sql.Statement;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.configuration.file.FileConfiguration;
+import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import Minigames.Games.HideAndSeek.HideAndSeekLobby;
-import Minigames.commands.HSBTest;
+import Minigames.commands.HSBJoin;
+import Minigames.listeners.JoinEvent;
 
 public class minigamesMain extends JavaPlugin
 {
@@ -31,11 +33,15 @@ public class minigamesMain extends JavaPlugin
 	private String PASSWORD;
 	public String STATS;
 	
+	public HideAndSeekLobby HSLobby;
+	
+	public Plugin plugin;
+	
 	Connection connection = null;
     
 	boolean bIsConnected;
 	
-	private String DB_CON = "jdbc:mysql://LocalHost/LiveWeather";
+	private String DB_CON;
 
 	@Override
 	public void onEnable()
@@ -49,25 +55,37 @@ public class minigamesMain extends JavaPlugin
 		boolean bSuccess;
 		mysqlSetup();
 		bSuccess = connect();
-
+		
+		bIsConnected = false;
+		
 		if (bSuccess)
 		{
-			Bukkit.getConsoleSender().sendMessage(ChatColor.GREEN + "MYSQL CONNECTED");
+			Bukkit.getConsoleSender().sendMessage(ChatColor.GREEN + "[Minigames] MYSQL CONNECTED");
+			bIsConnected = true;
 		}
 
-		//Creates the mysql table if not already exists
+		//Creates the MySQL table if not already exists
 		createStatsTable();
 		
-		HideAndSeekLobby HSLobby = new HideAndSeekLobby(this);
+		//--------------------------------------
+		//------------Create lobbies------------
+		//--------------------------------------
 		
-		//Listeners
-	//	new JoinEvent(this);
-	//	new pTimeEvent(this);
+		HSLobby = new HideAndSeekLobby(this);
 		
-		//Commands
-		getCommand("Test").setExecutor(new HSBTest());
 		
-		int minute = (int) 1200L;
+		//--------------------------------------
+		//--------------Listeners--------------
+		//--------------------------------------
+		
+		new JoinEvent(this);
+		
+		
+		//--------------------------------------
+		//---------------Commands---------------
+		//--------------------------------------
+		getCommand("hide").setExecutor(new HSBJoin());
+		
 	}
 	
 	@Override
@@ -126,29 +144,28 @@ public class minigamesMain extends JavaPlugin
 			Bukkit.getConsoleSender().sendMessage(ChatColor.RED + "minigamesMain - Other Exception - "+e.getMessage());			
 			return false;
 		}
-		finally
-		{
-			
-		}
 	}
 	public void disconnect()
 	{
 		try
 		{
-			this.connection.close() ;
-			this.bIsConnected = false ;
+			if (bIsConnected)
+			{
+				this.connection.close() ;
+				this.bIsConnected = false ;
+			}
 		//	System.err.println( this.getClass().getName() + ":: disconnected." ) ;
 		}
 		catch ( SQLException se )
 		{
 			System.err.println( this.getClass().getName() + ":: SQL error " + se ) ;
 			se.printStackTrace() ;
-			Bukkit.getConsoleSender().sendMessage(ChatColor.RED + "minigamesMain - SQLException");			
+			Bukkit.getConsoleSender().sendMessage(ChatColor.RED + "minigamesMain - SQLException - closing connection");			
 		}
 		catch ( Exception e )
 		{
 			System.err.println( this.getClass().getName() + ":: error " + e ) ;
-			Bukkit.getConsoleSender().sendMessage(ChatColor.RED + "minigamesMain - Exception");			
+			Bukkit.getConsoleSender().sendMessage(ChatColor.RED + "minigamesMain - Exception - closing connection");			
 			e.printStackTrace() ;
 		}
 		finally
@@ -179,7 +196,7 @@ public class minigamesMain extends JavaPlugin
 			//If only 1 record was changed, success is set to true
 			if (iCount == 1)
 			{
-				Bukkit.getConsoleSender().sendMessage(ChatColor.AQUA + "Created minigame stats table");			
+				Bukkit.getConsoleSender().sendMessage("[Minigames]" +ChatColor.AQUA + "Created minigame stats table");			
 				bSuccess = true;
 			}
 		}

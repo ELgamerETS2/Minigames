@@ -30,7 +30,6 @@ public class DamageDone implements Listener
 		this.mainPlugin = mainPlugin;
 		this.plugin = plugin;
 		Bukkit.getServer().getPluginManager().registerEvents(this, mainPlugin);
-		Bukkit.getConsoleSender().sendMessage(ChatColor.GREEN + "BigMoveEvent ready");
 	}
 	
 	@EventHandler
@@ -76,6 +75,11 @@ public class DamageDone implements Listener
 			
 			//Announces to all players that a player has been found
 			Announce.announce(this.plugin.players, (ChatColor.BLUE +hider.getCustomName() +ChatColor.DARK_PURPLE +" was found by "+ChatColor.BLUE +finder.getCustomName()));
+			
+			if (plugin.hiders.size() == 0)
+			{
+				this.plugin.bTerminate = true;
+			}			
 		}
 	}
 } //End Class

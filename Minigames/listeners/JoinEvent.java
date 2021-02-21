@@ -9,11 +9,10 @@ package Minigames.listeners;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.GameMode;
-import org.bukkit.Location;
-import org.bukkit.World;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerJoinEvent;
+import org.bukkit.event.player.PlayerQuitEvent;
 
 import Minigames.minigamesMain;
 
@@ -23,7 +22,7 @@ public class JoinEvent implements Listener
 	
 	public JoinEvent(minigamesMain plugin)
 	{
-		Bukkit.getConsoleSender().sendMessage(ChatColor.GREEN + "JoinEvent loaded");
+		Bukkit.getConsoleSender().sendMessage("[Minigames]" +ChatColor.GREEN + " JoinEvent loaded");
 		this.plugin = plugin;
 		Bukkit.getServer().getPluginManager().registerEvents(this, plugin);
 	}
@@ -31,12 +30,20 @@ public class JoinEvent implements Listener
 	@EventHandler
 	public void playerJoin(PlayerJoinEvent event)
 	{
-		Bukkit.getConsoleSender().sendMessage(ChatColor.GREEN + "Player joined minigames server, setting to spawn");
+		Bukkit.getConsoleSender().sendMessage("[Minigames] " +ChatColor.GREEN + "Player joined minigames server, setting to spawn");
 	//	Location location = new Location(World, plugin.getConfig().getDouble("XofSpawn"), plugin.getConfig().getDouble("YofSpawn"), plugin.getConfig().getDouble("ZofSpawn"));
 		
 		event.getPlayer().setGameMode(GameMode.SURVIVAL);
+		event.getPlayer().sendMessage(ChatColor.GREEN + "Welcome to UK Minigames!");
 	//	event.getPlayer().teleport(location);
 	}
+	@EventHandler
+	public void playerLeave(PlayerQuitEvent event)
+	{
+		Bukkit.getConsoleSender().sendMessage("[Minigames] Player left, removing from game lobbies");
+		plugin.HSLobby.playerLeaveLobby(event.getPlayer());
+	}
+	
 } //End Class
 
 //Created by Bluecarpet in London

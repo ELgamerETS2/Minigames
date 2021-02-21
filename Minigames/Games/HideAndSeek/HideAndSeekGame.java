@@ -3,6 +3,7 @@ package Minigames.Games.HideAndSeek;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Sound;
 import org.bukkit.entity.Player;
@@ -18,7 +19,11 @@ public class HideAndSeekGame
 	public int iFinders;
 	public HideAndSeekMap Map;
 	
+    public HideAndSeekGame HSG;
+    
 	private final minigamesMain plugin;
+	
+	public boolean bTerminate;
 	
 	public HideAndSeekGame(Player[] players, int iFinders, int iMap, minigamesMain plugin) //Input to be from lobby for whatever preferences are decided
 	{
@@ -28,6 +33,7 @@ public class HideAndSeekGame
 		Map = new HideAndSeekMap(iMap);
 		finders = new ArrayList<HideAndSeekFinder>();
 		hiders = new ArrayList<HideAndSeekHider>();
+		bTerminate = false;
 	}
 	
 	public void highGameProcesses()
@@ -38,38 +44,67 @@ public class HideAndSeekGame
 		//Chooses map
 	//	chooseMap();
 		
-		//Countdown
-		for (int iNumber = 10 ; iNumber > 0 ; iNumber--)
-		{
-			this.plugin.getServer().getScheduler().scheduleSyncDelayedTask(this.plugin, new Runnable()
-			{
-				public void run()
-				{
-				}
-			}, 20L);
-			Announce.announce(players, (ChatColor.DARK_PURPLE +""+iNumber +" Seconds until start"));
-		}
-		
+		//Starts 10 second countdown into game
+        Bukkit.getScheduler().runTaskTimer(this.plugin, new Runnable()
+        {
+            int time = 10; //or any other number you want to start countdown from
+            @Override
+            public void run()
+            {
+                if (this.time == 0)
+                {
+                    return;
+                }
+    			Announce.announce(players, (ChatColor.DARK_PURPLE +""+time +" Seconds until start"));
+                this.time--;
+            }
+        }, 0L, 20L);
+        
 		//Teleport players and get them fitted
 	//	teleportPlayers();
 		
-		//Actual gameplay
-		game();
+        //Run game after 10 seconds
+        Bukkit.getScheduler().runTaskLater(this.plugin, new Runnable()
+        {
+            @Override
+            public void run()
+            {
+        		//Actual gameplay
+        		game();
+            }
+        }, 200L);
 	}
 	
-	public void createTeams()
+	private void createTeams()
 	{
-		int i;
+		int i, j;
 		int iRandom = -1;
 		HideAndSeekFinder newFinder = null;
 		HideAndSeekHider newHider;
+		boolean bUnique;
 		
 		//Find a seeker
 		for (i = 0 ; i < iFinders ; i++) 
 		{
-			iRandom = ((int) Math.random() * players.length);
+			bUnique = true;
+			
+			iRandom = ((int) (Math.random() * players.length));
 			newFinder = new HideAndSeekFinder(players[iRandom]);
-			finders.add(newFinder);
+			for (j = 0 ; j < finders.size() ; j++) 
+			{
+				//Catches whether the finder selected is already in the list
+				if (finders.get(j).player.equals(players[iRandom]))
+				{
+					bUnique = false;
+					break;
+				}
+			}
+			
+			//Tests whether they weren't found in the list already
+			if (bUnique)
+				finders.add(newFinder);
+			else
+				i--;
 		}
 		
 		//Add the hiders
@@ -82,7 +117,12 @@ public class HideAndSeekGame
 			}
 		}
 		
-		Announce.announce(players, (ChatColor.RED +newFinder.player.getDisplayName() +ChatColor.DARK_PURPLE +" is the seeker"));
+		//Announce finders
+		for (i = 0 ; i < iFinders ; i++)
+		{
+			newFinder = new HideAndSeekFinder(players[iRandom]);
+			Announce.announce(players, (ChatColor.RED +newFinder.player.getDisplayName() +ChatColor.DARK_PURPLE +" is a seeker"));
+		}
 	}
 	
 /*	public void chooseMap()
@@ -111,10 +151,10 @@ public class HideAndSeekGame
 		}
 	}
 	*/
-	public void game()
+	private void game()
 	{
 		int i, j;
-		
+		Announce.announce(players, (ChatColor.GREEN +"The game has begun"));
 		Announce.announce(players, (ChatColor.GREEN +"There are 30 seconds for hiders to hide"));
 		
 		//For 30 seconds let hiders hide and restrain the seekers
@@ -122,52 +162,69 @@ public class HideAndSeekGame
 		{
 			finders.get(i).player.sendMessage("You are restricted for 30 seconds");
 			finders.get(i).player.setWalkSpeed(0);
+			finders.get(i).player.setFlySpeed(0);
 			for (j = 0 ; j < hiders.size() ; j++)
 			{
 				finders.get(i).player.hidePlayer(hiders.get(j).player);
 			}
 		}
 		
-		//30 second countdown
-		this.plugin.getServer().getScheduler().scheduleSyncDelayedTask(this.plugin, new Runnable()
-		{
-			public void run()
-			{
-			}
-		}, 540L);
-				
-		for (i = 3 ; i > 0 ; i++)
-		{
-			Announce.announce(players, (ChatColor.GOLD +""+i));
-			Announce.playNote(players, Sound.ANVIL_LAND);
-			
-			this.plugin.getServer().getScheduler().scheduleSyncDelayedTask(this.plugin, new Runnable()
-			{
-				public void run()
-				{
-				}
-			}, 20L);
-		}
-				
-		Announce.announce(players, (ChatColor.GREEN +"GO!"));
-		Announce.playNote(players, Sound.FIREWORK_LARGE_BLAST2);
+        Bukkit.getScheduler().runTaskTimer(this.plugin, new Runnable()
+        {
+            int time = 3; //or any other number you want to start countdown from
+
+            @Override
+            public void run()
+            {
+                if (this.time == 0)
+                {
+                    return;
+                }
+			    Announce.announce(players, (ChatColor.GOLD +""+time));
+			//	Announce.playNote(players, Sound.GLASS);             
+                this.time--;
+            }
+        }, 27*20L, 20L);
+        
+        HSG = this;
+        
+        Bukkit.getScheduler().runTaskLater(this.plugin, new Runnable()
+        {
+            @Override
+            public void run()
+            {
+            	int i, j;
+        		Announce.announce(players, (ChatColor.GREEN +"GO!"));
+        	//	Announce.playNote(players, Sound.FIREWORK_BLAST);
+        		
+        		//Then allow hiders to be found
+        		for (i = 0 ; i < finders.size() ; i++)
+        		{
+        			finders.get(i).player.setWalkSpeed(0.1F);
+        			finders.get(i).player.setFlySpeed(0.1F);
+        			for (j = 0 ; j < hiders.size() ; j++)
+        			{
+        				finders.get(i).player.showPlayer(hiders.get(j).player);
+        			}
+        		}
+        		
+        		Announce.announce(players, (ChatColor.RED +"The seekers have been release"));
+        		
+            }
+        }, 600L);
 		
-		//Then allow hiders to be found
-		for (i = 0 ; i < this.finders.size() ; i++)
-		{
-			for (j = 0 ; j < hiders.size() ; j++)
-			{
-				finders.get(i).player.showPlayer(hiders.get(j).player);
-			}
-		}
-		
-		finders.get(i).player.setWalkSpeed(1);
-		
-		Announce.announce(players, (ChatColor.RED +"The seekers have been release"));
-		
-		//Listeners
-		new DamageDone(this, plugin);
-		
+        if (bTerminate)
+        {
+        	Announce.announce(players, "Game terminated");
+       // 	return true;
+        }
+        
+        //Listeners
+		new DamageDone(HSG, plugin);
+	}
+	
+	private void terminate()
+	{
 		
 	}
 }

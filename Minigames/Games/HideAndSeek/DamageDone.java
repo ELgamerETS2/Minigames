@@ -38,7 +38,7 @@ public class DamageDone implements Listener
 		int i, j;
 		
 		//Checks whether it is a PVP event
-		if (event.getDamager().getType() == EntityType.PLAYER && event.getEntity().getType() == EntityType.PIG_ZOMBIE)
+		if (event.getDamager().getType() == EntityType.PLAYER && event.getEntity().getType() == EntityType.PLAYER)
 		{
 			//Convert damager to player
 			Player finder = (Player) event.getDamager();

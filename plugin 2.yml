@@ -1,8 +1,0 @@
-name: Minigames
-version: 1.0.3
-main: Minigames.minigamesMain
-description: Minigames
-commands:
-    test:
-        usage: /<command>
-        description: Allows the player to test a match

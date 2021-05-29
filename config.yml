@@ -1,10 +1,24 @@
 MySQL_host: LocalHost
 MySQL_port: 3306
 MySQL_database: MinigameStats
-MySQL_username: newuser1
-MySQL_password: xxxx
+MySQL_username: 
+MySQL_password: 
+MySQL_HideAndSeekMaps: HideAndSeekMaps
+MySQL_RiverRaceMaps: RiverRaceMaps
+MySQL_CastleDefenceMaps: CastleDefenceMaps
+MySQL_games: Games
 MySQL_stats: Stats
-timerInterval: 5
-XofSpawn:  
-YofSpawn: 
-ZofSpawn: 
+MySQL_lobbies: Lobbies
+StatisticsSignUpdates: 10
+EmergencyLobbyName:
+EmergencyLobbyVersion:
+EmergencyLobbyX:
+EmergencyLobbyY:
+EmergencyLobbyZ:
+EmergencyLobbyWorldName:
+HideX: 
+HideY: 
+HideZ: 
+HideMininumPlayers: 
+HideTimer: 
+SeekerSpeed: 

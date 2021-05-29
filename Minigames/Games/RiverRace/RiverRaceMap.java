@@ -1,59 +1,55 @@
-package Minigames.Games.HideAndSeek;
+package Minigames.Games.RiverRace;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 
 import org.bukkit.Bukkit;
-import org.bukkit.Location;
 import org.bukkit.World;
 
 import Minigames.minigamesMain;
 
-public class HideAndSeekMap
+public class RiverRaceMap
 {
-	public int iMapID;
-	public String szLocation;
-	public String szCreator;
-	public World mapWorld;
+	private int iMapID;
+	private String szLocation;
+	private World mapWorld;
 	private String szMapWorld;
 	
-	public double[] spawnCoordinates;
-	public long iWait;
-	
-	//Contructors
-	public HideAndSeekMap(int iMap)
+	public RiverRaceMap()
 	{
-		this.iMapID = iMap;
-		this.spawnCoordinates = new double[3];
-		this.szCreator = "";
-		this.szLocation = "";
+		
 	}
 	
-	public HideAndSeekMap()
-	{
-		this.iMapID = 0;
-		this.spawnCoordinates = new double[3];
-		this.szCreator = "";
-		this.szLocation = "";
-		this.iWait = 0;
-	}
-	
-	public HideAndSeekMap(String szLocation, String szCreator, String szMapWorld, Location location, String szWait)
+	public RiverRaceMap(String szLocation, String szMapWorld)
 	{
 		this.szLocation = szLocation;
-		this.szCreator = szCreator;
 		this.szMapWorld = szMapWorld;
-		this.spawnCoordinates = new double[3];
-		this.spawnCoordinates[0] = location.getBlockX();
-		this.spawnCoordinates[1] = location.getBlockY();
-		this.spawnCoordinates[2] = location.getBlockZ();
-		this.iWait = Integer.parseInt(szWait);
 	}
 	
-	public HideAndSeekMap(String szLocation)
+	public RiverRaceMap(String szLocation)
 	{
 		this.szLocation = szLocation;
+	}
+	
+	public RiverRaceMap(int iMapID)
+	{
+		this.iMapID = iMapID;
+	}
+	
+	public int getMapID()
+	{
+		return iMapID;
+	}
+	
+	public String getLocation()
+	{
+		return szLocation;
+	}
+	
+	public World getWorld()
+	{
+		return mapWorld;
 	}
 	
 	//SQL setters
@@ -69,7 +65,7 @@ public class HideAndSeekMap
 		try
 		{
 			//Collects all fields for the specified EID
-			sql = "SELECT * FROM "+minigamesMain.getInstance().HideAndSeekMaps +" WHERE MapID = \""+this.iMapID +"\"";
+			sql = "SELECT * FROM "+minigamesMain.getInstance().RiverRaceMaps +" WHERE MapID = \""+this.iMapID +"\"";
 			
 			SQL = minigamesMain.getInstance().getConnection().createStatement();
 			resultSet = SQL.executeQuery(sql);
@@ -79,7 +75,7 @@ public class HideAndSeekMap
 			//If no user is found, program will notify thing
 			if (bSuccess == false)
 			{
-				System.out.println("[Minigames] [HideAndSeekMap] [DB] Setting preferences from MapID: No map found with MapID "+this.iMapID);
+				System.out.println("[Minigames] [RiverRaceMaps] [DB] Setting preferences from MapID: No map found with MapID "+this.iMapID);
 			}
 			//Checks that there is only 1 record returned
 			else if (resultSet.next() == false)
@@ -91,12 +87,7 @@ public class HideAndSeekMap
 				
 				//Stores results into the object
 				this.szLocation = resultSet.getString("Location");
-				this.szCreator = resultSet.getString("Creator");
 				this.mapWorld = minigamesMain.getInstance().getServer().getWorld(resultSet.getString("MapWorld"));
-				this.spawnCoordinates[0] = resultSet.getDouble("StartX");
-				this.spawnCoordinates[1] = resultSet.getDouble("StartY");
-				this.spawnCoordinates[2] = resultSet.getDouble("StartZ");
-				this.iWait = (long) (resultSet.getInt("Wait"));
 			}
 			else
 			{
@@ -109,9 +100,55 @@ public class HideAndSeekMap
 		}
 	}
 	
-	//Collects list of hide and seek mapIDs
-	public static int[] hideAndSeekMapIDs()
-	{		
+	public void setMapIDFromName()
+	{
+		boolean bSuccess = false;
+		
+		String sql;
+		
+		Statement SQL = null;
+		ResultSet resultSet = null;
+		
+		try
+		{
+			//Collects all fields for the specified EID
+			sql = "SELECT * FROM "+minigamesMain.getInstance().RiverRaceMaps +" WHERE Location = \""+this.szLocation +"\"";
+			
+			SQL = minigamesMain.getInstance().getConnection().createStatement();
+			resultSet = SQL.executeQuery(sql);
+			//Moves the curser to the next line
+			bSuccess = resultSet.next();
+			
+			//If no user is found, program will notify thing
+			if (bSuccess == false)
+			{
+				System.out.println("[Minigames] [RiverRaceMaps] [DB] Setting MapID from Location: No map found with Location "+this.szLocation);
+			}
+			//Checks that there is only 1 record returned
+			else if (resultSet.next() == false)
+			{
+				//Runs if there is no second record
+				//Colects results again
+				resultSet = SQL.executeQuery(sql);
+				resultSet.next();
+				
+				//Stores results into the object
+				this.iMapID = resultSet.getInt("MapID");
+			}
+			else
+			{
+				System.out.println("Setting MapID from Location: More than one map found");
+			}
+		}
+		catch (SQLException e)
+		{
+			e.printStackTrace();
+		}
+	}
+	
+	//Collects list of River Race mapIDs
+	public static int[] MapIDs()
+	{
 		String sql;
 		
 		Statement SQL = null;
@@ -119,7 +156,7 @@ public class HideAndSeekMap
 		
 		int i;
 		
-		//Counts total amount of hdie and seek maps first
+		//Counts total amount of maps first
 		int iCount = count();
 		
 		//Initiates the int array for storing MapIDs with length of the amount of maps just found
@@ -134,8 +171,8 @@ public class HideAndSeekMap
 		try
 		{
 			//Collects all maps
-			sql = "SELECT * FROM "+minigamesMain.getInstance().HideAndSeekMaps;
-			Bukkit.getConsoleSender().sendMessage("[Minigames] [Select * From HideAndSeekMaps]: "+sql);
+			sql = "SELECT * FROM "+minigamesMain.getInstance().RiverRaceMaps;
+			Bukkit.getConsoleSender().sendMessage("[Minigames] [Select * From RiverRaceMaps]: "+sql);
 			
 			//Executes the query
 			SQL = minigamesMain.getInstance().getConnection().createStatement();
@@ -158,7 +195,7 @@ public class HideAndSeekMap
 		return iMapIDs;
 	}
 	
-	//Counts the amount of hide and seek maps
+	//Counts the amount of maps
 	public static int count()
 	{
 		boolean bSuccess = false;
@@ -173,8 +210,8 @@ public class HideAndSeekMap
 		try
 		{
 			//Collects all maps
-			sql = "SELECT * FROM "+minigamesMain.getInstance().HideAndSeekMaps;
-			Bukkit.getConsoleSender().sendMessage("[Minigames] [Count of HideAndSeekMaps]: "+sql);
+			sql = "SELECT * FROM "+minigamesMain.getInstance().RiverRaceMaps;
+			Bukkit.getConsoleSender().sendMessage("[Minigames] [Count of RiverRaceMaps]: "+sql);
 			
 			SQL = minigamesMain.getInstance().getConnection().createStatement();
 			resultSet = SQL.executeQuery(sql);
@@ -216,17 +253,12 @@ public class HideAndSeekMap
 		try
 		{
 			//Compiles the command to add the new user
-			sql = "INSERT INTO `"+minigamesMain.getInstance().HideAndSeekMaps
-					+"` (`Location`, `Creator`, `MapWorld`, `StartX`, `StartY`, `StartZ`, `Wait`)"
+			sql = "INSERT INTO `"+minigamesMain.getInstance().RiverRaceMaps
+					+"` (`Location`, `MapWorld`)"
 					+ " VALUES("
 					+ "\""+szLocation+"\", "
-					+ "\""+szCreator+"\", "
-					+ "\""+szMapWorld+"\", "
-					+ spawnCoordinates[0] +", "
-					+ spawnCoordinates[1] +", "
-					+ spawnCoordinates[2] +", "
-					+ (int) iWait + ");";
-			Bukkit.getConsoleSender().sendMessage("[Minigames] [Add to HideAndSeekMaps]: "+sql);
+					+ "\""+szMapWorld+"\");";
+			Bukkit.getConsoleSender().sendMessage("[Minigames] [Add to RiverRaceMaps]: "+sql);
 			SQL = minigamesMain.getInstance().getConnection().createStatement();
 			
 			//Executes the update and returns the amount of records updated
@@ -250,7 +282,7 @@ public class HideAndSeekMap
 		return bSuccess;
 	}
 	
-	//Delete  map
+	//Delete map
 	public int deleteMap()
 	{
 		int iCount = -1;
@@ -258,11 +290,22 @@ public class HideAndSeekMap
 		
 		Statement SQL = null;
 		
+		//Deletes all the start grids for the map
+		RiverRaceStartGrid.deleteAllForMap(this.iMapID);
+		this.setMapFromMapID();
+		
+		//Delete the checkpoints
+		RiverRaceCheckpoint[] CheckPoints = RiverRaceCheckpoint.getAllForMapID(this.iMapID, this.getWorld());
+		for (int i = 0 ; i < CheckPoints.length ; i++)
+		{
+			RiverRaceCheckpoint.deleteCheckpoint(CheckPoints[i].getCheckpointID());
+		}
+		
 		try
 		{
 			//Compiles the command to add the new user
-			sql = "DELETE FROM `"+minigamesMain.getInstance().HideAndSeekMaps +"` Where Location = \""+szLocation+"\"";
-			Bukkit.getConsoleSender().sendMessage("[Minigames] [Deleting a HideAndSeekMaps]: "+sql);
+			sql = "DELETE FROM `"+minigamesMain.getInstance().RiverRaceMaps +"` Where Location = \""+szLocation+"\"";
+			Bukkit.getConsoleSender().sendMessage("[Minigames] [Deleting a River Race map]: "+sql);
 			
 			SQL = minigamesMain.getInstance().getConnection().createStatement();
 			

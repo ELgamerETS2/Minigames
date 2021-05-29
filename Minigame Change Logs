@@ -1,0 +1,369 @@
+
+1.4.0 - Maps Database and HideandSeek Gameplay Update:
+-Fixes messages when saying someone new has joined a game lobby
+Unsuccesful-Prevents mods from starting games which are already running
+-Adds coords of the virtual lobbies to config file
+-Adds feature to remove someone from a game if they leave the server
+    -Does necessary affect to game
+
+-Adds Maps database table
+-Adds feature to allow different wait times per map
+-Reintroduces random map choice
+
+1.4.1
+-Fixes an uninitialised array error when loading the hide and seek start coords into the double[] spawnCoords
+
+1.4.2
+-Attempts to fix an issue where if a player left during the game, the playerLeave function in the game class was not called
+
+1.4.3
+-Fixes an issue where seekers would be released too early
+-Adds some debug outputs
+
+1.4.4
+-Fixes issue where only map 1 would be selected
+
+1.4.5
+-Attempts to fix an issue where mod could start a game when there is already one running
+-Adds feature which empties the lobby player list when a game starts and refills the lobby with the remaining players from the game when it ends
+
+1.4.6
+-Fixes an error which caused the thread to be in an infinite loop by implementing wait() after game() was called. NotifyAll is called when a game is terminated.
+-The led to show the error referenced in 1.4.5 was fixed successfully by keeping the thread at standby until the game finished.
+
+1.4.7
+-Adds feature to allow mods to end a game
+    -Supports testing of 1.4.5/1.4.6
+
+1.4.8
+-Reverts the thread halting back to letting the game finish.
+-When the game finishes, the terminate function is called and only when that is called does gameIsRunning get set back false
+-Removes the gameIsRunning from being set back to false immediately after game is called.
+-Adds temporary permissions to stop anyone but George112n from using /hide start and /hide end
+
+1.4.9
+-Removes someone from the game if they are in the game and do /hide
+-Terminates the game when the last hider is found
+-Fixes player found message and actions
+-Resets the game class when a game is terminated
+    - Does not remove DamageDone listener tho?
+
+1.4.9.1
+-Adds check to see if game is running before trying to remove a player from a non initialised game when they do /hide
+
+1.4.10
+-Prevents mod from ending game when one is not running
+-Prevents mod from starting game when less than two people are in the lobby
+-Fixed issue where hiders were not added to the hiders list which resulting in many bugs
+
+1.4.11
+-Attempts to fix incorrect speed when releasing seekers
+-Attempts to stop DamageDone when game is terminated
+-Attempts to support stopping the game if game is stopped before DamageDone is loaded
+-Blocks game from being terminated by DamageDone if it is not running
+
+1.4.11.1
+-Adds message to say speed of player before it is changed via the plugin to diagnose what speed it should be setting seekers back to
+
+1.4.12
+-Removes previous message
+-Replaces speed after releasing seekers from 0.1 to 0.2
+-Reintroduces teleportation to map locations
+
+1.4.13
+-Unregisters listener properly
+-Removes pointless checks for whether the game has terminated
+-Tidies DamageDone
+
+1.4.14
+-Add prevention of listener being unregistered before it was registered
+-Adds checks whether the game has terminated again
+
+1.4.15
+-Change so that it now uses the main playerJoinLobby function when adding players back into lobby from a game just finished
+    -Means that lobby messages appear
+
+
+1.5.0 - Statistics and Database Update
+
+-Creates a database for storing each individual game so points can reference it
+    -Int GameID
+    -Enum GameType
+    -Int MapID
+    -Time TimeStart
+    -Time TimeEnd
+
+-Normalises all three tables
+    -Adjusts map table to help referencing across all three current tables
+    -Adjusts the previous stats table to reference individual Games.gameIDs and to remove fields now stored in Game or Map
+
+-Updates HideAndSeekMap class to correspond with HideAndSeekMaps table in database
+
+-Creates new Game class to correspond with Games table in database
+    -Int GameID
+    -GametypeEnum GameType
+    -Int MapID - Not fully confirmed yet
+    -Sql.Time TimeStart
+    -Sql.Time TimeEnd
+
+-Updates StatRecord class to correspond with Stats table in database
+    -UUID uUuid
+    -Game game
+    -int iPoints
+
+-Updates count() method in HideAndSeekMap class to only include hide and seek maps
+-Adds a new hideAndSeekMapIDs() method to collect all hide and seek MapIDs
+-Updates map selection procedure in hide and seek to incorporate this
+
+-Updates fields in minigamesMain to hold the name of the table in the database for
+    -HideAndSeekMaps
+    -CastleDefenceMaps
+    -GAMES
+    -STATS
+
+-Updates MySQL set up to get fields of HideAndSeekMaps and CastleDefenceMaps
+
+-Creates new Minigames.statistics package
+   -Includes:
+     -Update Call
+     -StatRecord
+-Creates a template for a repeating task in main for the update of statistics charts in the lobby
+    -Timer interval added to config
+    -UpdateCall class handles this
+-Creates template to add all the days statistics to the 2nd level database when the server restarts
+
+1.5.Beta1
+-Initial test version
+
+1.5.Beta2
+-Introduces a 6 second gap between last player found and game ending
+-Change colour of final seeker/hider left message to green
+-Removed ... from "The game has ended!..."
+-Change colour of ..."was found by"... from dark purple to green
+
+1.5.Beta3 - Compiled as 1.5.0
+-Fixed null was killed by null by changing from .getCustomName to .getDisplayName()
+-Set game to ended before 6 second gap. This prevents /hide end being executed over and over again
+
+-Added points in. A hider receives points equal to the amount of finders there were when they were found.
+    -I.e, if they were last to be found in a big game of 12, they get 11 points.
+    -If they were last to be found in a game of 5, they get 4
+    -This also encourages larger games
+-Develops StatsRecord
+-Creates new Statistics Class to handle adding stats into the table after a game
+    -Is called from the lobby of each game during gameFinished
+    -Has methods to handle each type of game. Takes in a list of players for example, GameID always and the CorePlugin
+    -Main task is to populate its StatRecord array and then call each StatRecord to be pushed to DB
+
+-Adds Usage for Games table
+-Game class is now set up to record whenever a game is run.
+-Implements the game class into HideAndSeekGame
+
+-Stats incorporate the Game class and use the GameID to store game in database
+
+1.5.1
+-Fixed SQL error adding in new Game to Games database due to a lack of commas in syntax
+
+1.5.2
+-Fixes SQL syntax error adding TimeEnd to Game Record
+
+1.5.2.1
+-Fixes SQL syntax error adding TimeEnd to Game Record. executeQuery to executeUpdate
+
+1.5.2.2
+-More fixes for above error
+-Addresses the Game in StatRecord not being initialised causing no stats to be recorded to database
+
+1.5.2.3
+-Fixes to StatRecord adding syntax. Didn't have commas between the values.
+1.5.2.4
+-Fixes to StatRecord adding syntax. Had an extra comma after the last value
+1.5.2.5
+-Attempted to fix foreign key constraint failed
+1.5.3
+-Added debug outputs to show sql command that is being executed when a stat record is added
+-Adds console output confirming when the TimeEnd is added to a Game in Games table
+1.5.4
+-Edits to Stats insert statement syntax
+-Changed TimeStart and TimeEnd to a timestamp in database
+-Changed points to include amount of player a seeker found
+-Added debug messages for sql command adding game end
+-Added debug messages saying the gameID being passed into a new stats record
+-Changed Game.java to use timeEnd field. Hide and seek game update to call setTimeEnd()
+1.5.5
+-Traced GameID error to not getting the GameID after the game is created in the database.
+-Created function to get last inserted id from database
+-Removed useless debugs
+-Changed lots of syso to Console senders
+1.5.5.1
+-Fixed error in the getLastID function
+1.5.5.2
+-Edited console message of sql statement to insert new game
+1.5.5.3
+-Fixed error whereby the nth finder was removed from the list instead of the nth hider when they had been found
+1.5.5.4
+-Fixes more errors in Damage Done
+--------------------------------------------------------------------------
+1.6.0 - Lobby DB update
+-Adds Lobby DB Table name to config and Main
+1.6.0.1
+-Fixes Config name error
+1.6.0.2
+-Fixes random number for random lobby +1 error
+1.6.0.3
+-Fixes count of active lobbies starting at -1. Changed to start at 0.
+1.6.0.4
+-Fixes hide and seek lobby incorrect field names in code for world and start location of virtual lobby
+1.6.1
+-Actually fixed above problem by adding hide and seek platform locations to the lobbies database
+-Adjusted MainLobby class to add DB interface for this
+1.6.1.0
+-Attempts to fix hide lobby teleport errors
+1.6.1.1
+-Attempts to fix hide lobby teleport errors by removing need for the world to be used
+1.6.1.2
+-Attempts to fix hide lobby teleport errors by using correct world name to location name of main lobby for hide lobby
+1.6.1.3
+-Adds console output to display details of hide and seek lobby after creation
+1.6.1.4
+-Adds console output to display details of hide and seek lobby just before teleported
+-Adds console output to display details of Main Lobby after creation
+-Moved setting game mode to adventure and welcome message after player teleported to world
+1.6.1.5
+-More debug and minor changes to key and fix error
+1.6.1.6
+-Attempts to load the world using mv just after lobby is selected
+1.6.1.7
+-Changes the syntax of mv command
+1.6.1.8
+-Adds mv core as a dependency of Minigames so that it can use mv to load the lobby world
+1.6.1.9
+-Removes debug outputs
+
+--------------------------------------------------------------------------
+1.7.0 - Stats display update
+-Adds permission nodes for /hide [start/end]
+-Adds stats command to access individual stats, with permission nodes
+    - /mystats
+      - Shows 1. Total points, 2. Total games played, 3. Total time played
+1.7.0.1
+-Added "" to uuid is sql syntax
+1.7.0.2
+-Adds initialising stats record array when collecting all stats records in order to fix a null pointer exception
+1.7.0.3
+-Adds initialising game object within above stats record
+1.7.0.4
+-Fixes before start of results set error in Game.setGameByID by moving cursor on 1 before collecting results
+1.7.0.5
+-Added space in output:
+-"Total time played:X Minutes" --> "Total time played: X Minutes"
+1.7.1
+-Adds /mystats hide
+(Ability for user to specify game)
+1.7.2
+-Adds ability for a player to leave a hide and seek lobby with /hide leave
+
+--------------------------------------------------------------------------
+1.8.0 - Map adding commands update
+-Adds /map add [Location] [Creator] [Wait]
+1.8.0.1
+-Small changes in output when /map is run to ensure the ------- header is always shown
+1.8.0.2
+-Small changes in output when /map is run to ensure that the colon after 'Help' is always shown
+1.8.0.3
+-Adds message in to tell user that there has been an error if the amount of maps that have been delete are -1 when using /map delete
+-Displays /map add or /map delete help dialogue for commands with more that 4 arguments when add or delete are the first argument
+-Removes special detection of args length == 1 and == 3 since it is the same as default outcome
+-Attempts to fix errors with sql syntax when added and deleting maps
+-Introduces console outputs of SQL commands in HideAndSeekMap class
+1.8.0.4
+-Adds separate outcome for if no args are used with /map, to avoid error
+1.8.0.5
+-Fixes delete error where the Location value was not in quotes
+-Resets DB entirely and ensures MapID is auto incremented in order to fix error where no MapID was given when adding new map
+-Fixes SQL for creating HideAndSeekMaps table and Games table
+1.8.0.6
+-Fixes small error in confirmation output of deleting maps
+-Removes /map add help message from being displayed if the correct number of args are inputed
+1.8.1
+-Adds emergency lobby details in config for when there is no lobby available from the lobbies database
+1.8.1.1
+-Adds Lobbies DB to main
+1.8.2
+-Added boolean variable which is set to true only after the gameplay started and the game was aded to the games database
+-Adjustments to terminate() in hide game to only store time end if gameplay actually started
+-Only store stats if gameplay actually started
+1.8.2.1
+-Adds debug messages before calling HSLobby to end the game whether the gameplay started or not
+1.8.2.2
+-Adds check to see whether the game has been terminated before stating the gameplay
+
+-----------------------------------------------------------------------------
+1.9.0 - Adjustments update after server testing
+-Increases speed of finders to 0.3
+-Sets speed of all players to 0.2 when joining lobby
+-Tidies up some code in Game.java, removes unused code
+-Changed all connection.createStatement() to getConnection().createStatement() to ensure that the connection is opened again if closed
+1.9.1
+-Adds a 2 minute timer to start of hide game once minimum amount of players have joined
+-Length of timer is configurable, as well as the Hide Minimum Players
+1.9.2
+-Ensures that all setting for every player are reset when they join the hide and seek lobby, to prevent bugs from running over into a new game
+-Ensures that game does not automatically start if game was started manually
+-Adds configurable seeker speed option
+-Adds listener to stop seekers moving
+-Adds a /map list which displays current hide maps in the database
+-Adds Minigame.managemaps.list permission node
+-Changes permissions of Minigame.addmaps and Minigame.deletemaps --> Minigame.managemaps.addmaps ect.
+
+-----------------------------------------------------------------------------
+1.10.0 - Gameplay enhancements
+-Added comments to code and tidied it up a bit
+-Also fixed bug where if a player left, the players list did not update correctly
+-Adds scoreboard to hide and seek game to show hiders, and the amount of finds that a seeker has and how many seekers they were when they were found
+-Uses the existing counter currently used for points
+-Fixes bug where ensuring all players could see all other players just before the gameplay started had a logical error
+1.10.1
+-Fixes bugs where scoreboard wasn't shown to hiders
+-Sets the speed of new seekers to the correct seeker speed
+-Ensure Damage done turns off quickly
+-Adds a "Leaving Hide and Seek lobby" message when a player leaves
+
+-----------------------------------------------------------------------------
+1.11.0 - Added new RiverRace game + Lobby GUI
+-Adds appropriate DBs
+    -RiverRaceMaps To store the maps
+    -RiverRaceStartGrids To store the start locations
+-RiverRaceGame - Handles gameplay
+-RiverRaceMap - Class to handle the map
+-RiverRaceStartGrid - Class to handle the start grids
+-RiverRaceRacer - Class which puts the player and boat together
+
+-Add Minigames Menu GUI to 9th inventory slot
+
+1.11.1
+-Create River Race Lobby and allow players to use the GUI to join it
+-Allows player to leave the river race lobby the same way they joined it
+
+1.11.2
+-Ejects player from hide and seek lobby if they join whilst they are already in the hide and seek lobby
+-Changes /hide command to /hsmap for managing hide and seek maps
+-Adds new /rrmap command to manage River Race maps
+-Adds new /rrgrid command to manage River Race start grids
+-Changes perms node for Minigame.managemaps to Minigames.hidemaps
+-Puts player into boat and starts game immediately when they join
+
+1.11.3
+-Add /rr [start/end] and stops players from automatically starting a game when they join
+-Adds terminate and start functionality to lobby and game
+
+1.11.4
+-Makes a player leave their current lobby when they join another game
+-Create checkpoints functionality
+-Adds checkpoint and finish line listeners
+-Adds scoreboard to show who is at which checkpoint
+-Adds checkpoint and checkpointblocks table to the database
+-Program can import the checkpoints and create listeners upon game start
+-Add /rrcheck command to allow Map-Makers to create new checkpoints
+
+-Moves player leave lobby message into the if (players.contains(player))

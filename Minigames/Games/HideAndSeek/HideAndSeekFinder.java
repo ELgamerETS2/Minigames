@@ -16,5 +16,13 @@ public class HideAndSeekFinder extends HideAndSeekPlayer
 	{
 		this.player = player;
 		this.iFound = iFound;
+		this.iPoints = 0;
+	}
+	
+	public HideAndSeekFinder(Player player, int iFound, int iFindersWhenFound)
+	{
+		this.player = player;
+		this.iFound = iFound;
+		this.iPoints = iFindersWhenFound;
 	}
 }

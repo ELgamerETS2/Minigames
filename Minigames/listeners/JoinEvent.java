@@ -9,11 +9,13 @@ package Minigames.listeners;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.GameMode;
+import org.bukkit.Location;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 
+import Minigames.MainLobby;
 import Minigames.minigamesMain;
 
 public class JoinEvent implements Listener
@@ -30,13 +32,25 @@ public class JoinEvent implements Listener
 	@EventHandler
 	public void playerJoin(PlayerJoinEvent event)
 	{
-		Bukkit.getConsoleSender().sendMessage("[Minigames] " +ChatColor.GREEN + "Player joined minigames server, setting to spawn");
-	//	Location location = new Location(World, plugin.getConfig().getDouble("XofSpawn"), plugin.getConfig().getDouble("YofSpawn"), plugin.getConfig().getDouble("ZofSpawn"));
+		//Get lobby into a local variable
+		MainLobby lobby = plugin.MainLobby;
 		
-		event.getPlayer().setGameMode(GameMode.SURVIVAL);
-		event.getPlayer().sendMessage(ChatColor.GREEN + "Welcome to UK Minigames!");
-	//	event.getPlayer().teleport(location);
+		//Send message to console
+		Bukkit.getConsoleSender().sendMessage("[Minigames] " +ChatColor.GREEN + "Player joined minigames server, setting to spawn of "+plugin.MainLobby.getSzName() + " lobby");
+		
+		//Set up location for spawn point
+		Location location = new Location(Bukkit.getWorld(lobby.getWorldName()), lobby.getX(), lobby.getY(), lobby.getZ());
+						
+		//Teleport player to spawn
+		event.getPlayer().teleport(location);
+		
+		//Set gamemode
+		event.getPlayer().setGameMode(GameMode.ADVENTURE);
+		
+		//Display welcome messgae
+		event.getPlayer().sendMessage(ChatColor.GREEN + "Welcome to BTE-UK Minigames!");
 	}
+	
 	@EventHandler
 	public void playerLeave(PlayerQuitEvent event)
 	{

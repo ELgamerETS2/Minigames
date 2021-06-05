@@ -1,0 +1,10 @@
+/ChannelNameTooLongException.class
+/ChannelNotRegisteredException.class
+/MessageTooLargeException.class
+/Messenger.class
+/PluginChannelDirection.class
+/PluginMessageListener.class
+/PluginMessageListenerRegistration.class
+/PluginMessageRecipient.class
+/ReservedChannelException.class
+/StandardMessenger.class

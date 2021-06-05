@@ -8,6 +8,7 @@ import org.bukkit.Bukkit;
 
 public class MainLobby
 {
+	private int LobbyID;
 	private String szName;
 	private int iVersion;
 	private boolean bActive;
@@ -55,7 +56,8 @@ public class MainLobby
 		else
 		{
 			int iRandom = ( (int) (Math.random() * iTotalLobbies) );
-						
+			
+			this.LobbyID = ActiveLobbies[iRandom].LobbyID;	
 			this.setSzName(ActiveLobbies[iRandom].getSzName());
 			this.iVersion = ActiveLobbies[iRandom].iVersion;
 			this.bActive = ActiveLobbies[iRandom].bActive;
@@ -100,6 +102,11 @@ public class MainLobby
 	}
 	
 	//Getters
+	public boolean getActive()
+	{
+		return bActive;
+	}
+	
 	public int getX()
 	{
 		return X;
@@ -188,6 +195,7 @@ public class MainLobby
 			for (i = 0 ; i < iCount ; i++)
 			{
 				activeLobbies[i] = new MainLobby();
+				activeLobbies[i].LobbyID = resultSet.getInt("LobbyID");
 				activeLobbies[i].setSzName(resultSet.getString("Name"));
 				activeLobbies[i].iVersion = resultSet.getInt("Version");
 				activeLobbies[i].bActive = resultSet.getBoolean("Active");
@@ -254,5 +262,90 @@ public class MainLobby
 			e.printStackTrace();
 		}
 		return iCount;
+	}
+	
+	public static boolean delete(int LobbyID)
+	{
+		int iCount = -1;
+		String sql;
+		
+		Statement SQL = null;
+		
+		try
+		{
+			//Compiles the command to add the new user
+			sql = "DELETE FROM `Lobbies` Where LobbyID = \""+LobbyID+"\"";
+			Bukkit.getConsoleSender().sendMessage("[Minigames] [Deleting a lobby]: "+sql);
+			
+			SQL = minigamesMain.getInstance().getConnection().createStatement();
+			
+			//Executes the update and returns the amount of records updated
+			iCount = SQL.executeUpdate(sql);
+		}
+		catch (SQLException se)
+		{
+			Bukkit.getConsoleSender().sendMessage("[Minigames] [Deleting from Lobbies] - SQL Error deleting lobby from lobbies table");
+			se.printStackTrace();
+		}
+		catch (Exception e)
+		{
+			Bukkit.getConsoleSender().sendMessage("[Minigames] [Deleting from Lobbies] - Error deleting lobby from lobbies table");
+			e.printStackTrace();
+		}
+		return iCount == 1;
+	}
+	
+	public static boolean add(String szName, int iVersion, int X, int Y, int Z, String WorldName, int HideX, int HideY, int HideZ, int RRX, int RRY, int RRZ)
+	{
+		boolean bSuccess = false;
+		int iCount = -1;
+		String sql;
+		
+		Statement SQL = null;
+		
+		try
+		{
+			//Compiles the command to add the new user
+			sql = "INSERT INTO `Lobbies` "
+					+"(`Name`, `Version`, `Active`, `StartX`, `StartY`, `StartZ`, `Wait`)"
+					+ " VALUES("
+					+ "\""+szName+"\", "
+					+ "\""+iVersion+"\", "
+					+ "1, "
+					+ X +", "
+					+ Y +", "
+					+ Z +", "
+					+"\" "+WorldName+"\", "
+					+ HideX +", "
+					+ HideY +", "
+					+ HideZ +", "
+					+ RRX +", "
+					+ RRY +", "
+					+ RRZ
+					+ ");";
+			Bukkit.getConsoleSender().sendMessage("[Minigames] [Add to Lobbies]: "+sql);
+			SQL = minigamesMain.getInstance().getConnection().createStatement();
+			
+			//Executes the update and returns the amount of records updated
+			iCount = SQL.executeUpdate(sql);
+			
+			//Checks whether only 1 record was updated
+			if (iCount == 1)
+			{
+				//If so, bSuccess is set to true
+				bSuccess = true;
+			}
+		}
+		catch (SQLException se)
+		{
+			Bukkit.getConsoleSender().sendMessage("[Minigames] [Add to Lobbies] - SQL Error adding lobby to lobbies table");
+			se.printStackTrace();
+		}
+		catch (Exception e)
+		{
+			Bukkit.getConsoleSender().sendMessage("[Minigames] [Add to Lobbies] - Error adding lobby to lobbies table");
+			e.printStackTrace();
+		}
+		return bSuccess;
 	}
 }

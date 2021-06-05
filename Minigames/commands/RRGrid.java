@@ -25,12 +25,13 @@ public class RRGrid implements CommandExecutor
 			sender.sendMessage(ChatColor.RED +"You do not have permission to use this command");
 			return true;
 		}
+		
 		if (args.length == 0)
 		{
 			GridHelp(sender);
 		}
 		
-		if (args.length == 1)
+		else if (args.length == 1)
 		{
 			if (args[0].equalsIgnoreCase("add"))
 				sender.sendMessage(ChatColor.RED +"/rrgrid add [MapID] [Direction (Right/Left)] [PositionFromCentre]");

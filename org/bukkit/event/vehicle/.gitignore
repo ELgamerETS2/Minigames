@@ -1,0 +1,11 @@
+/VehicleBlockCollisionEvent.class
+/VehicleCollisionEvent.class
+/VehicleCreateEvent.class
+/VehicleDamageEvent.class
+/VehicleDestroyEvent.class
+/VehicleEnterEvent.class
+/VehicleEntityCollisionEvent.class
+/VehicleEvent.class
+/VehicleExitEvent.class
+/VehicleMoveEvent.class
+/VehicleUpdateEvent.class

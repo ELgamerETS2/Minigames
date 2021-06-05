@@ -29,6 +29,7 @@ public class RRCheck implements CommandExecutor
 			sender.sendMessage(ChatColor.RED +"You do not have permission to use this command");
 			return true;
 		}
+		
 		if (args.length == 0)
 		{
 			CheckHelp(sender);

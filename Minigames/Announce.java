@@ -27,7 +27,7 @@ public class Announce
 	{
 		for (int i = 0 ; i < players.length ; i++)
 		{
-		//	players[i].playSound(players[i].getLocation(), Sound, 1.0F, 1.0F);
+		//	layers[i].playSound(players[i].getLocation(), Sound, 1.0F, 1.0F);
 		}
 	}
 }

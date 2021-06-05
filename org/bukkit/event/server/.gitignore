@@ -1,0 +1,11 @@
+/MapInitializeEvent.class
+/PluginDisableEvent.class
+/PluginEnableEvent.class
+/PluginEvent.class
+/RemoteServerCommandEvent.class
+/ServerCommandEvent.class
+/ServerEvent.class
+/ServerListPingEvent.class
+/ServiceEvent.class
+/ServiceRegisterEvent.class
+/ServiceUnregisterEvent.class

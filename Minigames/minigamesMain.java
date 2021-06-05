@@ -211,6 +211,9 @@ public class minigamesMain extends JavaPlugin
 		//Allows Map-Makers to manage River Race checkpoints
 		getCommand("rrcheck").setExecutor(new RRCheck());
 		
+		//Allows devs to manage lobbies
+		getCommand("lobby").setExecutor(new RRCheck());
+		
 		//--------------------------------------
 		//-------------Stats Update-------------
 		//--------------------------------------
@@ -272,24 +275,22 @@ public class minigamesMain extends JavaPlugin
 			if (e.toString().contains("Access denied"))
 			{
 				Bukkit.getConsoleSender().sendMessage(ChatColor.RED + "[Minigames] - [minigamesMain] - Access denied");			
-				System.out.println("Access denied");
 			}
 			else if (e.toString().contains("Communications link failure"))
 			{
 				Bukkit.getConsoleSender().sendMessage(ChatColor.RED + "[Minigames] - [minigamesMain] - Communications link failure");			
-				System.out.println("Communications link failure");
 			}
 			else
 			{
+				Bukkit.getConsoleSender().sendMessage(ChatColor.RED + "[Minigames] - [minigamesMain] - Other SQLException - "+e.getMessage());
 				e.printStackTrace();
-				System.out.println(e.toString());
-				Bukkit.getConsoleSender().sendMessage(ChatColor.RED + "[Minigames] - [minigamesMain] - Other SQLException - "+e.getMessage());			
 			}
 			return false;
 		}
 		catch (Exception e)
 		{
-			Bukkit.getConsoleSender().sendMessage(ChatColor.RED + "[Minigames] - [minigamesMain] - Other Exception whilst connecting to database- "+e.getMessage());			
+			Bukkit.getConsoleSender().sendMessage(ChatColor.RED + "[Minigames] - [minigamesMain] - Other Exception whilst connecting to database- "+e.getMessage());
+			e.printStackTrace();
 			return false;
 		}
 	}
@@ -307,13 +308,11 @@ public class minigamesMain extends JavaPlugin
 		}
 		catch ( SQLException se )
 		{
-			System.err.println( this.getClass().getName() + ":: SQL error " + se ) ;
-			se.printStackTrace() ;
 			Bukkit.getConsoleSender().sendMessage(ChatColor.RED + "[Minigames] - [minigamesMain] - SQLException - closing connection");			
+			se.printStackTrace() ;
 		}
 		catch ( Exception e )
 		{
-			System.err.println( this.getClass().getName() + ":: error " + e ) ;
 			Bukkit.getConsoleSender().sendMessage(ChatColor.RED + "[Minigames] - [minigamesMain] - Exception - closing connection");			
 			e.printStackTrace() ;
 		}
@@ -338,23 +337,27 @@ public class minigamesMain extends JavaPlugin
 					"  `Wait` INT NOT NULL,\n" + 
 					"   PRIMARY KEY (`MapID`));";
 			SQL = connection.createStatement();
-
+			
+			Bukkit.getConsoleSender().sendMessage("[Minigames] [SQL]: " + sql);
+			
 			//Executes the update and returns how many rows were changed
 			iCount = SQL.executeUpdate(sql);
 
 			//If only 1 record was changed, success is set to true
 			if (iCount == 1)
 			{
-				Bukkit.getConsoleSender().sendMessage("[Minigames]" +ChatColor.AQUA + "Created Hide and Seek Maps table");			
+				Bukkit.getConsoleSender().sendMessage("[Minigames]" +ChatColor.AQUA + "Created HideAndSeekMaps table");			
 				bSuccess = true;
 			}
 		}
-		catch(SQLException se)
+		catch (SQLException se)
 		{
+			Bukkit.getConsoleSender().sendMessage("[Minigames] [SQL] SQL Error adding HideAndSeekMaps Table");
 			se.printStackTrace();
 		}
 		catch (Exception e)
 		{
+			Bukkit.getConsoleSender().sendMessage("[Minigames] [SQL] Error adding HideAndSeekMaps Table");
 			e.printStackTrace();
 		}
 		return (bSuccess);
@@ -374,23 +377,26 @@ public class minigamesMain extends JavaPlugin
 					"  `MapWorld` VARCHAR(45) NOT NULL,\n" + 
 					"   PRIMARY KEY (`MapID`));";
 			SQL = connection.createStatement();
-
+			
+			Bukkit.getConsoleSender().sendMessage("[Minigames] [SQL]: " + sql);
 			//Executes the update and returns how many rows were changed
 			iCount = SQL.executeUpdate(sql);
 
 			//If only 1 record was changed, success is set to true
 			if (iCount == 1)
 			{
-				Bukkit.getConsoleSender().sendMessage("[Minigames]" +ChatColor.AQUA + "Created Hide and Seek Maps table");			
+				Bukkit.getConsoleSender().sendMessage("[Minigames]" +ChatColor.AQUA + "Created RiverRaceMaps table");			
 				bSuccess = true;
 			}
 		}
-		catch(SQLException se)
+		catch (SQLException se)
 		{
+			Bukkit.getConsoleSender().sendMessage("[Minigames] [SQL] SQL Error adding RiverRaceMaps Table");
 			se.printStackTrace();
 		}
 		catch (Exception e)
 		{
+			Bukkit.getConsoleSender().sendMessage("[Minigames] [SQL] Error adding RiverRaceMaps Table");
 			e.printStackTrace();
 		}
 		return (bSuccess);
@@ -410,23 +416,27 @@ public class minigamesMain extends JavaPlugin
 					"  `Number` INT NOT NULL,\n" + 
 					"   PRIMARY KEY (`CheckPointID`));";
 			SQL = connection.createStatement();
-
+			
+			Bukkit.getConsoleSender().sendMessage("[Minigames] [SQL]: " + sql);
+			
 			//Executes the update and returns how many rows were changed
 			iCount = SQL.executeUpdate(sql);
 
 			//If only 1 record was changed, success is set to true
 			if (iCount == 1)
 			{
-				Bukkit.getConsoleSender().sendMessage("[Minigames]" +ChatColor.AQUA + "Created River Race checkpoints table");			
+				Bukkit.getConsoleSender().sendMessage("[Minigames]" +ChatColor.AQUA + "Created RiverRaceCheckPoints table");			
 				bSuccess = true;
 			}
 		}
-		catch(SQLException se)
+		catch (SQLException se)
 		{
+			Bukkit.getConsoleSender().sendMessage("[Minigames] [SQL] SQL Error adding RiverRaceCheckPoints Table");
 			se.printStackTrace();
 		}
 		catch (Exception e)
 		{
+			Bukkit.getConsoleSender().sendMessage("[Minigames] [SQL] Error adding RiverRaceCheckPoints Table");
 			e.printStackTrace();
 		}
 		return (bSuccess);
@@ -449,23 +459,27 @@ public class minigamesMain extends JavaPlugin
 					"  CONSTRAINT `MapIDRef2` FOREIGN KEY (`CheckPointID`) REFERENCES `RiverRaceCheckPoints` (`CheckPointID`)\n" + 
 					");";
 			SQL = connection.createStatement();
-
+			
+			Bukkit.getConsoleSender().sendMessage("[Minigames] [SQL]: " + sql);
+			
 			//Executes the update and returns how many rows were changed
 			iCount = SQL.executeUpdate(sql);
 
 			//If only 1 record was changed, success is set to true
 			if (iCount == 1)
 			{
-				Bukkit.getConsoleSender().sendMessage("[Minigames]" +ChatColor.AQUA + "Created River Race checkpoint blocks table");			
+				Bukkit.getConsoleSender().sendMessage("[Minigames]" +ChatColor.AQUA + "Created RiverRaceCheckpointBlocks table");			
 				bSuccess = true;
 			}
 		}
-		catch(SQLException se)
+		catch (SQLException se)
 		{
+			Bukkit.getConsoleSender().sendMessage("[Minigames] [SQL] SQL Error adding RiverRaceCheckpointBlocks Table");
 			se.printStackTrace();
 		}
 		catch (Exception e)
 		{
+			Bukkit.getConsoleSender().sendMessage("[Minigames] [SQL] Error adding RiverRaceCheckpointBlocks Table");
 			e.printStackTrace();
 		}
 		return (bSuccess);
@@ -483,29 +497,33 @@ public class minigamesMain extends JavaPlugin
 					"  `GridID` INT NOT NULL AUTO_INCREMENT,\n" + 
 					"  `MapID` INT NOT NULL,\n" + 
 					"  `Left` TINYINT NOT NULL,\n" + 
-					"  `PositionFromCentre INT NOT NULL,\n" +
-					"  `PositionX DOUBLE NOT NULL,\n" +
-					"  `PositionY DOUBLE NOT NULL,\n" +
-					"  `PositionZ DOUBLE NOT NULL,\n" +
+					"  `PositionFromCentre` INT NOT NULL,\n" +
+					"  `PositionX` DOUBLE NOT NULL,\n" +
+					"  `PositionY` DOUBLE NOT NULL,\n" +
+					"  `PositionZ` DOUBLE NOT NULL,\n" +
 					"   PRIMARY KEY (`GridID`));";
 			SQL = connection.createStatement();
-
+			
+			Bukkit.getConsoleSender().sendMessage("[Minigames] [SQL]: " + sql);
+			
 			//Executes the update and returns how many rows were changed
 			iCount = SQL.executeUpdate(sql);
 
 			//If only 1 record was changed, success is set to true
 			if (iCount == 1)
 			{
-				Bukkit.getConsoleSender().sendMessage("[Minigames]" +ChatColor.AQUA + "Created River Race Start Grids table");			
+				Bukkit.getConsoleSender().sendMessage("[Minigames]" +ChatColor.AQUA + "Created RiverRaceStartGrids table");			
 				bSuccess = true;
 			}
 		}
-		catch(SQLException se)
+		catch (SQLException se)
 		{
+			Bukkit.getConsoleSender().sendMessage("[Minigames] [SQL] SQL Error adding RiverRaceStartGrids Table");
 			se.printStackTrace();
 		}
 		catch (Exception e)
 		{
+			Bukkit.getConsoleSender().sendMessage("[Minigames] [SQL] Error adding RiverRaceStartGrids Table");
 			e.printStackTrace();
 		}
 		return (bSuccess);
@@ -528,7 +546,9 @@ public class minigamesMain extends JavaPlugin
 					"  `TimeEnd` TIMESTAMP NULL DEFAULT NULL,\n" + 
 					"   PRIMARY KEY (`GameID`))"
 				+	";";
-
+			
+			Bukkit.getConsoleSender().sendMessage("[Minigames] [SQL]: " + sql);
+			
 			SQL = connection.createStatement();
 
 			//Executes the update and returns how many rows were changed
@@ -541,12 +561,14 @@ public class minigamesMain extends JavaPlugin
 				bSuccess = true;
 			}
 		}
-		catch(SQLException se)
+		catch (SQLException se)
 		{
+			Bukkit.getConsoleSender().sendMessage("[Minigames] [SQL] SQL Error adding Games Table");
 			se.printStackTrace();
 		}
 		catch (Exception e)
 		{
+			Bukkit.getConsoleSender().sendMessage("[Minigames] [SQL] Error adding Games Table");
 			e.printStackTrace();
 		}
 		return (bSuccess);
@@ -567,7 +589,9 @@ public class minigamesMain extends JavaPlugin
 					"  `Points` Int NOT NULL,\n" + 
 					"   PRIMARY KEY (`UUID`,`GameID`));";
 			SQL = connection.createStatement();
-
+			
+			Bukkit.getConsoleSender().sendMessage("[Minigames] [SQL]: " + sql);
+			
 			//Executes the update and returns how many rows were changed
 			iCount = SQL.executeUpdate(sql);
 
@@ -578,12 +602,14 @@ public class minigamesMain extends JavaPlugin
 				bSuccess = true;
 			}
 		}
-		catch(SQLException se)
+		catch (SQLException se)
 		{
+			Bukkit.getConsoleSender().sendMessage("[Minigames] [SQL] SQL Error adding Stats Table");
 			se.printStackTrace();
 		}
 		catch (Exception e)
 		{
+			Bukkit.getConsoleSender().sendMessage("[Minigames] [SQL] Error adding Stats Table");
 			e.printStackTrace();
 		}
 		return (bSuccess);
@@ -599,7 +625,8 @@ public class minigamesMain extends JavaPlugin
 		{
 			//Adds a weather pref table
 			sql = "CREATE TABLE IF NOT EXISTS `"+this.Database+"`.`Lobbies` (\n" +
-					"`Name` varchar(36) NOT NULL,\n" + 
+					"  `LobbyID` INT NOT NULL,\n" + 
+					"  `Name` varchar(36) NOT NULL,\n" + 
 					"  `Version` int NOT NULL,\n" + 
 					"  `Active` tinyint NOT NULL,\n" + 
 					"  `LocationX` int NOT NULL,\n" + 
@@ -609,8 +636,8 @@ public class minigamesMain extends JavaPlugin
 					"  `HidePlatformX` int NOT NULL,\n" + 
 					"  `HidePlatformY` int NOT NULL,\n" + 
 					"  `HidePlatformZ` int NOT NULL,\n" + 
-					"  PRIMARY KEY (`Name`,`Version`));";
-			Bukkit.getConsoleSender().sendMessage("[Minigames] [SQL] " +ChatColor.AQUA + "");			
+					"  PRIMARY KEY (`LobbyID`));";
+			Bukkit.getConsoleSender().sendMessage("[Minigames] [SQL]: " + sql);
 			SQL = connection.createStatement();
 			//Executes the update and returns how many rows were changed
 			iCount = SQL.executeUpdate(sql);
@@ -622,12 +649,14 @@ public class minigamesMain extends JavaPlugin
 				bSuccess = true;
 			}
 		}
-		catch(SQLException se)
+		catch (SQLException se)
 		{
+			Bukkit.getConsoleSender().sendMessage("[Minigames] [SQL] SQL Error adding Lobbies Table");
 			se.printStackTrace();
 		}
 		catch (Exception e)
 		{
+			Bukkit.getConsoleSender().sendMessage("[Minigames] [SQL] Error adding Lobbies Table");
 			e.printStackTrace();
 		}
 		return (bSuccess);

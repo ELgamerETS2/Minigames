@@ -1,0 +1,17 @@
+/BlockCommandSender.class
+/Command.class
+/CommandException.class
+/CommandExecutor.class
+/CommandMap.class
+/CommandSender.class
+/ConsoleCommandSender.class
+/FormattedCommandAlias.class
+/MultipleCommandAlias.class
+/PluginCommand.class
+/PluginCommandYamlParser.class
+/PluginIdentifiableCommand.class
+/RemoteConsoleCommandSender.class
+/SimpleCommandMap.class
+/TabCommandExecutor.class
+/TabCompleter.class
+/TabExecutor.class

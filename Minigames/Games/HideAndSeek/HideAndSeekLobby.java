@@ -94,12 +94,16 @@ public class HideAndSeekLobby
 		//Unregisters the teams
 		TeamH.unregister();
 		TeamS.unregister();
+		
+		//Unregisters the objecties
 		Found.unregister();
 		Hiders.unregister();
 		
 		//Registers the teams
 		TeamH = SB.registerNewTeam("Hiders");
 		TeamS = SB.registerNewTeam("Seekers");
+		
+		//Registers the objectives
 		Found = SB.registerNewObjective("Players found", "dummy");
 		Hiders = SB.registerNewObjective("Hiders", "dummy");
 

@@ -17,6 +17,7 @@ import org.bukkit.event.player.PlayerQuitEvent;
 
 import Minigames.MainLobby;
 import Minigames.minigamesMain;
+import Minigames.Games.RiverRace.RRSelection;
 
 public class JoinEvent implements Listener
 {
@@ -48,7 +49,20 @@ public class JoinEvent implements Listener
 		event.getPlayer().setGameMode(GameMode.ADVENTURE);
 		
 		//Display welcome messgae
-		event.getPlayer().sendMessage(ChatColor.GREEN + "Welcome to BTE-UK Minigames!");
+        Bukkit.getScheduler().runTaskLater(this.plugin, new Runnable()
+        {
+            @Override
+            public void run()
+            {
+        		event.getPlayer().sendMessage(ChatColor.GREEN + "Welcome to BTE-UK Minigames!");
+            }
+        }, 20L);
+		
+		if (event.getPlayer().hasPermission("Minigames.boatchecks"))
+		{
+			RRSelection newMapMaker = new RRSelection(event.getPlayer());
+			plugin.selections.add(newMapMaker);
+		}
 	}
 	
 	@EventHandler
@@ -56,6 +70,7 @@ public class JoinEvent implements Listener
 	{
 		Bukkit.getConsoleSender().sendMessage("[Minigames] Player left, removing from game lobbies");
 		plugin.HSLobby.playerLeaveLobby(event.getPlayer());
+		plugin.RRLobby.playerLeaveLobby(event.getPlayer());
 	}
 	
 } //End Class

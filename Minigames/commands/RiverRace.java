@@ -58,7 +58,7 @@ public class RiverRace implements CommandExecutor
 			if (!sender.hasPermission("Minigames.RiverRace.end"))
 			{
 				sender.sendMessage(ChatColor.RED +"You do not have the correct minigame permissions");
-				return false;
+				return true;
 			}
 			mgM.RRLobby.ManualTerminate(player);
 		}

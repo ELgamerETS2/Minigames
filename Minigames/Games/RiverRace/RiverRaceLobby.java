@@ -139,10 +139,10 @@ public class RiverRaceLobby
 		}
 		
 		//If the game is running, calls the method in the game class to deal with them leaving
-	//	if (gameIsRunning)
-	//	{
-	//		HideGame.playerLeave(player);
-	//	}
+		if (bGameIsRunning)
+		{
+			RRGame.playerLeave(player);
+		}
 	}
 	
 	private void lobbyRun()
@@ -150,6 +150,8 @@ public class RiverRaceLobby
 		bGameIsRunning = true;
 		
 		RRGame = new RiverRaceGame(CorePlugin, this, (Player[]) players.toArray(new Player[players.size()]));
+		
+		players = new ArrayList<Player>();
 		
 		RRGame.highGameProcesses();
 	}
@@ -181,5 +183,19 @@ public class RiverRaceLobby
 			RRGame.terminate(TerminateType.Manual);
 		}
 	}
-
+	
+	public void gameFinished(ArrayList<RiverRaceRacer> racers, boolean bGamePlayStarted)
+	{
+		bGameIsRunning = false;
+		
+		//Unkit players and add them back to the lobby
+		for (RiverRaceRacer racer : racers)
+		{
+			//Removes them from boat and deletes boat
+			racer.unBoard();
+			
+			//Adds the player to this lobby
+			playerJoinLobby(racer.getPlayer());
+		}
+	}
 }

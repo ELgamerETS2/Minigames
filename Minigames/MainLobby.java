@@ -7,7 +7,7 @@ import java.sql.Statement;
 import org.bukkit.Bukkit;
 
 public class MainLobby
-{	
+{
 	private String szName;
 	private int iVersion;
 	private boolean bActive;
@@ -178,7 +178,7 @@ public class MainLobby
 			sql = "SELECT * FROM "+minigamesMain.getInstance().MainLobbies +" WHERE Active = 1";
 			
 			//Executes the query
-			SQL = minigamesMain.getInstance().connection.createStatement();
+			SQL = minigamesMain.getInstance().getConnection().createStatement();
 			resultSet = SQL.executeQuery(sql);
 			
 			//Moves the curser to the next line
@@ -227,7 +227,7 @@ public class MainLobby
 			//Collects all maps
 			sql = "SELECT * FROM "+minigamesMain.getInstance().MainLobbies + " WHERE Active = 1";
 			
-			SQL = minigamesMain.getInstance().connection.createStatement();
+			SQL = minigamesMain.getInstance().getConnection().createStatement();
 			resultSet = SQL.executeQuery(sql);
 			//Moves the curser to the next line
 			bSuccess = resultSet.next();

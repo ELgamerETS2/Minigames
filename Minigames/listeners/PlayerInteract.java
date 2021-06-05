@@ -20,7 +20,7 @@ public class PlayerInteract implements Listener
 
 	@EventHandler
 	public void interactEvent(PlayerInteractEvent e)
-	{		
+	{	
 		if (e.getPlayer().getOpenInventory().getType() != InventoryType.CRAFTING && e.getPlayer().getOpenInventory().getType() != InventoryType.CREATIVE)
 		{
 		    return;

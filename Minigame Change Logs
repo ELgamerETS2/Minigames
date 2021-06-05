@@ -365,5 +365,54 @@ Unsuccesful-Prevents mods from starting games which are already running
 -Adds checkpoint and checkpointblocks table to the database
 -Program can import the checkpoints and create listeners upon game start
 -Add /rrcheck command to allow Map-Makers to create new checkpoints
+-Adds diamond axe to add checkpoint blocks
 
 -Moves player leave lobby message into the if (players.contains(player))
+-Adds small wait until welcome message
+
+1.11.5
+-Completes the terminate method in the RiverRaceGame class
+-Adds gameFinished method to RiverRaceLobby class
+-Fixes output for listing checkpoints and listing start grids
+  -Change [Map Found] to [Checkpoint/Start Grid Found]
+-Makes checkpoint player move event high priority
+
+1.11.6
+-Changes colour of "You have missed a checkpoint" message to dark blue
+-Changes to only display message one time when they go past
+    -If the source destination of the player move event lies on another point on the same checkpoint, the message is not displayed
+-Adds a "You've passed checkpoint [number]" message when a player passes a checkpoint
+
+-Adds a 6 second wait after the end of a River Race game then calls game finished
+    -Ejects player form boat
+    -Removes boat
+    -Adds player to the lobby again
+-Adds a River Race game to the Games DB when it has finished
+
+-Adds removal of player from River Race Lobby and therefore RRGame when they leave
+-Ends game when last player leaves
+
+-When swapping a player from yetToPass to Passed in a checkpoint, uses a clone
+
+1.11.7
+-Removes use of clone because it caused bugs
+-Adds the racer to Passed before removing from yetToPass
+-Removes the use of a local variable for RiverRaceRacer
+
+-Adds a switcher class listener which is used to switch the boat in RiverRaceRacer when the racer changes boat
+
+-Changes the YetToPass array list in the checkpoints to create a new list of 
+  -Currently it references the original list of racers in RRGame...
+  ...When someone is removed, it removes them from that as well.
+
+-Actually implemented the finish line. Before, it was registered as a checkpoint
+
+1.11.8
+-Adds different end announcements to RR game dependent on termination type
+-Ends game when last player finishes
+
+1.11.9
+-Adds appropriate DDLs to the minigamesMain
+-Adds message saying checkpoints blocks were not added properly if they were not added properly
+-Sorts out handling of no river race maps, checkpoints or grids
+-Changes to some console outputs

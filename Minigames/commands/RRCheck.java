@@ -1,17 +1,21 @@
 package Minigames.commands;
 
+import java.util.ArrayList;
+
 import org.bukkit.ChatColor;
+import org.bukkit.block.Block;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
+import Minigames.minigamesMain;
+import Minigames.Games.RiverRace.RRSelection;
 import Minigames.Games.RiverRace.RiverRaceCheckpoint;
 import Minigames.Games.RiverRace.RiverRaceMap;
 
 public class RRCheck implements CommandExecutor
 {
-
 	@Override
 	public boolean onCommand(CommandSender sender, Command command, String label, String[] args)
 	{
@@ -30,7 +34,7 @@ public class RRCheck implements CommandExecutor
 			CheckHelp(sender);
 		}
 		
-		if (args.length == 1)
+		else if (args.length == 1)
 		{
 			if (args[0].equalsIgnoreCase("add"))
 				sender.sendMessage(ChatColor.RED +"/rrcheck add [MapID] [Number]");
@@ -57,7 +61,7 @@ public class RRCheck implements CommandExecutor
 			{
 				if (args[1].matches("[0-9]+"))
 				{
-					if (RiverRaceCheckpoint.deleteCheckpoint(Integer.parseInt(args[2])))
+					if (RiverRaceCheckpoint.deleteCheckpoint(Integer.parseInt(args[1])))
 						sender.sendMessage(ChatColor.GREEN +"Checkpoint was deleted");
 					else
 						sender.sendMessage(ChatColor.RED +"The checkpoint was unfortunetly not deleted from the DB. Please contact someone who can fix this.");
@@ -80,12 +84,13 @@ public class RRCheck implements CommandExecutor
 					//Get details of each checkpoint
 					for (int i = 0 ; i < Checkpoints.length ; i++)
 					{
-						sender.sendMessage(ChatColor.DARK_AQUA +"[Map Found]:");
+						sender.sendMessage(ChatColor.DARK_AQUA +"[Checkpoint Found]:");
 						sender.sendMessage(ChatColor.AQUA +"CheckPointID: "+Checkpoints[i].getCheckpointID());
 						sender.sendMessage(ChatColor.AQUA +"MapID: "+Map.getMapID());
+						sender.sendMessage(ChatColor.AQUA +"Number: "+Checkpoints[i].getNumber());
 						for (int j = 0 ; j < Checkpoints[i].getLocations().length ; j++)
 						{
-							sender.sendMessage(ChatColor.AQUA +"Pass Location: " +Map.getMapID() +"(" +Checkpoints[i].getLocations()[j].getBlockX() +Checkpoints[i].getLocations()[j].getBlockY() +Checkpoints[i].getLocations()[j].getBlockZ() +")");
+							sender.sendMessage(ChatColor.AQUA +"Pass Location: " +"(" +Checkpoints[i].getLocations()[j].getBlockX()+", " +Checkpoints[i].getLocations()[j].getBlockY()+", " +Checkpoints[i].getLocations()[j].getBlockZ() +")");
 						}
 						sender.sendMessage("");
 					}
@@ -101,7 +106,6 @@ public class RRCheck implements CommandExecutor
 		{
 			if (args[0].equalsIgnoreCase("add"))
 			{
-				//sender.sendMessage(ChatColor.RED +"/rrcheck add [MapID] [Number]");
 				if (!args[1].matches("[0-9]+"))
 				{
 					sender.sendMessage(ChatColor.RED +"MapID must be an integer");
@@ -112,14 +116,39 @@ public class RRCheck implements CommandExecutor
 					sender.sendMessage(ChatColor.RED +"Number must be an integer");
 					return true;
 				}
-				RiverRaceCheckpoint newCheckpoint = new RiverRaceCheckpoint(Integer.parseInt(args[1]), Integer.parseInt(a//rgs[2]));
-				if (newStartGrid.addGrid())
+				RiverRaceCheckpoint newCheckpoint = new RiverRaceCheckpoint(Integer.parseInt(args[1]), Integer.parseInt(args[2]));
+				if (newCheckpoint.addCheckpoint())
 				{
-					sender.sendMessage(ChatColor.GREEN +"The grid has been added to the DB");
+					sender.sendMessage(ChatColor.GREEN +"The checkpoint has been added to the DB");
+					newCheckpoint.selectLastInsertID();
+					
+					//Look for the players selection points
+					ArrayList<RRSelection> selections = minigamesMain.getInstance().selections;
+					RRSelection blocksSelected = null;
+					boolean bSuccess = true;
+					
+					for (int i = 0 ; i < selections.size() ; i++)
+					{
+						if (selections.get(i).getUUID().equals( ((Player) sender).getUniqueId() ))
+						{
+							blocksSelected = selections.get(i);
+							ArrayList<Block> blocks = blocksSelected.getBlocks();
+							for (int j = 0 ; j < blocks.size() ; j++)
+							{
+								bSuccess = newCheckpoint.addCheckpointBlocks(blocks.get(j).getX(), blocks.get(j).getY(), blocks.get(j).getZ());
+							}
+							if (bSuccess)
+								sender.sendMessage(ChatColor.GREEN +"The checkpoint blocks have been added to the DB");
+							else
+								sender.sendMessage(ChatColor.RED +"The checkpoint blocks were unfortunetly not added to the DB. Please contact someone who can fix this.");
+							minigamesMain.getInstance().selections.get(i).reset();
+							break;
+						}
+					}
 				}
 				else
 				{
-					sender.sendMessage(ChatColor.RED +"The grid was unfortunetly not added to the DB. Please contact someone who can fix this.");
+					sender.sendMessage(ChatColor.RED +"The checkpoint was unfortunetly not added to the DB. Please contact someone who can fix this.");
 				}
 			}
 			else if (args[0].equalsIgnoreCase("delete"))

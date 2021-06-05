@@ -91,7 +91,7 @@ public class RiverRaceStartGrid
 			//If no user is found, program will notify thing
 			if (bSuccess == false)
 			{
-				System.out.println("[Minigames] [RiverRaceStartGrids] Fetching start grids from MapID: No map found with MapID "+iMapID);
+				Bukkit.getConsoleSender().sendMessage("[Minigames] [RiverRaceStartGrids] Fetching start grids from MapID: No map found with MapID "+iMapID);
 				StartGrids = new RiverRaceStartGrid[0];
 				return StartGrids;
 			}
@@ -129,6 +129,13 @@ public class RiverRaceStartGrid
 		}
 		catch (SQLException e)
 		{
+			Bukkit.getConsoleSender().sendMessage("[Minigames] [RiverRaceStartGrids] Fetching start grids from MapID: SQL Error occured"+iMapID);
+			e.printStackTrace();
+			StartGrids = new RiverRaceStartGrid[0];
+		}
+		catch (Exception e)
+		{
+			Bukkit.getConsoleSender().sendMessage("[Minigames] [RiverRaceStartGrids] Fetching start grids from MapID: SQL Error occured"+iMapID);
 			e.printStackTrace();
 			StartGrids = new RiverRaceStartGrid[0];
 		}
@@ -153,8 +160,8 @@ public class RiverRaceStartGrid
 		try
 		{
 			//Compiles the command to add the new user
-			sql = "INSERT INTO `RiverRaceStartGrids"
-					+"` (`MapID`, `Left`, `PositionFromCentre`, `PositionX`, `PositionY`, `PositionZ`)"
+			sql = "INSERT INTO `RiverRaceStartGrids`"
+					+" (`MapID`, `Left`, `PositionFromCentre`, `PositionX`, `PositionY`, `PositionZ`)"
 					+ " VALUES("
 					+ "\""+MapID+"\", "
 					+ "\""+left+"\", "
@@ -163,7 +170,7 @@ public class RiverRaceStartGrid
 					+ "\""+Y+"\", "
 					+ "\""+Z+"\""
 							+ ");";
-			Bukkit.getConsoleSender().sendMessage("[Minigames] [Add to RiverRaceStartGrids]: "+sql);
+			Bukkit.getConsoleSender().sendMessage("[Minigames] [RiverRaceStartGrids] [Add to RiverRaceStartGrids]: "+sql);
 			SQL = minigamesMain.getInstance().getConnection().createStatement();
 			
 			//Executes the update and returns the amount of records updated
@@ -178,10 +185,12 @@ public class RiverRaceStartGrid
 		}
 		catch(SQLException se)
 		{
+			Bukkit.getConsoleSender().sendMessage("[Minigames] [RiverRaceStartGrids] Add to RiverRaceStartGrids - SQL Error occured");
 			se.printStackTrace();
 		}
 		catch (Exception e)
 		{
+			Bukkit.getConsoleSender().sendMessage("[Minigames] [RiverRaceStartGrids] Add to RiverRaceStartGrids - Error occured");
 			e.printStackTrace();
 		}
 		return bSuccess;
@@ -197,13 +206,19 @@ public class RiverRaceStartGrid
 		{
 			//Collects all fields for the specified EID
 			sql = "Delete FROM RiverRaceStartGrids WHERE MapID = \""+iMapID +"\"";
-			Bukkit.getConsoleSender().sendMessage("[Minigames] [Delete all from RiverRaceStartGrids]: "+sql);
+			Bukkit.getConsoleSender().sendMessage("[Minigames] [RiverRaceStartGrids] Delete all from RiverRaceStartGrids: "+sql);
 			SQL = minigamesMain.getInstance().getConnection().createStatement();
 			iCount = SQL.executeUpdate(sql);
 									
 		}
 		catch (SQLException e)
 		{
+			Bukkit.getConsoleSender().sendMessage("[Minigames] [RiverRaceStartGrids] Delete all from RiverRaceStartGrids - SQL Error occured");
+			e.printStackTrace();
+		}
+		catch (Exception e)
+		{
+			Bukkit.getConsoleSender().sendMessage("[Minigames] [RiverRaceStartGrids] Delete all from RiverRaceStartGrids - Error occured");
 			e.printStackTrace();
 		}
 		return iCount;
@@ -220,12 +235,18 @@ public class RiverRaceStartGrid
 			//Collects all fields for the specified EID
 			sql = "Delete FROM RiverRaceStartGrids WHERE GridID = \""+iGridID +"\"";
 			
-			Bukkit.getConsoleSender().sendMessage("[Minigames] [Delete from RiverRaceStartGrids]: "+sql);
+			Bukkit.getConsoleSender().sendMessage("[Minigames] [RiverRaceStartGrids] Delete from RiverRaceStartGrids]: "+sql);
 			SQL = minigamesMain.getInstance().getConnection().createStatement();
 			iCount = SQL.executeUpdate(sql);
 		}
 		catch (SQLException e)
 		{
+			Bukkit.getConsoleSender().sendMessage("[Minigames] [RiverRaceStartGrids] Delete from RiverRaceStartGrids - SQL Error occured");
+			e.printStackTrace();
+		}
+		catch (Exception e)
+		{
+			Bukkit.getConsoleSender().sendMessage("[Minigames] [RiverRaceStartGrids] Delete from RiverRaceStartGrids - Error occured");
 			e.printStackTrace();
 		}
 		return iCount;

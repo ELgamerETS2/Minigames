@@ -5,6 +5,7 @@ import java.sql.DriverManager;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.util.ArrayList;
 
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
@@ -18,13 +19,16 @@ import org.bukkit.plugin.java.JavaPlugin;
 
 import Minigames.Games.Gametype;
 import Minigames.Games.HideAndSeek.HideAndSeekLobby;
+import Minigames.Games.RiverRace.RRSelection;
 import Minigames.Games.RiverRace.RiverRaceLobby;
 import Minigames.commands.HSBJoin;
 import Minigames.commands.HSMap;
 import Minigames.commands.Mystats;
+import Minigames.commands.RRCheck;
 import Minigames.commands.RRGrid;
 import Minigames.commands.RRMap;
 import Minigames.commands.RiverRace;
+import Minigames.commands.Wand;
 import Minigames.gui.LobbyGUI;
 import Minigames.listeners.InventoryClicked;
 import Minigames.listeners.JoinEvent;
@@ -61,7 +65,7 @@ public class minigamesMain extends JavaPlugin
 	
 	public Plugin plugin;
 	
-	public Connection connection = null;
+	private Connection connection = null;
     
 	boolean bIsConnected;
 	
@@ -69,6 +73,8 @@ public class minigamesMain extends JavaPlugin
 	
 	public ItemStack slot9;
 	public static ItemStack gui;
+	
+	public ArrayList<RRSelection> selections;
 	
 	@Override
 	public void onEnable()
@@ -102,6 +108,18 @@ public class minigamesMain extends JavaPlugin
 			
 			//Castle Defence Maps
 		//	createHideAndSeekMapsTable();
+			
+			//River Race Maps
+			createRiverRaceMapsTable();
+			
+			//River Race Checkpoints
+			createCheckpointsTable();
+			
+			//Rive Race Checkpoint blocks
+			createCheckpointBlocksTable();
+			
+			//River Race Start Grids
+			createRiverRaceStartGridsTable();
 			
 			//Games
 			createGamesTable();
@@ -159,10 +177,14 @@ public class minigamesMain extends JavaPlugin
 		//---------------Listeners---------------
 		//---------------------------------------
 		
+		//Create selection tool list
+		selections = new ArrayList<RRSelection>();
+		
 		//Handles welcome message and gamemode
 		new JoinEvent(this);
 		new PlayerInteract(this);
 		new InventoryClicked(this);
+		new Wand(this);
 		
 		//--------------------------------------
 		//---------------Commands---------------
@@ -186,6 +208,8 @@ public class minigamesMain extends JavaPlugin
 		//Allows Map-Makers to manage River Race start points
 		getCommand("rrgrid").setExecutor(new RRGrid());
 		
+		//Allows Map-Makers to manage River Race checkpoints
+		getCommand("rrcheck").setExecutor(new RRCheck());
 		
 		//--------------------------------------
 		//-------------Stats Update-------------
@@ -372,7 +396,7 @@ public class minigamesMain extends JavaPlugin
 		return (bSuccess);
 	}
 	
-	public boolean createRiverRaceStartGridsTable()
+	public boolean createCheckpointsTable()
 	{
 		boolean bSuccess = false;
 		int iCount = -1;
@@ -380,11 +404,11 @@ public class minigamesMain extends JavaPlugin
 		try
 		{
 			//Adds a weather pref table
-			sql = "CREATE TABLE IF NOT EXISTS `"+this.Database+"`.`RiverRaceStartGrids` (\n" + 
-					"  `GridID` INT NOT NULL AUTO_INCREMENT,\n" + 
-					"  `MapID` VARCHAR(45) NOT NULL,\n" + 
-					"  `MapWorld` VARCHAR(45) NOT NULL,\n" + 
-					"   PRIMARY KEY (`MapID`));";
+			sql = "CREATE TABLE IF NOT EXISTS `"+this.Database+"`.`RiverRaceCheckPoints` (\n" + 
+					"  `CheckPointID` INT NOT NULL AUTO_INCREMENT,\n" + 
+					"  `MapID` INT NOT NULL,\n" + 
+					"  `Number` INT NOT NULL,\n" + 
+					"   PRIMARY KEY (`CheckPointID`));";
 			SQL = connection.createStatement();
 
 			//Executes the update and returns how many rows were changed
@@ -393,7 +417,86 @@ public class minigamesMain extends JavaPlugin
 			//If only 1 record was changed, success is set to true
 			if (iCount == 1)
 			{
-				Bukkit.getConsoleSender().sendMessage("[Minigames]" +ChatColor.AQUA + "Created Hide and Seek Maps table");			
+				Bukkit.getConsoleSender().sendMessage("[Minigames]" +ChatColor.AQUA + "Created River Race checkpoints table");			
+				bSuccess = true;
+			}
+		}
+		catch(SQLException se)
+		{
+			se.printStackTrace();
+		}
+		catch (Exception e)
+		{
+			e.printStackTrace();
+		}
+		return (bSuccess);
+	}
+	
+	public boolean createCheckpointBlocksTable()
+	{
+		boolean bSuccess = false;
+		int iCount = -1;
+
+		try
+		{
+			//Adds a weather pref table
+			sql = "CREATE TABLE IF NOT EXISTS `"+this.Database+"`.`RiverRaceCheckpointBlocks` (\n" + 
+					"  `CheckPointID` INT NOT NULL,\n" + 
+					"  `X` DOUBLE NOT NULL,\n" +
+					"  `Y` DOUBLE NOT NULL,\n" +
+					"  `Z` DOUBLE NOT NULL,\n" +
+					"  KEY `MapIDRef2_idx` (`CheckPointID`),\n" + 
+					"  CONSTRAINT `MapIDRef2` FOREIGN KEY (`CheckPointID`) REFERENCES `RiverRaceCheckPoints` (`CheckPointID`)\n" + 
+					");";
+			SQL = connection.createStatement();
+
+			//Executes the update and returns how many rows were changed
+			iCount = SQL.executeUpdate(sql);
+
+			//If only 1 record was changed, success is set to true
+			if (iCount == 1)
+			{
+				Bukkit.getConsoleSender().sendMessage("[Minigames]" +ChatColor.AQUA + "Created River Race checkpoint blocks table");			
+				bSuccess = true;
+			}
+		}
+		catch(SQLException se)
+		{
+			se.printStackTrace();
+		}
+		catch (Exception e)
+		{
+			e.printStackTrace();
+		}
+		return (bSuccess);
+	}
+	
+	public boolean createRiverRaceStartGridsTable()
+	{
+		boolean bSuccess = false;
+		int iCount = -1;
+		
+		try
+		{
+			//Adds a weather pref table
+			sql = "CREATE TABLE IF NOT EXISTS `"+this.Database+"`.`RiverRaceStartGrids` (\n" + 
+					"  `GridID` INT NOT NULL AUTO_INCREMENT,\n" + 
+					"  `MapID` INT NOT NULL,\n" + 
+					"  `Left` TINYINT NOT NULL,\n" + 
+					"  `PositionFromCentre INT NOT NULL,\n" +
+					"  `PositionX DOUBLE NOT NULL,\n" +
+					"  `PositionY DOUBLE NOT NULL,\n" +
+					"  `PositionZ DOUBLE NOT NULL,\n" +
+					"   PRIMARY KEY (`GridID`));";
+			SQL = connection.createStatement();
+
+			//Executes the update and returns how many rows were changed
+			iCount = SQL.executeUpdate(sql);
+
+			//If only 1 record was changed, success is set to true
+			if (iCount == 1)
+			{
+				Bukkit.getConsoleSender().sendMessage("[Minigames]" +ChatColor.AQUA + "Created River Race Start Grids table");			
 				bSuccess = true;
 			}
 		}

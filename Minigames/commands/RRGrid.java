@@ -66,7 +66,7 @@ public class RRGrid implements CommandExecutor
 					//Get details of each map
 					for (int i = 0 ; i < Maps.length ; i++)
 					{
-						sender.sendMessage(ChatColor.DARK_AQUA +"[Map Found]:");
+						sender.sendMessage(ChatColor.DARK_AQUA +"[Start Grid Found]:");
 						sender.sendMessage(ChatColor.AQUA +"MapID: "+Maps[i].getMapID());
 						sender.sendMessage(ChatColor.AQUA +"GridID: "+Maps[i].getGridID());
 						if (Maps[i].getLeft())

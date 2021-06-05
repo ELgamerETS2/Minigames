@@ -23,6 +23,7 @@ import Minigames.Games.RiverRace.RRSelection;
 import Minigames.Games.RiverRace.RiverRaceLobby;
 import Minigames.commands.HSBJoin;
 import Minigames.commands.HSMap;
+import Minigames.commands.Lobby;
 import Minigames.commands.Mystats;
 import Minigames.commands.RRCheck;
 import Minigames.commands.RRGrid;
@@ -212,7 +213,7 @@ public class minigamesMain extends JavaPlugin
 		getCommand("rrcheck").setExecutor(new RRCheck());
 		
 		//Allows devs to manage lobbies
-		getCommand("lobby").setExecutor(new RRCheck());
+		getCommand("lobby").setExecutor(new Lobby());
 		
 		//--------------------------------------
 		//-------------Stats Update-------------

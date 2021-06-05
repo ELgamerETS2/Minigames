@@ -32,7 +32,7 @@ public class Lobby implements CommandExecutor
 		
 		if (!player.hasPermission("minigames.managelobbies"))
 		{
-			sender.sendMessage("You do not have the correct permissions");
+			sender.sendMessage(ChatColor.RED +"You do not have the correct permissions");
 			return true;
 		}	
 		
@@ -96,47 +96,47 @@ public class Lobby implements CommandExecutor
 					player.sendMessage(ChatColor.RED +"Version must be an integer");
 					return true;
 				}
-				if (!args[3].matches("[0-9]+"))
+				if (!args[3].matches("-?[0-9]+"))
 				{
 					player.sendMessage(ChatColor.RED +"X Coord of Spawn must be an integer");
 					return true;
 				}
-				if (!args[4].matches("[0-9]+"))
+				if (!args[4].matches("-?[0-9]+"))
 				{
 					player.sendMessage(ChatColor.RED +"Y Coord of Spawn must be an integer");
 					return true;
 				}
-				if (!args[5].matches("[0-9]+"))
+				if (!args[5].matches("-?[0-9]+"))
 				{
 					player.sendMessage(ChatColor.RED +"Z Coord of Spawn must be an integer");
 					return true;
 				}
-				if (!args[6].matches("[0-9]+"))
+				if (!args[6].matches("-?[0-9]+"))
 				{
 					player.sendMessage(ChatColor.RED +"X Coord of Hide Lobby must be an integer");
 					return true;
 				}
-				if (!args[7].matches("[0-9]+"))
+				if (!args[7].matches("-?[0-9]+"))
 				{
 					player.sendMessage(ChatColor.RED +"Y Coord of Hide Lobby must be an integer");
 					return true;
 				}
-				if (!args[8].matches("[0-9]+"))
+				if (!args[8].matches("-?[0-9]+"))
 				{
 					player.sendMessage(ChatColor.RED +"Z Coord of Hide Lobby must be an integer");
 					return true;
 				}
-				if (!args[9].matches("[0-9]+"))
+				if (!args[9].matches("-?[0-9]+"))
 				{
 					player.sendMessage(ChatColor.RED +"X Coord of River Race must be an integer");
 					return true;
 				}
-				if (!args[10].matches("[0-9]+"))
+				if (!args[10].matches("-?[0-9]+"))
 				{
 					player.sendMessage(ChatColor.RED +"Y Coord of River Race must be an integer");
 					return true;
 				}
-				if (!args[11].matches("[0-9]+"))
+				if (!args[11].matches("-?[0-9]+"))
 				{
 					player.sendMessage(ChatColor.RED +"Z Coord of River Race must be an integer");
 					return true;
@@ -152,6 +152,11 @@ public class Lobby implements CommandExecutor
 			if (args[0].toLowerCase().equals("list"))
 			{
 				list(sender);
+				return true;
+			}
+			else if (args[0].toLowerCase().equals("add"))
+			{
+				player.sendMessage(ChatColor.RED +"/lobby add [Name] [Version] [X] [Y] [Z] [HideLobbyX] [HideLobbyY] [HideLobbyZ] [RiverRaceX] [RiverRaceY] [RiverRaceZ]");
 				return true;
 			}
 			help(sender);

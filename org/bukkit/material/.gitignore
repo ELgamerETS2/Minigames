@@ -1,4 +1,5 @@
 /Attachable.class
+/Banner.class
 /Bed.class
 /Button.class
 /Cake.class
@@ -9,6 +10,7 @@
 /CocoaPlant.class
 /Colorable.class
 /Command.class
+/Comparator.class
 /Crops.class
 /DetectorRail.class
 /Diode.class
@@ -23,6 +25,7 @@
 /Furnace.class
 /FurnaceAndDispenser.class
 /Gate.class
+/Hopper.class
 /Ladder.class
 /Leaves.class
 /Lever.class
@@ -31,6 +34,7 @@
 /MonsterEggs.class
 /Mushroom.class
 /NetherWarts.class
+/Observer.class
 /Openable.class
 /PistonBaseMaterial.class
 /PistonExtensionMaterial.class
@@ -43,6 +47,7 @@
 /RedstoneTorch.class
 /RedstoneWire.class
 /Sandstone.class
+/Sapling.class
 /Sign.class
 /SimpleAttachableMaterialData.class
 /Skull.class
@@ -57,5 +62,7 @@
 /Tripwire.class
 /TripwireHook.class
 /Vine.class
+/Wood.class
 /WoodenStep.class
 /Wool.class
+/package-info.class

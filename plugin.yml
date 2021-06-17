@@ -1,7 +1,8 @@
 name: Minigames
-version: 1.12.0
+version: 1.12.2
 main: Minigames.minigamesMain
 description: Handles all lobbies, games, stats, commands and banning system. Stats commands must consider privacy and profilling issues. User should not be able to access too much info about other users. All admin requests should be recorded.
+api-version: 1.16
 commands:
     hide:
         usage: /<command>
@@ -24,7 +25,7 @@ commands:
     rrcheck:
         usage: /<command>
         description: Allows Mapmakers to add checkpoints to River Race maps
-    lobby:
+    lobbys:
         usage: /<command>
         description: Allows devs to manage lobbies
 depend:

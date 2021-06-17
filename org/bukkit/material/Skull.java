@@ -5,10 +5,14 @@ import org.bukkit.block.BlockFace;
 
 /**
  * Represents a skull.
+ *
+ * @deprecated all usage of MaterialData is deprecated and subject to removal.
+ * Use {@link org.bukkit.block.data.BlockData}.
  */
+@Deprecated
 public class Skull extends MaterialData implements Directional {
     public Skull() {
-        super(Material.SKULL);
+        super(Material.LEGACY_SKULL);
     }
 
     /**
@@ -21,30 +25,13 @@ public class Skull extends MaterialData implements Directional {
         setFacingDirection(direction);
     }
 
-    /**
-     *
-     * @deprecated Magic value
-     */
-    @Deprecated
-    public Skull(final int type) {
-        super(type);
-    }
-
     public Skull(final Material type) {
         super(type);
     }
 
     /**
-     *
-     * @deprecated Magic value
-     */
-    @Deprecated
-    public Skull(final int type, final byte data) {
-        super(type, data);
-    }
-
-    /**
-     *
+     * @param type the type
+     * @param data the raw data value
      * @deprecated Magic value
      */
     @Deprecated
@@ -52,6 +39,7 @@ public class Skull extends MaterialData implements Directional {
         super(type, data);
     }
 
+    @Override
     public void setFacingDirection(BlockFace face) {
         int data;
 
@@ -65,7 +53,7 @@ public class Skull extends MaterialData implements Directional {
                 data = 0x2;
                 break;
 
-            case EAST:
+            case WEST:
                 data = 0x4;
                 break;
 
@@ -73,13 +61,14 @@ public class Skull extends MaterialData implements Directional {
                 data = 0x3;
                 break;
 
-            case WEST:
+            case EAST:
                 data = 0x5;
         }
 
         setData((byte) data);
     }
 
+    @Override
     public BlockFace getFacing() {
         int data = getData();
 
@@ -95,10 +84,10 @@ public class Skull extends MaterialData implements Directional {
                 return BlockFace.SOUTH;
 
             case 0x4:
-                return BlockFace.EAST;
+                return BlockFace.WEST;
 
             case 0x5:
-                return BlockFace.WEST;
+                return BlockFace.EAST;
         }
     }
 

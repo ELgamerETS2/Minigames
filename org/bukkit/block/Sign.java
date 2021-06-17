@@ -1,15 +1,19 @@
 package org.bukkit.block;
 
+import org.bukkit.material.Colorable;
+import org.jetbrains.annotations.NotNull;
+
 /**
- * Represents either a SignPost or a WallSign
+ * Represents a captured state of either a SignPost or a WallSign.
  */
-public interface Sign extends BlockState {
+public interface Sign extends TileState, Colorable {
 
     /**
      * Gets all the lines of text currently on this sign.
      *
      * @return Array of Strings containing each line of text
      */
+    @NotNull
     public String[] getLines();
 
     /**
@@ -21,6 +25,7 @@ public interface Sign extends BlockState {
      * @throws IndexOutOfBoundsException Thrown when the line does not exist
      * @return Text on the given line
      */
+    @NotNull
     public String getLine(int index) throws IndexOutOfBoundsException;
 
     /**
@@ -33,5 +38,27 @@ public interface Sign extends BlockState {
      * @param line New text to set at the specified index
      * @throws IndexOutOfBoundsException If the index is out of the range 0..3
      */
-    public void setLine(int index, String line) throws IndexOutOfBoundsException;
+    public void setLine(int index, @NotNull String line) throws IndexOutOfBoundsException;
+
+    /**
+     * Marks whether this sign can be edited by players.
+     * <br>
+     * This is a special value, which is not persisted. It should only be set if
+     * a placed sign is manipulated during the BlockPlaceEvent. Behaviour
+     * outside of this event is undefined.
+     *
+     * @return if this sign is currently editable
+     */
+    public boolean isEditable();
+
+    /**
+     * Marks whether this sign can be edited by players.
+     * <br>
+     * This is a special value, which is not persisted. It should only be set if
+     * a placed sign is manipulated during the BlockPlaceEvent. Behaviour
+     * outside of this event is undefined.
+     *
+     * @param editable if this sign is currently editable
+     */
+    public void setEditable(boolean editable);
 }

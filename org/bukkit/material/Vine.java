@@ -2,40 +2,44 @@ package org.bukkit.material;
 
 import java.util.Arrays;
 import java.util.EnumSet;
-
 import org.bukkit.Material;
 import org.bukkit.block.BlockFace;
 
 /**
  * Represents a vine
+ *
+ * @deprecated all usage of MaterialData is deprecated and subject to removal.
+ * Use {@link org.bukkit.block.data.BlockData}.
  */
+@Deprecated
 public class Vine extends MaterialData {
     private static final int VINE_NORTH = 0x4;
     private static final int VINE_EAST = 0x8;
     private static final int VINE_WEST = 0x2;
     private static final int VINE_SOUTH = 0x1;
-    EnumSet<BlockFace> possibleFaces = EnumSet.of(BlockFace.WEST, BlockFace.NORTH, BlockFace.SOUTH, BlockFace.EAST);
+    private static final EnumSet<BlockFace> possibleFaces = EnumSet.of(BlockFace.WEST, BlockFace.NORTH, BlockFace.SOUTH, BlockFace.EAST);
 
     public Vine() {
-        super(Material.VINE);
+        super(Material.LEGACY_VINE);
     }
 
     /**
-     *
+     * @param type the type
+     * @param data the raw data value
      * @deprecated Magic value
      */
     @Deprecated
-    public Vine(int type, byte data){
+    public Vine(final Material type, final byte data) {
         super(type, data);
     }
 
     /**
-     *
+     * @param data the raw data value
      * @deprecated Magic value
      */
     @Deprecated
     public Vine(byte data) {
-        super(Material.VINE, data);
+        super(Material.LEGACY_VINE, data);
     }
 
     public Vine(BlockFace... faces) {
@@ -106,7 +110,7 @@ public class Vine extends MaterialData {
      * @param face The face to attach.
      */
     public void putOnFace(BlockFace face) {
-        switch(face) {
+        switch (face) {
             case WEST:
                 setData((byte) (getData() | VINE_WEST));
                 break;
@@ -148,7 +152,7 @@ public class Vine extends MaterialData {
      * @param face The face to detach.
      */
     public void removeFromFace(BlockFace face) {
-        switch(face) {
+        switch (face) {
             case WEST:
                 setData((byte) (getData() & ~VINE_WEST));
                 break;

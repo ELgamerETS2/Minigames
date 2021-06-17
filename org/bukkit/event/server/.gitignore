@@ -1,3 +1,4 @@
+/BroadcastMessageEvent.class
 /MapInitializeEvent.class
 /PluginDisableEvent.class
 /PluginEnableEvent.class
@@ -6,6 +7,10 @@
 /ServerCommandEvent.class
 /ServerEvent.class
 /ServerListPingEvent.class
+/ServerLoadEvent$LoadType.class
+/ServerLoadEvent.class
 /ServiceEvent.class
 /ServiceRegisterEvent.class
 /ServiceUnregisterEvent.class
+/TabCompleteEvent.class
+/package-info.class

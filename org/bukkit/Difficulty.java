@@ -1,8 +1,8 @@
 package org.bukkit;
 
-import java.util.Map;
-
 import com.google.common.collect.Maps;
+import java.util.Map;
+import org.jetbrains.annotations.Nullable;
 
 /**
  * Represents the various difficulty levels that are available.
@@ -34,7 +34,7 @@ public enum Difficulty {
     HARD(3);
 
     private final int value;
-    private final static Map<Integer, Difficulty> BY_ID = Maps.newHashMap();
+    private static final Map<Integer, Difficulty> BY_ID = Maps.newHashMap();
 
     private Difficulty(final int value) {
         this.value = value;
@@ -60,6 +60,7 @@ public enum Difficulty {
      * @deprecated Magic value
      */
     @Deprecated
+    @Nullable
     public static Difficulty getByValue(final int value) {
         return BY_ID.get(value);
     }

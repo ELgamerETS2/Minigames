@@ -10,8 +10,9 @@
 /PluginCommand.class
 /PluginCommandYamlParser.class
 /PluginIdentifiableCommand.class
+/ProxiedCommandSender.class
 /RemoteConsoleCommandSender.class
 /SimpleCommandMap.class
-/TabCommandExecutor.class
 /TabCompleter.class
 /TabExecutor.class
+/package-info.class

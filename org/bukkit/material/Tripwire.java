@@ -4,28 +4,24 @@ import org.bukkit.Material;
 
 /**
  * Represents the tripwire
+ *
+ * @deprecated all usage of MaterialData is deprecated and subject to removal.
+ * Use {@link org.bukkit.block.data.BlockData}.
  */
+@Deprecated
 public class Tripwire extends MaterialData {
-    
+
     public Tripwire() {
-        super(Material.TRIPWIRE);
+        super(Material.LEGACY_TRIPWIRE);
     }
 
     /**
-     *
+     * @param type the type
+     * @param data the raw data value
      * @deprecated Magic value
      */
     @Deprecated
-    public Tripwire(final int type) {
-        super(type);
-    }
-
-    /**
-     *
-     * @deprecated Magic value
-     */
-    @Deprecated
-    public Tripwire(final int type, final byte data) {
+    public Tripwire(final Material type, final byte data) {
         super(type, data);
     }
 
@@ -37,7 +33,7 @@ public class Tripwire extends MaterialData {
     public boolean isActivated() {
         return (getData() & 0x4) != 0;
     }
-    
+
     /**
      * Set tripwire activated state
      *
@@ -49,8 +45,8 @@ public class Tripwire extends MaterialData {
             dat |= 0x4;
         }
         setData((byte) dat);
-    }    
-    
+    }
+
     /**
      * Test if object triggering this tripwire directly
      *
@@ -80,6 +76,6 @@ public class Tripwire extends MaterialData {
 
     @Override
     public String toString() {
-        return super.toString() + (isActivated()?" Activated":"") + (isObjectTriggering()?" Triggered":"");
+        return super.toString() + (isActivated() ? " Activated" : "") + (isObjectTriggering() ? " Triggered" : "");
     }
 }

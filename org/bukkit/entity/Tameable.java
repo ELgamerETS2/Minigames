@@ -1,6 +1,8 @@
 package org.bukkit.entity;
 
-public interface Tameable {
+import org.jetbrains.annotations.Nullable;
+
+public interface Tameable extends Animals {
 
     /**
      * Check if this is tamed
@@ -28,6 +30,7 @@ public interface Tameable {
      *
      * @return the owning AnimalTamer, or null if not owned
      */
+    @Nullable
     public AnimalTamer getOwner();
 
     /**
@@ -39,6 +42,6 @@ public interface Tameable {
      *
      * @param tamer the AnimalTamer who should own this
      */
-    public void setOwner(AnimalTamer tamer);
+    public void setOwner(@Nullable AnimalTamer tamer);
 
 }

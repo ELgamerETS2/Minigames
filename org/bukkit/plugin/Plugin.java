@@ -3,13 +3,12 @@ package org.bukkit.plugin;
 import java.io.File;
 import java.io.InputStream;
 import java.util.logging.Logger;
-
 import org.bukkit.Server;
 import org.bukkit.command.TabExecutor;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.generator.ChunkGenerator;
-
-import com.avaje.ebean.EbeanServer;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 /**
  * Represents a Plugin
@@ -23,6 +22,7 @@ public interface Plugin extends TabExecutor {
      *
      * @return The folder
      */
+    @NotNull
     public File getDataFolder();
 
     /**
@@ -30,6 +30,7 @@ public interface Plugin extends TabExecutor {
      *
      * @return Contents of the plugin.yaml file
      */
+    @NotNull
     public PluginDescriptionFile getDescription();
 
     /**
@@ -41,6 +42,7 @@ public interface Plugin extends TabExecutor {
      *
      * @return Plugin configuration
      */
+    @NotNull
     public FileConfiguration getConfig();
 
     /**
@@ -49,7 +51,8 @@ public interface Plugin extends TabExecutor {
      * @param filename Filename of the resource
      * @return File if found, otherwise null
      */
-    public InputStream getResource(String filename);
+    @Nullable
+    public InputStream getResource(@NotNull String filename);
 
     /**
      * Saves the {@link FileConfiguration} retrievable by {@link #getConfig()}.
@@ -58,9 +61,9 @@ public interface Plugin extends TabExecutor {
 
     /**
      * Saves the raw contents of the default config.yml file to the location
-     * retrievable by {@link #getConfig()}. If there is no default config.yml
-     * embedded in the plugin, an empty config.yml file is saved. This should
-     * fail silently if the config.yml already exists.
+     * retrievable by {@link #getConfig()}.
+     * <p>
+     * This should fail silently if the config.yml already exists.
      */
     public void saveDefaultConfig();
 
@@ -78,7 +81,7 @@ public interface Plugin extends TabExecutor {
      * @throws IllegalArgumentException if the resource path is null, empty,
      *     or points to a nonexistent resource.
      */
-    public void saveResource(String resourcePath, boolean replace);
+    public void saveResource(@NotNull String resourcePath, boolean replace);
 
     /**
      * Discards any data in {@link #getConfig()} and reloads from disk.
@@ -90,6 +93,7 @@ public interface Plugin extends TabExecutor {
      *
      * @return PluginLoader that controls this plugin
      */
+    @NotNull
     public PluginLoader getPluginLoader();
 
     /**
@@ -97,6 +101,7 @@ public interface Plugin extends TabExecutor {
      *
      * @return Server running this plugin
      */
+    @NotNull
     public Server getServer();
 
     /**
@@ -115,7 +120,7 @@ public interface Plugin extends TabExecutor {
     /**
      * Called after a plugin is loaded but before it has been enabled.
      * <p>
-     * When mulitple plugins are loaded, the onLoad() for all plugins is
+     * When multiple plugins are loaded, the onLoad() for all plugins is
      * called before any onEnable() is called.
      */
     public void onLoad();
@@ -140,24 +145,6 @@ public interface Plugin extends TabExecutor {
     public void setNaggable(boolean canNag);
 
     /**
-     * Gets the {@link EbeanServer} tied to this plugin. This will only be
-     * available if enabled in the {@link
-     * PluginDescriptionFile#isDatabaseEnabled()}
-     * <p>
-     * <i>For more information on the use of <a href="http://www.avaje.org/">
-     * Avaje Ebeans ORM</a>, see <a
-     * href="http://www.avaje.org/ebean/documentation.html">Avaje Ebeans
-     * Documentation</a></i>
-     * <p>
-     * <i>For an example using Ebeans ORM, see <a
-     * href="https://github.com/Bukkit/HomeBukkit">Bukkit's Homebukkit Plugin
-     * </a></i>
-     *
-     * @return ebean server instance or null if not enabled
-     */
-    public EbeanServer getDatabase();
-
-    /**
      * Gets a {@link ChunkGenerator} for use in a default world, as specified
      * in the server configuration
      *
@@ -166,7 +153,8 @@ public interface Plugin extends TabExecutor {
      *     generator was requested
      * @return ChunkGenerator for use in the default world generation
      */
-    public ChunkGenerator getDefaultWorldGenerator(String worldName, String id);
+    @Nullable
+    public ChunkGenerator getDefaultWorldGenerator(@NotNull String worldName, @Nullable String id);
 
     /**
      * Returns the plugin logger associated with this server's logger. The
@@ -175,6 +163,7 @@ public interface Plugin extends TabExecutor {
      *
      * @return Logger associated with this plugin
      */
+    @NotNull
     public Logger getLogger();
 
     /**
@@ -185,5 +174,6 @@ public interface Plugin extends TabExecutor {
      *
      * @return name of the plugin
      */
+    @NotNull
     public String getName();
 }

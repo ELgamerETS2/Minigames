@@ -1,16 +1,17 @@
 package org.bukkit.event.entity;
 
+import com.google.common.base.Function;
+import com.google.common.base.Functions;
+import com.google.common.collect.ImmutableMap;
 import java.util.EnumMap;
 import java.util.Map;
-
 import org.apache.commons.lang.Validate;
+import org.bukkit.Material;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
 import org.bukkit.event.Cancellable;
 import org.bukkit.event.HandlerList;
-import org.bukkit.util.NumberConversions;
-
-import com.google.common.collect.ImmutableMap;
+import org.jetbrains.annotations.NotNull;
 
 /**
  * Stores data for damage events
@@ -18,34 +19,36 @@ import com.google.common.collect.ImmutableMap;
 public class EntityDamageEvent extends EntityEvent implements Cancellable {
     private static final HandlerList handlers = new HandlerList();
     private static final DamageModifier[] MODIFIERS = DamageModifier.values();
+    private static final Function<? super Double, Double> ZERO = Functions.constant(-0.0);
     private final Map<DamageModifier, Double> modifiers;
+    private final Map<DamageModifier, ? extends Function<? super Double, Double>> modifierFunctions;
     private final Map<DamageModifier, Double> originals;
     private boolean cancelled;
     private final DamageCause cause;
 
-    @Deprecated
-    public EntityDamageEvent(final Entity damagee, final DamageCause cause, final int damage) {
-        this(damagee, cause, (double) damage);
+    public EntityDamageEvent(@NotNull final Entity damagee, @NotNull final DamageCause cause, final double damage) {
+        this(damagee, cause, new EnumMap<DamageModifier, Double>(ImmutableMap.of(DamageModifier.BASE, damage)), new EnumMap<DamageModifier, Function<? super Double, Double>>(ImmutableMap.of(DamageModifier.BASE, ZERO)));
     }
 
-    @Deprecated
-    public EntityDamageEvent(final Entity damagee, final DamageCause cause, final double damage) {
-        this(damagee, cause, new EnumMap<DamageModifier, Double>(ImmutableMap.of(DamageModifier.BASE, damage)));
-    }
-
-    public EntityDamageEvent(final Entity damagee, final DamageCause cause, final Map<DamageModifier, Double> modifiers) {
+    public EntityDamageEvent(@NotNull final Entity damagee, @NotNull final DamageCause cause, @NotNull final Map<DamageModifier, Double> modifiers, @NotNull final Map<DamageModifier, ? extends Function<? super Double, Double>> modifierFunctions) {
         super(damagee);
         Validate.isTrue(modifiers.containsKey(DamageModifier.BASE), "BASE DamageModifier missing");
         Validate.isTrue(!modifiers.containsKey(null), "Cannot have null DamageModifier");
+        Validate.noNullElements(modifiers.values(), "Cannot have null modifier values");
+        Validate.isTrue(modifiers.keySet().equals(modifierFunctions.keySet()), "Must have a modifier function for each DamageModifier");
+        Validate.noNullElements(modifierFunctions.values(), "Cannot have null modifier function");
         this.originals = new EnumMap<DamageModifier, Double>(modifiers);
         this.cause = cause;
         this.modifiers = modifiers;
+        this.modifierFunctions = modifierFunctions;
     }
 
+    @Override
     public boolean isCancelled() {
         return cancelled;
     }
 
+    @Override
     public void setCancelled(boolean cancel) {
         cancelled = cancel;
     }
@@ -55,9 +58,10 @@ public class EntityDamageEvent extends EntityEvent implements Cancellable {
      * event's construction.
      *
      * @param type the modifier
+     * @return the original damage
      * @throws IllegalArgumentException if type is null
      */
-    public double getOriginalDamage(DamageModifier type) throws IllegalArgumentException {
+    public double getOriginalDamage(@NotNull DamageModifier type) throws IllegalArgumentException {
         final Double damage = originals.get(type);
         if (damage != null) {
             return damage;
@@ -71,14 +75,15 @@ public class EntityDamageEvent extends EntityEvent implements Cancellable {
     /**
      * Sets the damage for the specified modifier.
      *
+     * @param type the damage modifier
      * @param damage the scalar value of the damage's modifier
-     * @see #getFinalDamage()
      * @throws IllegalArgumentException if type is null
      * @throws UnsupportedOperationException if the caller does not support
      *     the particular DamageModifier, or to rephrase, when {@link
      *     #isApplicable(DamageModifier)} returns false
+     * @see #getFinalDamage()
      */
-    public void setDamage(DamageModifier type, double damage) throws IllegalArgumentException, UnsupportedOperationException {
+    public void setDamage(@NotNull DamageModifier type, double damage) throws IllegalArgumentException, UnsupportedOperationException {
         if (!modifiers.containsKey(type)) {
             throw type == null ? new IllegalArgumentException("Cannot have null DamageModifier") : new UnsupportedOperationException(type + " is not applicable to " + getEntity());
         }
@@ -88,11 +93,12 @@ public class EntityDamageEvent extends EntityEvent implements Cancellable {
     /**
      * Gets the damage change for some modifier
      *
+     * @param type the damage modifier
      * @return The raw amount of damage caused by the event
      * @throws IllegalArgumentException if type is null
      * @see DamageModifier#BASE
      */
-    public double getDamage(DamageModifier type) throws IllegalArgumentException {
+    public double getDamage(@NotNull DamageModifier type) throws IllegalArgumentException {
         Validate.notNull(type, "Cannot have null DamageModifier");
         final Double damage = modifiers.get(type);
         return damage == null ? 0 : damage;
@@ -109,7 +115,7 @@ public class EntityDamageEvent extends EntityEvent implements Cancellable {
      * @return true if the modifier is supported by the caller, false otherwise
      * @throws IllegalArgumentException if type is null
      */
-    public boolean isApplicable(DamageModifier type) throws IllegalArgumentException {
+    public boolean isApplicable(@NotNull DamageModifier type) throws IllegalArgumentException {
         Validate.notNull(type, "Cannot have null DamageModifier");
         return modifiers.containsKey(type);
     }
@@ -139,32 +145,40 @@ public class EntityDamageEvent extends EntityEvent implements Cancellable {
     }
 
     /**
-     * This method exists for legacy reasons to provide backwards
-     * compatibility. It will not exist at runtime and should not be used
-     * under any circumstances.
-     */
-    @Deprecated
-    public int _INVALID_getDamage() {
-        return NumberConversions.ceil(getDamage());
-    }
-
-    /**
-     * Sets the raw amount of damage caused by the event
+     * Sets the raw amount of damage caused by the event.
+     * <p>
+     * For compatibility this also recalculates the modifiers and scales
+     * them by the difference between the modifier for the previous damage
+     * value and the new one.
      *
      * @param damage The raw amount of damage caused by the event
      */
     public void setDamage(double damage) {
-        setDamage(DamageModifier.BASE, damage);
-    }
+        // These have to happen in the same order as the server calculates them, keep the enum sorted
+        double remaining = damage;
+        double oldRemaining = getDamage(DamageModifier.BASE);
+        for (DamageModifier modifier : MODIFIERS) {
+            if (!isApplicable(modifier)) {
+                continue;
+            }
 
-    /**
-     * This method exists for legacy reasons to provide backwards
-     * compatibility. It will not exist at runtime and should not be used
-     * under any circumstances.
-     */
-    @Deprecated
-    public void _INVALID_setDamage(int damage) {
-        setDamage(damage);
+            Function<? super Double, Double> modifierFunction = modifierFunctions.get(modifier);
+            double newVanilla = modifierFunction.apply(remaining);
+            double oldVanilla = modifierFunction.apply(oldRemaining);
+            double difference = oldVanilla - newVanilla;
+
+            // Don't allow value to cross zero, assume zero values should be negative
+            double old = getDamage(modifier);
+            if (old > 0) {
+                setDamage(modifier, Math.max(0, old - difference));
+            } else {
+                setDamage(modifier, Math.min(0, old - difference));
+            }
+            remaining += newVanilla;
+            oldRemaining += oldVanilla;
+        }
+
+        setDamage(DamageModifier.BASE, damage);
     }
 
     /**
@@ -172,22 +186,31 @@ public class EntityDamageEvent extends EntityEvent implements Cancellable {
      *
      * @return A DamageCause value detailing the cause of the damage.
      */
+    @NotNull
     public DamageCause getCause() {
         return cause;
     }
 
+    @NotNull
     @Override
     public HandlerList getHandlers() {
         return handlers;
     }
 
+    @NotNull
     public static HandlerList getHandlerList() {
         return handlers;
     }
 
     /**
      * An enum to specify the types of modifier
+     *
+     * @deprecated This API is responsible for a large number of implementation
+     * problems and is in general unsustainable to maintain. It is likely to be
+     * removed very soon in a subsequent release. Please see
+     * https://www.spigotmc.org/threads/194446/ for more information.
      */
+    @Deprecated
     public enum DamageModifier {
         /**
          * This represents the amount of damage being done, also known as the
@@ -248,6 +271,12 @@ public class EntityDamageEvent extends EntityEvent implements Cancellable {
          * Damage: variable
          */
         ENTITY_ATTACK,
+        /**
+         * Damage caused when an entity attacks another entity in a sweep attack.
+         * <p>
+         * Damage: variable
+         */
+        ENTITY_SWEEP_ATTACK,
         /**
          * Damage caused when attacked by a projectile.
          * <p>
@@ -365,10 +394,41 @@ public class EntityDamageEvent extends EntityEvent implements Cancellable {
          */
         THORNS,
         /**
+         * Damage caused by a dragon breathing fire.
+         * <p>
+         * Damage: variable
+         */
+        DRAGON_BREATH,
+        /**
          * Custom damage.
          * <p>
          * Damage: variable
          */
-        CUSTOM
+        CUSTOM,
+        /**
+         * Damage caused when an entity runs into a wall.
+         * <p>
+         * Damage: variable
+         */
+        FLY_INTO_WALL,
+        /**
+         * Damage caused when an entity steps on {@link Material#MAGMA_BLOCK}.
+         * <p>
+         * Damage: 1
+         */
+        HOT_FLOOR,
+        /**
+         * Damage caused when an entity is colliding with too many entities due
+         * to the maxEntityCramming game rule.
+         * <p>
+         * Damage: 6
+         */
+        CRAMMING,
+        /**
+         * Damage caused when an entity that should be in water is not.
+         * <p>
+         * Damage: 1
+         */
+        DRYOUT
     }
 }

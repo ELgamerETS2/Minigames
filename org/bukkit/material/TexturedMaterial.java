@@ -1,12 +1,15 @@
 package org.bukkit.material;
 
 import java.util.List;
-
 import org.bukkit.Material;
 
 /**
  * Represents textured materials like steps and smooth bricks
+ *
+ * @deprecated all usage of MaterialData is deprecated and subject to removal.
+ * Use {@link org.bukkit.block.data.BlockData}.
  */
+@Deprecated
 public abstract class TexturedMaterial extends MaterialData {
 
     public TexturedMaterial(Material m) {
@@ -14,25 +17,8 @@ public abstract class TexturedMaterial extends MaterialData {
     }
 
     /**
-     *
-     * @deprecated Magic value
-     */
-    @Deprecated
-    public TexturedMaterial(int type) {
-        super(type);
-    }
-
-    /**
-     *
-     * @deprecated Magic value
-     */
-    @Deprecated
-    public TexturedMaterial(final int type, final byte data) {
-        super(type, data);
-    }
-
-    /**
-     *
+     * @param type the type
+     * @param data the raw data value
      * @deprecated Magic value
      */
     @Deprecated
@@ -95,7 +81,7 @@ public abstract class TexturedMaterial extends MaterialData {
      */
     @Deprecated
     protected void setTextureIndex(int idx) {
-        setData((byte) idx); // Defult to using all bits - override for other mappings
+        setData((byte) idx); // Default to using all bits - override for other mappings
     }
 
     @Override

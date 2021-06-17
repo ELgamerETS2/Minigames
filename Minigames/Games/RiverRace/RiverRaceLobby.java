@@ -1,12 +1,12 @@
 package Minigames.Games.RiverRace;
 
 import java.util.ArrayList;
-import java.util.List;
 
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
+import org.bukkit.scheduler.BukkitTask;
 
 import Minigames.Announce;
 import Minigames.MainLobby;
@@ -17,13 +17,20 @@ public class RiverRaceLobby
 	//Essentials
 	private minigamesMain CorePlugin;
 	private final Location lobbyLocation;
-	private List<Player> players;
+	private ArrayList<Player> players;
 	private RiverRaceGame RRGame;
 	
 	private boolean bGameIsRunning;
+	private boolean gameIsStarting;
+	private int iTimer;
+	
+	private final int minPlayers;
+	private BukkitTask Task;
 	
 	public RiverRaceLobby(minigamesMain CorePlugin)
 	{
+		minPlayers = 1;
+		
 		//Store plugin locally
 		this.CorePlugin = CorePlugin;
 		
@@ -31,7 +38,7 @@ public class RiverRaceLobby
 		MainLobby lobby = this.CorePlugin.MainLobby;
 		
 		//Set up location for hide lobby
-		this.lobbyLocation = new Location(Bukkit.getWorld(lobby.getWorldName()), lobby.getRiverRaceX(), lobby.getRiverRaceY(), lobby.getRiverRaceZ());
+		this.lobbyLocation = new Location(Bukkit.getWorld(lobby.getWorldName()), lobby.getRiverRaceX()+0.5, lobby.getRiverRaceY()+0.5, lobby.getRiverRaceZ()+0.5);
 		
 		//Create a list of players
 		players = new ArrayList<Player>();
@@ -51,6 +58,20 @@ public class RiverRaceLobby
 	*/	//Announce
 		Bukkit.getConsoleSender().sendMessage("[Minigames]" +ChatColor.GREEN +" River Race lobby created");
 		Bukkit.getConsoleSender().sendMessage("[Minigames]" +ChatColor.GREEN +" In world: "+lobbyLocation.getWorld().getName() +", X: "+lobbyLocation.getBlockX() + ", Y: "+lobbyLocation.getBlockY() + ", Z: "+lobbyLocation.getBlockZ());
+		
+		iTimer = 60;
+		
+		Bukkit.getScheduler().runTaskTimer(this.CorePlugin, new Runnable()
+		{
+			@Override
+			public void run()
+			{
+				if (players.size() >= minPlayers && !bGameIsRunning && !gameIsStarting)
+				{
+					gameStartCountdown();
+				}
+			}
+		}, 0, 100L);
 		
 	//	reset();
 	}
@@ -145,13 +166,60 @@ public class RiverRaceLobby
 		}
 	}
 	
+	public void gameStartCountdown()
+	{
+		gameIsStarting = true;
+		iTimer = 60;
+		
+		Task = Bukkit.getScheduler().runTaskTimer(this.CorePlugin, new Runnable()
+		{
+			@Override
+			public void run()
+			{
+				if (bGameIsRunning)
+				{
+					gameIsStarting = false;
+					Bukkit.getScheduler().cancelTask(Task.getTaskId());
+					return;
+				}
+				
+				if (players.size() < minPlayers)
+				{
+					gameIsStarting = false;
+					Bukkit.getScheduler().cancelTask(Task.getTaskId());
+					return;
+				}
+				
+				if (iTimer == 0)
+				{
+					Announce.announce(players, ChatColor.BLUE +"Game starting now");
+					lobbyRun();
+					Bukkit.getScheduler().cancelTask(Task.getTaskId());
+					return;
+				}
+				else if (iTimer % 10 == 0)
+				{
+					Announce.announce(players, ChatColor.BLUE +"Game starting in "+iTimer +" seconds");
+				}
+				else if (iTimer < 10)
+				{
+					Announce.announce(players, ChatColor.BLUE +"Game starting in "+iTimer);
+				}
+				
+				iTimer--;
+			}
+		}, 0, 20L);
+	}
+	
 	private void lobbyRun()
 	{
 		bGameIsRunning = true;
-		
+				
 		RRGame = new RiverRaceGame(CorePlugin, this, (Player[]) players.toArray(new Player[players.size()]));
 		
 		players = new ArrayList<Player>();
+		
+		gameIsStarting = false;
 		
 		RRGame.highGameProcesses();
 	}

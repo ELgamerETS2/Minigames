@@ -1,8 +1,8 @@
 package org.bukkit;
 
-import java.util.Map;
-
 import com.google.common.collect.Maps;
+import java.util.Map;
+import org.jetbrains.annotations.Nullable;
 
 /**
  * Represents the different growth states of crops
@@ -43,7 +43,7 @@ public enum CropState {
     RIPE(0x7);
 
     private final byte data;
-    private final static Map<Byte, CropState> BY_DATA = Maps.newHashMap();
+    private static final Map<Byte, CropState> BY_DATA = Maps.newHashMap();
 
     private CropState(final int data) {
         this.data = (byte) data;
@@ -69,6 +69,7 @@ public enum CropState {
      * @deprecated Magic value
      */
     @Deprecated
+    @Nullable
     public static CropState getByData(final byte data) {
         return BY_DATA.get(data);
     }

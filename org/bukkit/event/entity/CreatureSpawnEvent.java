@@ -1,65 +1,27 @@
 package org.bukkit.event.entity;
 
-import org.bukkit.Location;
-import org.bukkit.entity.CreatureType;
-import org.bukkit.entity.Entity;
+import org.bukkit.Chunk;
 import org.bukkit.entity.LivingEntity;
-import org.bukkit.event.Cancellable;
-import org.bukkit.event.HandlerList;
+import org.bukkit.event.world.ChunkLoadEvent;
+import org.jetbrains.annotations.NotNull;
 
 /**
  * Called when a creature is spawned into a world.
  * <p>
  * If a Creature Spawn event is cancelled, the creature will not spawn.
  */
-public class CreatureSpawnEvent extends EntityEvent implements Cancellable {
-    private static final HandlerList handlers = new HandlerList();
-    private boolean canceled;
+public class CreatureSpawnEvent extends EntitySpawnEvent {
     private final SpawnReason spawnReason;
 
-    public CreatureSpawnEvent(final LivingEntity spawnee, final SpawnReason spawnReason) {
+    public CreatureSpawnEvent(@NotNull final LivingEntity spawnee, @NotNull final SpawnReason spawnReason) {
         super(spawnee);
         this.spawnReason = spawnReason;
     }
 
-    @Deprecated
-    public CreatureSpawnEvent(Entity spawnee, CreatureType type, Location loc, SpawnReason reason) {
-        super(spawnee);
-        spawnReason = reason;
-    }
-
-    public boolean isCancelled() {
-        return canceled;
-    }
-
-    public void setCancelled(boolean cancel) {
-        canceled = cancel;
-    }
-
+    @NotNull
     @Override
     public LivingEntity getEntity() {
         return (LivingEntity) entity;
-    }
-
-    /**
-     * Gets the location at which the creature is spawning.
-     *
-     * @return The location at which the creature is spawning
-     */
-    public Location getLocation() {
-        return getEntity().getLocation();
-    }
-
-    /**
-     * Gets the type of creature being spawned.
-     *
-     * @return A CreatureType value detailing the type of creature being
-     *     spawned
-     * @deprecated In favour of {@link #getEntityType()}.
-     */
-    @Deprecated
-    public CreatureType getCreatureType() {
-        return CreatureType.fromEntityType(getEntityType());
     }
 
     /**
@@ -68,17 +30,9 @@ public class CreatureSpawnEvent extends EntityEvent implements Cancellable {
      * @return A SpawnReason value detailing the reason for the creature being
      *     spawned
      */
+    @NotNull
     public SpawnReason getSpawnReason() {
         return spawnReason;
-    }
-
-    @Override
-    public HandlerList getHandlers() {
-        return handlers;
-    }
-
-    public static HandlerList getHandlerList() {
-        return handlers;
     }
 
     /**
@@ -97,7 +51,13 @@ public class CreatureSpawnEvent extends EntityEvent implements Cancellable {
         JOCKEY,
         /**
          * When a creature spawns due to chunk generation
+         *
+         * @deprecated no longer called, chunks are generated with entities
+         * already existing. Consider using {@link ChunkLoadEvent},
+         * {@link ChunkLoadEvent#isNewChunk()} and {@link Chunk#getEntities()}
+         * for similar effect.
          */
+        @Deprecated
         CHUNK_GEN,
         /**
          * When a creature spawns from a spawner
@@ -115,13 +75,6 @@ public class CreatureSpawnEvent extends EntityEvent implements Cancellable {
          * When a creature spawns because of a lightning strike
          */
         LIGHTNING,
-        /**
-         * When a creature is spawned by a player that is sleeping
-         *
-         * @deprecated No longer used
-         */
-        @Deprecated
-        BED,
         /**
          * When a snowman is spawned by being built
          */
@@ -183,6 +136,43 @@ public class CreatureSpawnEvent extends EntityEvent implements Cancellable {
          * jockeys)
          */
         MOUNT,
+        /**
+         * When an entity spawns as a trap for players approaching
+         */
+        TRAP,
+        /**
+         * When an entity is spawned as a result of ender pearl usage
+         */
+        ENDER_PEARL,
+        /**
+         * When an entity is spawned as a result of the entity it is being
+         * perched on jumping or being damaged
+         */
+        SHOULDER_ENTITY,
+        /**
+         * When a creature is spawned by another entity drowning
+         */
+        DROWNED,
+        /**
+         * When an cow is spawned by shearing a mushroom cow
+         */
+        SHEARED,
+        /**
+         * When eg an effect cloud is spawned as a result of a creeper exploding
+         */
+        EXPLOSION,
+        /**
+         * When an entity is spawned as part of a raid
+         */
+        RAID,
+        /**
+         * When an entity is spawned as part of a patrol
+         */
+        PATROL,
+        /**
+         * When a bee is released from a beehive/bee nest
+         */
+        BEEHIVE,
         /**
          * When a creature is spawned by plugins
          */

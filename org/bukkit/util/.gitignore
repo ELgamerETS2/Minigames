@@ -1,10 +1,14 @@
 /BlockIterator.class
 /BlockVector.class
+/BoundingBox.class
 /CachedServerIcon.class
 /ChatPaginator$ChatPage.class
 /ChatPaginator.class
+/Consumer.class
+/EulerAngle.class
 /FileUtil.class
-/Java15Compat.class
 /NumberConversions.class
+/RayTraceResult.class
 /StringUtil.class
 /Vector.class
+/package-info.class

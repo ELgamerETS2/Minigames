@@ -4,19 +4,14 @@ import org.bukkit.Material;
 
 /**
  * Represents a pressure plate
+ *
+ * @deprecated all usage of MaterialData is deprecated and subject to removal.
+ * Use {@link org.bukkit.block.data.BlockData}.
  */
+@Deprecated
 public class PressurePlate extends MaterialData implements PressureSensor {
     public PressurePlate() {
-        super(Material.WOOD_PLATE);
-    }
-
-    /**
-     *
-     * @deprecated Magic value
-     */
-    @Deprecated
-    public PressurePlate(int type) {
-        super(type);
+        super(Material.LEGACY_WOOD_PLATE);
     }
 
     public PressurePlate(Material type) {
@@ -24,16 +19,8 @@ public class PressurePlate extends MaterialData implements PressureSensor {
     }
 
     /**
-     *
-     * @deprecated Magic value
-     */
-    @Deprecated
-    public PressurePlate(int type, byte data) {
-        super(type, data);
-    }
-
-    /**
-     *
+     * @param type the type
+     * @param data the raw data value
      * @deprecated Magic value
      */
     @Deprecated
@@ -41,6 +28,7 @@ public class PressurePlate extends MaterialData implements PressureSensor {
         super(type, data);
     }
 
+    @Override
     public boolean isPressed() {
         return getData() == 0x1;
     }

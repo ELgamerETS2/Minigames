@@ -5,32 +5,22 @@ import org.bukkit.block.BlockFace;
 
 /**
  * Material data for the piston base block
+ *
+ * @deprecated all usage of MaterialData is deprecated and subject to removal.
+ * Use {@link org.bukkit.block.data.BlockData}.
  */
+@Deprecated
 public class PistonBaseMaterial extends MaterialData implements Directional, Redstone {
-    /**
-     *
-     * @deprecated Magic value
-     */
-    @Deprecated
-    public PistonBaseMaterial(final int type) {
-        super(type);
-    }
 
     public PistonBaseMaterial(final Material type) {
         super(type);
     }
 
     /**
+     * Constructs a PistonBaseMaterial.
      *
-     * @deprecated Magic value
-     */
-    @Deprecated
-    public PistonBaseMaterial(final int type, final byte data) {
-        super(type, data);
-    }
-
-    /**
-     *
+     * @param type the material type to use
+     * @param data the raw data value
      * @deprecated Magic value
      */
     @Deprecated
@@ -38,6 +28,7 @@ public class PistonBaseMaterial extends MaterialData implements Directional, Red
         super(type, data);
     }
 
+    @Override
     public void setFacingDirection(BlockFace face) {
         byte data = (byte) (getData() & 0x8);
 
@@ -61,6 +52,7 @@ public class PistonBaseMaterial extends MaterialData implements Directional, Red
         setData(data);
     }
 
+    @Override
     public BlockFace getFacing() {
         byte dir = (byte) (getData() & 7);
 
@@ -82,6 +74,7 @@ public class PistonBaseMaterial extends MaterialData implements Directional, Red
         }
     }
 
+    @Override
     public boolean isPowered() {
         return (getData() & 0x8) == 0x8;
     }
@@ -89,7 +82,7 @@ public class PistonBaseMaterial extends MaterialData implements Directional, Red
     /**
      * Sets the current state of this piston
      *
-     * @param powered true if the piston is extended & powered, or false
+     * @param powered true if the piston is extended {@literal &} powered, or false
      */
     public void setPowered(boolean powered) {
         setData((byte) (powered ? (getData() | 0x8) : (getData() & ~0x8)));
@@ -101,7 +94,7 @@ public class PistonBaseMaterial extends MaterialData implements Directional, Red
      * @return true if this piston is "sticky", or false
      */
     public boolean isSticky() {
-        return this.getItemType() == Material.PISTON_STICKY_BASE;
+        return this.getItemType() == Material.LEGACY_PISTON_STICKY_BASE;
     }
 
     @Override

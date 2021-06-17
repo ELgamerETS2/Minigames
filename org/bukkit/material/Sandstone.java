@@ -5,10 +5,14 @@ import org.bukkit.SandstoneType;
 
 /**
  * Represents the different types of sandstone.
+ *
+ * @deprecated all usage of MaterialData is deprecated and subject to removal.
+ * Use {@link org.bukkit.block.data.BlockData}.
  */
+@Deprecated
 public class Sandstone extends MaterialData {
     public Sandstone() {
-        super(Material.SANDSTONE);
+        super(Material.LEGACY_SANDSTONE);
     }
 
     public Sandstone(SandstoneType type) {
@@ -16,30 +20,13 @@ public class Sandstone extends MaterialData {
         setType(type);
     }
 
-    /**
-     *
-     * @deprecated Magic value
-     */
-    @Deprecated
-    public Sandstone(final int type) {
-        super(type);
-    }
-
     public Sandstone(final Material type) {
         super(type);
     }
 
     /**
-     *
-     * @deprecated Magic value
-     */
-    @Deprecated
-    public Sandstone(final int type, final byte data) {
-        super(type, data);
-    }
-
-    /**
-     *
+     * @param type the type
+     * @param data the raw data value
      * @deprecated Magic value
      */
     @Deprecated

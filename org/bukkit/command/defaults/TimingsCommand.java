@@ -1,11 +1,11 @@
 package org.bukkit.command.defaults;
 
+import com.google.common.collect.ImmutableList;
 import java.io.File;
 import java.io.IOException;
 import java.io.PrintStream;
 import java.util.ArrayList;
 import java.util.List;
-
 import org.apache.commons.lang.Validate;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
@@ -16,13 +16,12 @@ import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.RegisteredListener;
 import org.bukkit.plugin.TimedRegisteredListener;
 import org.bukkit.util.StringUtil;
-
-import com.google.common.collect.ImmutableList;
+import org.jetbrains.annotations.NotNull;
 
 public class TimingsCommand extends BukkitCommand {
     private static final List<String> TIMINGS_SUBCOMMANDS = ImmutableList.of("merged", "reset", "separate");
 
-    public TimingsCommand(String name) {
+    public TimingsCommand(@NotNull String name) {
         super(name);
         this.description = "Records timings for all plugin events";
         this.usageMessage = "/timings <reset|merged|separate>";
@@ -30,9 +29,9 @@ public class TimingsCommand extends BukkitCommand {
     }
 
     @Override
-    public boolean execute(CommandSender sender, String currentAlias, String[] args) {
+    public boolean execute(@NotNull CommandSender sender, @NotNull String currentAlias, @NotNull String[] args) {
         if (!testPermission(sender)) return true;
-        if (args.length != 1)  {
+        if (args.length != 1) {
             sender.sendMessage(ChatColor.RED + "Usage: " + usageMessage);
             return false;
         }
@@ -41,17 +40,17 @@ public class TimingsCommand extends BukkitCommand {
             return true;
         }
 
-        boolean separate = "separate".equals(args[0]);
-        if ("reset".equals(args[0])) {
+        boolean separate = "separate".equalsIgnoreCase(args[0]);
+        if ("reset".equalsIgnoreCase(args[0])) {
             for (HandlerList handlerList : HandlerList.getHandlerLists()) {
                 for (RegisteredListener listener : handlerList.getRegisteredListeners()) {
                     if (listener instanceof TimedRegisteredListener) {
-                        ((TimedRegisteredListener)listener).reset();
+                        ((TimedRegisteredListener) listener).reset();
                     }
                 }
             }
             sender.sendMessage("Timings reset");
-        } else if ("merged".equals(args[0]) || separate) {
+        } else if ("merged".equalsIgnoreCase(args[0]) || separate) {
 
             int index = 0;
             int pluginIdx = 0;
@@ -74,8 +73,9 @@ public class TimingsCommand extends BukkitCommand {
                     if (separate) {
                         fileNames.println(pluginIdx + " " + plugin.getDescription().getFullName());
                         fileTimings.println("Plugin " + pluginIdx);
+                    } else {
+                        fileTimings.println(plugin.getDescription().getFullName());
                     }
-                    else fileTimings.println(plugin.getDescription().getFullName());
                     for (RegisteredListener listener : HandlerList.getRegisteredListeners(plugin)) {
                         if (listener instanceof TimedRegisteredListener) {
                             TimedRegisteredListener trl = (TimedRegisteredListener) listener;
@@ -103,12 +103,16 @@ public class TimingsCommand extends BukkitCommand {
                     fileNames.close();
                 }
             }
+        } else {
+            sender.sendMessage(ChatColor.RED + "Usage: " + usageMessage);
+            return false;
         }
         return true;
     }
 
+    @NotNull
     @Override
-    public List<String> tabComplete(CommandSender sender, String alias, String[] args) {
+    public List<String> tabComplete(@NotNull CommandSender sender, @NotNull String alias, @NotNull String[] args) {
         Validate.notNull(sender, "Sender cannot be null");
         Validate.notNull(args, "Arguments cannot be null");
         Validate.notNull(alias, "Alias cannot be null");

@@ -138,7 +138,7 @@ public class minigamesMain extends JavaPlugin
 		
 		MainLobby = new MainLobby(this);
 		//Attempts to load world
-		Bukkit.dispatchCommand(Bukkit.getConsoleSender(), "mv import " +MainLobby.getWorldName() +" normal");
+	//	Bukkit.dispatchCommand(Bukkit.getConsoleSender(), "mv import " +MainLobby.getWorldName() +" normal");
 		
 		HSLobby = new HideAndSeekLobby(this);
 		RRLobby = new RiverRaceLobby(this);
@@ -150,7 +150,7 @@ public class minigamesMain extends JavaPlugin
 		LobbyGUI.initialize();
 		
 		//Create gui item				
-		gui = new ItemStack(Material.ARROW);
+		gui = new ItemStack(Material.EMERALD);
 		ItemMeta meta = gui.getItemMeta();
 		meta.setDisplayName(ChatColor.GREEN + "" + ChatColor.BOLD + "Minigames Menu");
 		gui.setItemMeta(meta);
@@ -213,7 +213,7 @@ public class minigamesMain extends JavaPlugin
 		getCommand("rrcheck").setExecutor(new RRCheck());
 		
 		//Allows devs to manage lobbies
-		getCommand("lobby").setExecutor(new Lobby());
+		getCommand("lobbys").setExecutor(new Lobby());
 		
 		//--------------------------------------
 		//-------------Stats Update-------------
@@ -626,7 +626,7 @@ public class minigamesMain extends JavaPlugin
 		{
 			//Adds a weather pref table
 			sql = "CREATE TABLE IF NOT EXISTS `"+this.Database+"`.`Lobbies` (\n" +
-					"  `LobbyID` INT NOT NULL,\n" + 
+					"  `LobbyID` INT NOT NULL AUTO_INCREMENT,\n" + 
 					"  `Name` varchar(36) NOT NULL,\n" + 
 					"  `Version` int NOT NULL,\n" + 
 					"  `Active` tinyint NOT NULL,\n" + 
@@ -637,6 +637,9 @@ public class minigamesMain extends JavaPlugin
 					"  `HidePlatformX` int NOT NULL,\n" + 
 					"  `HidePlatformY` int NOT NULL,\n" + 
 					"  `HidePlatformZ` int NOT NULL,\n" + 
+					"  `RiverRaceX` int NOT NULL,\n" + 
+					"  `RiverRaceY` int NOT NULL,\n" + 
+					"  `RiverRaceZ` int NOT NULL,\n" + 
 					"  PRIMARY KEY (`LobbyID`));";
 			Bukkit.getConsoleSender().sendMessage("[Minigames] [SQL]: " + sql);
 			SQL = connection.createStatement();

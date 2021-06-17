@@ -1,12 +1,13 @@
 package Minigames.Games.HideAndSeek;
 
 import java.util.ArrayList;
-import java.util.List;
 
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
+import org.bukkit.World;
 import org.bukkit.entity.Player;
+import org.bukkit.scheduler.BukkitTask;
 import org.bukkit.scoreboard.ScoreboardManager;
 import org.bukkit.scoreboard.Scoreboard;
 import org.bukkit.scoreboard.Team;
@@ -24,7 +25,7 @@ public class HideAndSeekLobby
 	//Essentials
 	private minigamesMain CorePlugin;
 	private final Location lobbyLocation;
-	private List<Player> players;
+	private ArrayList<Player> players;
 	
 	//Scoreboard
 	protected ScoreboardManager SBM;
@@ -43,11 +44,15 @@ public class HideAndSeekLobby
 	
 	public boolean gameIsRunning;
 	private boolean gameIsStarting;
+	int iTimer;
+	boolean bTerminate;
+	BukkitTask Task;
 	
 	public int getPlayers()
 	{
 		return players.size();
 	}
+	
 	public HideAndSeekLobby(minigamesMain CorePlugin)
 	{
 		//Store plugin locally
@@ -56,9 +61,28 @@ public class HideAndSeekLobby
 		//Get lobby into a local variable
 		MainLobby lobby = CorePlugin.MainLobby;
 		
-		//Set up location for hide lobby
-		this.lobbyLocation = new Location(Bukkit.getWorld(lobby.getWorldName()), lobby.getiHidePlatformX(), lobby.getiHidePlatformY(), lobby.getiHidePlatformZ());
+		System.out.println("name 1: " +lobby.getWorldName());
 		
+		World world = Bukkit.getWorld(lobby.getWorldName());
+		
+		if (world == null)
+			System.out.println("World temp is null");
+		else
+			System.out.println("World temp is not null");
+		
+		String szCurrent = Bukkit.getWorlds().get(0).getName();
+		
+		System.out.println("Current world: "+szCurrent);
+		
+		//Set up location for hide lobby
+		this.lobbyLocation = new Location(world, lobby.getiHidePlatformX()+0.5, lobby.getiHidePlatformY()+0.5, lobby.getiHidePlatformZ()+0.5);
+		
+		if (lobbyLocation.getWorld() == null)
+			System.out.println("Lobby location world is null");
+		else
+			System.out.println("Lobby location world is not null");
+		
+		System.out.println("name 2: " +Bukkit.getWorld(lobby.getWorldName()).getName());
 		//Create a list of players
 		players = new ArrayList<Player>();
 		
@@ -69,14 +93,26 @@ public class HideAndSeekLobby
 		//Registers the teams
 		TeamH = SB.registerNewTeam("Hiders");
 		TeamS = SB.registerNewTeam("Seekers");
-		Found = SB.registerNewObjective("Players found", "dummy");
-		Hiders = SB.registerNewObjective("Hiders", "dummy");
+		Found = SB.registerNewObjective("Players found", "dummy", "Seekers");
+		Hiders = SB.registerNewObjective("Hiders", "dummy", "Hiders");
 		
 		//Announce
-		Bukkit.getConsoleSender().sendMessage("[Minigames]" +ChatColor.GREEN +" Hide and seek lobby created");
-		Bukkit.getConsoleSender().sendMessage("[Minigames]" +ChatColor.GREEN +" In world: "+lobbyLocation.getWorld().getName() +", X: "+lobbyLocation.getBlockX() + ", Y: "+lobbyLocation.getBlockY() + ", Z: "+lobbyLocation.getBlockZ());
+		Bukkit.getConsoleSender().sendMessage("[Minigames] [Hide]" +ChatColor.GREEN +" Hide and seek lobby created");
+		Bukkit.getConsoleSender().sendMessage("[Minigames] [Hide]" +ChatColor.GREEN +" In world: "+lobbyLocation.getWorld().getName() +", X: "+lobbyLocation.getBlockX() + ", Y: "+lobbyLocation.getBlockY() + ", Z: "+lobbyLocation.getBlockZ());
 		
 		reset();
+				
+		Bukkit.getScheduler().runTaskTimer(this.CorePlugin, new Runnable()
+		{
+			@Override
+			public void run()
+			{
+				if (players.size() >= CorePlugin.getConfig().getInt("HideMininumPlayers") && !gameIsRunning && !gameIsStarting)
+				{
+					gameStartCountdown();
+				}
+			}
+		}, 0, 100L);
 	}
 	
 	private void reset()
@@ -104,8 +140,8 @@ public class HideAndSeekLobby
 		TeamS = SB.registerNewTeam("Seekers");
 		
 		//Registers the objectives
-		Found = SB.registerNewObjective("Players found", "dummy");
-		Hiders = SB.registerNewObjective("Hiders", "dummy");
+		Found = SB.registerNewObjective("Players found", "dummy", "Seekers");
+		Hiders = SB.registerNewObjective("Hiders", "dummy", "Hiders");
 
 		//Set the teams
 		TeamH.setDisplayName("Hiders");
@@ -114,11 +150,11 @@ public class HideAndSeekLobby
 		TeamH.setAllowFriendlyFire(false);
 		TeamS.setAllowFriendlyFire(false);
 		
-		Found.setDisplayName("Seekers");
 		Found.setDisplaySlot(DisplaySlot.SIDEBAR);
 		
-		Hiders.setDisplayName("Hiders");
 		Hiders.setDisplaySlot(DisplaySlot.SIDEBAR);
+		
+		iTimer = 60;
 	}
 	
 	//Handles player attmepting to join the hide and seek lobby
@@ -144,7 +180,7 @@ public class HideAndSeekLobby
 			player.sendMessage(ChatColor.LIGHT_PURPLE +"Welcome to the Hide and Seek lobby");
 			
 			//Announces to all players that a player has joined the loobby
-			Announce.announce((Player[]) players.toArray(new Player[players.size()]), (ChatColor.BLUE +player.getDisplayName() +ChatColor.DARK_PURPLE +" has joined the Hide and Seek lobby"));
+			Announce.announce((Player[]) players.toArray(new Player[players.size()]), (ChatColor.DARK_PURPLE +player.getDisplayName() +ChatColor.LIGHT_PURPLE +" has joined the Hide and Seek lobby"));
 			
 			//Announces the amount of players now in the lobby
 			if (players.size() == 1)
@@ -156,29 +192,6 @@ public class HideAndSeekLobby
 			player.setWalkSpeed((float) 0.2);
 			player.setFlySpeed((float) 0.2);
 			
-			//Selection to start the game here:
-			if (players.size() >= CorePlugin.getConfig().getInt("HideMininumPlayers") && !gameIsStarting && !gameIsRunning)
-			{
-				//Sets game is starting to true
-				gameIsStarting = true;
-				
-		        Bukkit.getScheduler().runTaskLater(this.CorePlugin, new Runnable()
-		        {
-		            @Override
-		            public void run()
-		            {
-		            //	Announce.announce((Player[]) players.toArray(new Player[players.size()]), ChatColor.DARK_PURPLE +"Moving to map location in "+CorePlugin.getConfig().getInt("HideTimer")+ " seconds!");
-		            	if (players.size() >= CorePlugin.getConfig().getInt("HideMininumPlayers") && !gameIsRunning)
-		            	{
-							lobbyRun();
-		            	}
-		            	else
-		            	{
-		            		gameIsStarting = false;
-		            	}
-		            }
-		        }, CorePlugin.getConfig().getInt("HideTimer") * 20L);
-			}
 		}
 	}
 	
@@ -192,7 +205,7 @@ public class HideAndSeekLobby
 			players.remove(player);
 			
 			//Announces that they have left
-			Announce.announce((Player[]) players.toArray(new Player[players.size()]), (ChatColor.BLUE +player.getDisplayName() +ChatColor.DARK_PURPLE +" has left the Hide and Seek lobby"));
+			Announce.announce((Player[]) players.toArray(new Player[players.size()]), (ChatColor.DARK_PURPLE +player.getDisplayName() +ChatColor.LIGHT_PURPLE +" has left the Hide and Seek lobby"));
 			
 			//Announces the amount of players now in the lobby
 			if (players.size() == 1)
@@ -208,22 +221,68 @@ public class HideAndSeekLobby
 		{
 			HideGame.playerLeave(player);
 		}
+		
+		//Reset flight to stop vunerability of people leaving during the flight section
+		player.setAllowFlight(false);
+	}
+	
+	public void gameStartCountdown()
+	{
+		gameIsStarting = true;
+		iTimer = 60;
+		System.out.println("Game is starting, timer is 60");
+		
+		Task = Bukkit.getScheduler().runTaskTimer(this.CorePlugin, new Runnable()
+		{
+			@Override
+			public void run()
+			{
+				if (gameIsRunning)
+				{
+					gameIsStarting = false;
+					Bukkit.getScheduler().cancelTask(Task.getTaskId());
+					return;
+				}
+				
+				if (players.size() < CorePlugin.getConfig().getInt("HideMininumPlayers"))
+				{
+					gameIsStarting = false;
+					Bukkit.getScheduler().cancelTask(Task.getTaskId());
+					return;
+				}
+				
+				if (iTimer == 0)
+				{
+					Announce.announce(players, ChatColor.LIGHT_PURPLE +"Game starting now");
+					iTimer = 60;
+					lobbyRun();
+					Bukkit.getScheduler().cancelTask(Task.getTaskId());
+					return;
+				}
+				else if (iTimer % 10 == 0)
+				{
+					Announce.announce(players, ChatColor.LIGHT_PURPLE +"Game starting in "+iTimer +" seconds");
+				}
+				else if (iTimer < 10)
+				{
+					Announce.announce(players, ChatColor.LIGHT_PURPLE +"Game starting in "+iTimer);
+				}
+				
+				iTimer--;
+			}
+		}, 0, 20L);
 	}
 	
 	//Triggers the game to start
 	public void lobbyRun()
 	{
-	/*	while (players.size() < 4)
-		{
-			
-		}
-	*/
+		gameIsRunning = true;
+		
 		//Sets finders to 1
 		iFinders = 1;
 		
 		//Creates a new game and returns the gameID		
 		HideGame = new HideAndSeekGame((Player[]) players.toArray(new Player[players.size()]), iFinders, Map.iMapID, this.CorePlugin, this);
-		gameIsRunning = true;
 		
 		//Resets player list
 		players = new ArrayList<Player>();

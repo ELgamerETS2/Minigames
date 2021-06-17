@@ -5,20 +5,15 @@ import org.bukkit.block.BlockFace;
 
 /**
  * Represents minecart rails.
+ *
+ * @deprecated all usage of MaterialData is deprecated and subject to removal.
+ * Use {@link org.bukkit.block.data.BlockData}.
  */
+@Deprecated
 public class Rails extends MaterialData {
 
     public Rails() {
-        super(Material.RAILS);
-    }
-
-    /**
-     *
-     * @deprecated Magic value
-     */
-    @Deprecated
-    public Rails(final int type) {
-        super(type);
+        super(Material.LEGACY_RAILS);
     }
 
     public Rails(final Material type) {
@@ -26,16 +21,8 @@ public class Rails extends MaterialData {
     }
 
     /**
-     *
-     * @deprecated Magic value
-     */
-    @Deprecated
-    public Rails(final int type, final byte data) {
-        super(type, data);
-    }
-
-    /**
-     *
+     * @param type the type
+     * @param data the raw data value
      * @deprecated Magic value
      */
     @Deprecated

@@ -1,6 +1,9 @@
 package org.bukkit.command;
 
 import java.util.List;
+import org.bukkit.Location;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 public interface CommandMap {
 
@@ -19,7 +22,7 @@ public interface CommandMap {
      *     a ':' one or more times to make the command unique
      * @param commands a list of commands to register
      */
-    public void registerAll(String fallbackPrefix, List<Command> commands);
+    public void registerAll(@NotNull String fallbackPrefix, @NotNull List<Command> commands);
 
     /**
      * Registers a command. Returns true on success; false if name is already
@@ -41,7 +44,7 @@ public interface CommandMap {
      *     otherwise, which indicates the fallbackPrefix was used one or more
      *     times
      */
-    public boolean register(String label, String fallbackPrefix, Command command);
+    public boolean register(@NotNull String label, @NotNull String fallbackPrefix, @NotNull Command command);
 
     /**
      * Registers a command. Returns true on success; false if name is already
@@ -63,7 +66,7 @@ public interface CommandMap {
      *     otherwise, which indicates the fallbackPrefix was used one or more
      *     times
      */
-    public boolean register(String fallbackPrefix, Command command);
+    public boolean register(@NotNull String fallbackPrefix, @NotNull Command command);
 
     /**
      * Looks for the requested command and executes it if found.
@@ -74,7 +77,7 @@ public interface CommandMap {
      * @throws CommandException Thrown when the executor for the given command
      *     fails with an unhandled exception
      */
-    public boolean dispatch(CommandSender sender, String cmdLine) throws CommandException;
+    public boolean dispatch(@NotNull CommandSender sender, @NotNull String cmdLine) throws CommandException;
 
     /**
      * Clears all registered commands.
@@ -88,8 +91,8 @@ public interface CommandMap {
      * @return Command with the specified name or null if a command with that
      *     label doesn't exist
      */
-    public Command getCommand(String name);
-
+    @Nullable
+    public Command getCommand(@NotNull String name);
 
     /**
      * Looks for the requested command and executes an appropriate
@@ -105,5 +108,24 @@ public interface CommandMap {
      *     command fails with an unhandled exception
      * @throws IllegalArgumentException if either sender or cmdLine are null
      */
-    public List<String> tabComplete(CommandSender sender, String cmdLine) throws IllegalArgumentException;
+    @Nullable
+    public List<String> tabComplete(@NotNull CommandSender sender, @NotNull String cmdLine) throws IllegalArgumentException;
+
+    /**
+     * Looks for the requested command and executes an appropriate
+     * tab-completer if found. This method will also tab-complete partial
+     * commands.
+     *
+     * @param sender The command's sender.
+     * @param cmdLine The entire command string to tab-complete, excluding
+     *     initial slash.
+     * @param location The position looked at by the sender, or null if none
+     * @return a list of possible tab-completions. This list may be immutable.
+     *     Will be null if no matching command of which sender has permission.
+     * @throws CommandException Thrown when the tab-completer for the given
+     *     command fails with an unhandled exception
+     * @throws IllegalArgumentException if either sender or cmdLine are null
+     */
+    @Nullable
+    public List<String> tabComplete(@NotNull CommandSender sender, @NotNull String cmdLine, @Nullable Location location) throws IllegalArgumentException;
 }

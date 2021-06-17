@@ -1,9 +1,11 @@
 package org.bukkit.event.entity;
 
+import com.google.common.base.Function;
 import java.util.Map;
-
 import org.bukkit.block.Block;
 import org.bukkit.entity.Entity;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 /**
  * Called when an entity is damaged by a block
@@ -11,19 +13,13 @@ import org.bukkit.entity.Entity;
 public class EntityDamageByBlockEvent extends EntityDamageEvent {
     private final Block damager;
 
-    @Deprecated
-    public EntityDamageByBlockEvent(final Block damager, final Entity damagee, final DamageCause cause, final int damage) {
-        this(damager, damagee, cause, (double) damage);
-    }
-
-    @Deprecated
-    public EntityDamageByBlockEvent(final Block damager, final Entity damagee, final DamageCause cause, final double damage) {
+    public EntityDamageByBlockEvent(@Nullable final Block damager, @NotNull final Entity damagee, @NotNull final DamageCause cause, final double damage) {
         super(damagee, cause, damage);
         this.damager = damager;
     }
 
-    public EntityDamageByBlockEvent(final Block damager, final Entity damagee, final DamageCause cause, final Map<DamageModifier, Double> modifiers) {
-        super(damagee, cause, modifiers);
+    public EntityDamageByBlockEvent(@Nullable final Block damager, @NotNull final Entity damagee, @NotNull final DamageCause cause, @NotNull final Map<DamageModifier, Double> modifiers, @NotNull final Map<DamageModifier, ? extends Function<? super Double, Double>> modifierFunctions) {
+        super(damagee, cause, modifiers, modifierFunctions);
         this.damager = damager;
     }
 
@@ -32,6 +28,7 @@ public class EntityDamageByBlockEvent extends EntityDamageEvent {
      *
      * @return Block that damaged the player
      */
+    @Nullable
     public Block getDamager() {
         return damager;
     }

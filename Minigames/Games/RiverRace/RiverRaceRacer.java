@@ -23,7 +23,7 @@ public class RiverRaceRacer
 	{
 		this.player = player;
 		this.boat = boat;
-		boat.setPassenger(player);
+		boat.addPassenger(player);
 		iCheckpoint = 0;
 				
 		switcher = new SwitchBoat(plugin, this);
@@ -31,7 +31,7 @@ public class RiverRaceRacer
 	
 	public void increaseBoatSpeed(Double dSpeed)
 	{
-		boat.setMaxSpeed(dSpeed);
+	//	boat.setMaxSpeed(dSpeed);
 	}
 	
 	public UUID getUUID()
@@ -60,13 +60,23 @@ public class RiverRaceRacer
 	public void unBoard()
 	{
 		switcher.unRegister();
-		boat.eject();
-		boat.remove();
+		if (boat !=null)
+		{
+			boat.eject();
+			boat.remove();
+		}
 	}
 	
 	public void removeBoat()
 	{
-		boat = null;
+		try
+		{
+			boat = null;
+		}
+		catch (Exception e)
+		{
+			e.printStackTrace();
+		}
 	}
 	
 	public void addBoat(Boat boat)

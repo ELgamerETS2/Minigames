@@ -1,42 +1,97 @@
 package org.bukkit.entity;
 
-/**
- * Represents an arrow.
- */
-public interface Arrow extends Projectile {
+import java.util.List;
+import org.bukkit.Color;
+import org.bukkit.potion.PotionData;
+import org.bukkit.potion.PotionEffect;
+import org.bukkit.potion.PotionEffectType;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
+
+public interface Arrow extends AbstractArrow {
 
     /**
-     * Gets the knockback strength for an arrow, which is the
-     * {@link org.bukkit.enchantments.Enchantment#KNOCKBACK KnockBack} level
-     * of the bow that shot it.
+     * Sets the underlying potion data
      *
-     * @return the knockback strength value
+     * @param data PotionData to set the base potion state to
      */
-    public int getKnockbackStrength();
+    void setBasePotionData(@NotNull PotionData data);
 
     /**
-     * Sets the knockback strength for an arrow.
+     * Returns the potion data about the base potion
      *
-     * @param knockbackStrength the knockback strength value
+     * @return a PotionData object
      */
-    public void setKnockbackStrength(int knockbackStrength);
+    @NotNull
+    PotionData getBasePotionData();
 
     /**
-     * Gets whether this arrow is critical.
+     * Gets the color of this arrow.
+     *
+     * @return arrow color
+     */
+    @NotNull
+    Color getColor();
+
+    /**
+     * Sets the color of this arrow. Will be applied as a tint to its particles.
+     *
+     * @param color arrow color
+     */
+    void setColor(@NotNull Color color);
+
+    /**
+     * Checks for the presence of custom potion effects.
+     *
+     * @return true if custom potion effects are applied
+     */
+    boolean hasCustomEffects();
+
+    /**
+     * Gets an immutable list containing all custom potion effects applied to
+     * this arrow.
      * <p>
-     * Critical arrows have increased damage and cause particle effects.
-     * <p>
-     * Critical arrows generally occur when a player fully draws a bow before
-     * firing.
+     * Plugins should check that hasCustomEffects() returns true before calling
+     * this method.
      *
-     * @return true if it is critical
+     * @return the immutable list of custom potion effects
      */
-    public boolean isCritical();
+    @NotNull
+    List<PotionEffect> getCustomEffects();
 
     /**
-     * Sets whether or not this arrow should be critical.
+     * Adds a custom potion effect to this arrow.
      *
-     * @param critical whether or not it should be critical
+     * @param effect the potion effect to add
+     * @param overwrite true if any existing effect of the same type should be
+     * overwritten
+     * @return true if the effect was added as a result of this call
      */
-    public void setCritical(boolean critical);
+    boolean addCustomEffect(@NotNull PotionEffect effect, boolean overwrite);
+
+    /**
+     * Removes a custom potion effect from this arrow.
+     *
+     * @param type the potion effect type to remove
+     * @return true if the an effect was removed as a result of this call
+     * @throws IllegalArgumentException if this operation would leave the Arrow
+     * in a state with no Custom Effects and PotionType.UNCRAFTABLE
+     */
+    boolean removeCustomEffect(@NotNull PotionEffectType type);
+
+    /**
+     * Checks for a specific custom potion effect type on this arrow.
+     *
+     * @param type the potion effect type to check for
+     * @return true if the potion has this effect
+     */
+    boolean hasCustomEffect(@Nullable PotionEffectType type);
+
+    /**
+     * Removes all custom potion effects from this arrow.
+     *
+     * @throws IllegalArgumentException if this operation would leave the Arrow
+     * in a state with no Custom Effects and PotionType.UNCRAFTABLE
+     */
+    void clearCustomEffects();
 }

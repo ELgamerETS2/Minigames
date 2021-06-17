@@ -4,19 +4,14 @@ import org.bukkit.Material;
 
 /**
  * Represents a powered rail
+ *
+ * @deprecated all usage of MaterialData is deprecated and subject to removal.
+ * Use {@link org.bukkit.block.data.BlockData}.
  */
+@Deprecated
 public class PoweredRail extends ExtendedRails implements Redstone {
     public PoweredRail() {
-        super(Material.POWERED_RAIL);
-    }
-
-    /**
-     *
-     * @deprecated Magic value
-     */
-    @Deprecated
-    public PoweredRail(final int type) {
-        super(type);
+        super(Material.LEGACY_POWERED_RAIL);
     }
 
     public PoweredRail(final Material type) {
@@ -24,16 +19,8 @@ public class PoweredRail extends ExtendedRails implements Redstone {
     }
 
     /**
-     *
-     * @deprecated Magic value
-     */
-    @Deprecated
-    public PoweredRail(final int type, final byte data) {
-        super(type, data);
-    }
-
-    /**
-     *
+     * @param type the type
+     * @param data the raw data value
      * @deprecated Magic value
      */
     @Deprecated
@@ -41,6 +28,7 @@ public class PoweredRail extends ExtendedRails implements Redstone {
         super(type, data);
     }
 
+    @Override
     public boolean isPowered() {
         return (getData() & 0x8) == 0x8;
     }

@@ -82,6 +82,12 @@ public class RRCheck implements CommandExecutor
 					
 					RiverRaceCheckpoint[] Checkpoints = RiverRaceCheckpoint.getAllForMapID(Map.getMapID(), Map.getWorld());
 					
+					if (Checkpoints.length == 0)
+					{
+						sender.sendMessage(ChatColor.GREEN +"No checkpoints found");
+						return true;
+					}
+					
 					//Get details of each checkpoint
 					for (int i = 0 ; i < Checkpoints.length ; i++)
 					{

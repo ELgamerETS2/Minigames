@@ -40,7 +40,7 @@ public class JoinEvent implements Listener
 		Bukkit.getConsoleSender().sendMessage("[Minigames] " +ChatColor.GREEN + "Player joined minigames server, setting to spawn of "+plugin.MainLobby.getSzName() + " lobby");
 		
 		//Set up location for spawn point
-		Location location = new Location(Bukkit.getWorld(lobby.getWorldName()), lobby.getX(), lobby.getY(), lobby.getZ());
+		Location location = new Location(Bukkit.getWorld(lobby.getWorldName()), lobby.getX()+0.5, lobby.getY()+0.5, lobby.getZ()+0.5);
 						
 		//Teleport player to spawn
 		event.getPlayer().teleport(location);

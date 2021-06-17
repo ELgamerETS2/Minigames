@@ -1,9 +1,10 @@
 package org.bukkit.event.player;
 
 import org.bukkit.Location;
-import org.bukkit.TravelAgent;
 import org.bukkit.entity.Player;
 import org.bukkit.event.HandlerList;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 /**
  * Called when a player is about to teleport because it is in contact with a
@@ -13,74 +14,105 @@ import org.bukkit.event.HandlerList;
  */
 public class PlayerPortalEvent extends PlayerTeleportEvent {
     private static final HandlerList handlers = new HandlerList();
-    protected boolean useTravelAgent = true;
-    protected TravelAgent travelAgent;
+    private int getSearchRadius = 128;
+    private boolean canCreatePortal = true;
+    private int creationRadius = 16;
 
-    public PlayerPortalEvent(final Player player, final Location from, final Location to, final TravelAgent pta) {
+    public PlayerPortalEvent(@NotNull final Player player, @NotNull final Location from, @Nullable final Location to) {
         super(player, from, to);
-        this.travelAgent = pta;
     }
 
-    public PlayerPortalEvent(Player player, Location from, Location to, TravelAgent pta, TeleportCause cause) {
+    public PlayerPortalEvent(@NotNull Player player, @NotNull Location from, @Nullable Location to, @NotNull TeleportCause cause) {
         super(player, from, to, cause);
-        this.travelAgent = pta;
+    }
+
+    public PlayerPortalEvent(@NotNull Player player, @NotNull Location from, @Nullable Location to, @NotNull TeleportCause cause, int getSearchRadius, boolean canCreatePortal, int creationRadius) {
+        super(player, from, to, cause);
+        this.getSearchRadius = getSearchRadius;
+        this.canCreatePortal = canCreatePortal;
+        this.creationRadius = creationRadius;
     }
 
     /**
-     * Sets whether or not the Travel Agent will be used.
-     * <p>
-     * If this is set to true, the TravelAgent will try to find a Portal at
-     * the {@link #getTo()} Location, and will try to create one if there is
-     * none.
-     * <p>
-     * If this is set to false, the {@link #getPlayer()} will only be
-     * teleported to the {@link #getTo()} Location.
+     * Set the Block radius to search in for available portals.
      *
-     * @param useTravelAgent whether to use the Travel Agent
+     * @param searchRadius the radius in which to search for a portal from the
+     * location
      */
-    public void useTravelAgent(boolean useTravelAgent) {
-        this.useTravelAgent = useTravelAgent;
+    public void setSearchRadius(int searchRadius) {
+        this.getSearchRadius = searchRadius;
     }
 
     /**
-     * Gets whether or not the Travel Agent will be used.
-     * <p>
-     * If this is set to true, the TravelAgent will try to find a Portal at
-     * the {@link #getTo()} Location, and will try to create one if there is
-     * none.
-     * <p>
-     * If this is set to false, the {@link #getPlayer()}} will only be
-     * teleported to the {@link #getTo()} Location.
+     * Gets the search radius value for finding an available portal.
      *
-     * @return whether to use the Travel Agent
+     * @return the currently set search radius
      */
-    public boolean useTravelAgent() {
-        return useTravelAgent && travelAgent != null;
+    public int getSearchRadius() {
+        return getSearchRadius;
     }
 
     /**
-     * Gets the Travel Agent used (or not) in this event.
+     * Returns whether the server will attempt to create a destination portal or
+     * not.
      *
-     * @return the Travel Agent used (or not) in this event
+     * @return whether there should create be a destination portal created
      */
-    public TravelAgent getPortalTravelAgent() {
-        return this.travelAgent;
+    public boolean getCanCreatePortal() {
+        return canCreatePortal;
     }
 
     /**
-     * Sets the Travel Agent used (or not) in this event.
+     * Sets whether the server should attempt to create a destination portal or
+     * not.
      *
-     * @param travelAgent the Travel Agent used (or not) in this event
+     * @param canCreatePortal Sets whether there should be a destination portal
+     * created
      */
-    public void setPortalTravelAgent(TravelAgent travelAgent) {
-        this.travelAgent = travelAgent;
+    public void setCanCreatePortal(boolean canCreatePortal) {
+        this.canCreatePortal = canCreatePortal;
     }
 
+    /**
+     * Sets the maximum radius the world is searched for a free space from the
+     * given location.
+     *
+     * If enough free space is found then the portal will be created there, if
+     * not it will force create with air-space at the target location.
+     *
+     * Does not apply to end portal target platforms which will always appear at
+     * the target location.
+     *
+     * @param creationRadius the radius in which to create a portal from the
+     * location
+     */
+    public void setCreationRadius(int creationRadius) {
+        this.creationRadius = creationRadius;
+    }
+
+    /**
+     * Gets the maximum radius the world is searched for a free space from the
+     * given location.
+     *
+     * If enough free space is found then the portal will be created there, if
+     * not it will force create with air-space at the target location.
+     *
+     * Does not apply to end portal target platforms which will always appear at
+     * the target location.
+     *
+     * @return the currently set creation radius
+     */
+    public int getCreationRadius() {
+        return creationRadius;
+    }
+
+    @NotNull
     @Override
     public HandlerList getHandlers() {
         return handlers;
     }
 
+    @NotNull
     public static HandlerList getHandlerList() {
         return handlers;
     }

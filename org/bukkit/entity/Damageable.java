@@ -1,5 +1,8 @@
 package org.bukkit.entity;
 
+import org.bukkit.attribute.Attribute;
+import org.jetbrains.annotations.Nullable;
+
 /**
  * Represents an {@link Entity} that has health and can take damage.
  */
@@ -12,29 +15,13 @@ public interface Damageable extends Entity {
     void damage(double amount);
 
     /**
-     * This method exists for legacy reasons to provide backwards
-     * compatibility. It will not exist at runtime and should not be used
-     * under any circumstances.
-     */
-    @Deprecated
-    void _INVALID_damage(int amount);
-
-    /**
      * Deals the given amount of damage to this entity, from a specified
      * entity.
      *
      * @param amount Amount of damage to deal
      * @param source Entity which to attribute this damage from
      */
-    void damage(double amount, Entity source);
-
-    /**
-     * This method exists for legacy reasons to provide backwards
-     * compatibility. It will not exist at runtime and should not be used
-     * under any circumstances.
-     */
-    @Deprecated
-    void _INVALID_damage(int amount, Entity source);
+    void damage(double amount, @Nullable Entity source);
 
     /**
      * Gets the entity's health from 0 to {@link #getMaxHealth()}, where 0 is dead.
@@ -44,45 +31,39 @@ public interface Damageable extends Entity {
     double getHealth();
 
     /**
-     * This method exists for legacy reasons to provide backwards
-     * compatibility. It will not exist at runtime and should not be used
-     * under any circumstances.
-     */
-    @Deprecated
-    int _INVALID_getHealth();
-
-    /**
      * Sets the entity's health from 0 to {@link #getMaxHealth()}, where 0 is
      * dead.
      *
      * @param health New health represented from 0 to max
-     * @throws IllegalArgumentException Thrown if the health is < 0 or >
+     * @throws IllegalArgumentException Thrown if the health is {@literal < 0 or >}
      *     {@link #getMaxHealth()}
      */
     void setHealth(double health);
 
     /**
-     * This method exists for legacy reasons to provide backwards
-     * compatibility. It will not exist at runtime and should not be used
-     * under any circumstances.
+     * Gets the entity's absorption amount.
+     *
+     * @return absorption amount from 0
      */
-    @Deprecated
-    void _INVALID_setHealth(int health);
+    double getAbsorptionAmount();
+
+    /**
+     * Sets the entity's absorption amount.
+     *
+     * @param amount new absorption amount from 0
+     * @throws IllegalArgumentException thrown if health is {@literal < 0} or
+     * non-finite.
+     */
+    void setAbsorptionAmount(double amount);
 
     /**
      * Gets the maximum health this entity has.
      *
      * @return Maximum health
-     */
-    double getMaxHealth();
-
-    /**
-     * This method exists for legacy reasons to provide backwards
-     * compatibility. It will not exist at runtime and should not be used
-     * under any circumstances.
+     * @deprecated use {@link Attribute#GENERIC_MAX_HEALTH}.
      */
     @Deprecated
-    int _INVALID_getMaxHealth();
+    double getMaxHealth();
 
     /**
      * Sets the maximum health this entity can have.
@@ -94,19 +75,15 @@ public interface Damageable extends Entity {
      * {@link Wither}, etc...} will have their bar scaled accordingly.
      *
      * @param health amount of health to set the maximum to
+     * @deprecated use {@link Attribute#GENERIC_MAX_HEALTH}.
      */
+    @Deprecated
     void setMaxHealth(double health);
 
     /**
-     * This method exists for legacy reasons to provide backwards
-     * compatibility. It will not exist at runtime and should not be used
-     * under any circumstances.
+     * Resets the max health to the original amount.
+     * @deprecated use {@link Attribute#GENERIC_MAX_HEALTH}.
      */
     @Deprecated
-    void _INVALID_setMaxHealth(int health);
-
-    /**
-     * Resets the max health to the original amount.
-     */
     void resetMaxHealth();
 }

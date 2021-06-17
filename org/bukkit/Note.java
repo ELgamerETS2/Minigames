@@ -1,10 +1,10 @@
 package org.bukkit;
 
-import java.util.Map;
-
-import org.apache.commons.lang.Validate;
-
 import com.google.common.collect.Maps;
+import java.util.Map;
+import org.apache.commons.lang.Validate;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 /**
  * A note class to store a specific note.
@@ -100,6 +100,7 @@ public class Note {
          * @deprecated Magic value
          */
         @Deprecated
+        @Nullable
         public static Tone getById(byte id) {
             return BY_DATA.get(id);
         }
@@ -139,7 +140,7 @@ public class Note {
      *     to be F#.
      * @param sharped Set if the tone is sharped (e.g. for F#).
      */
-    public Note(int octave, Tone tone, boolean sharped) {
+    public Note(int octave, @NotNull Tone tone, boolean sharped) {
         if (sharped && !tone.isSharpable()) {
             tone = Tone.values()[tone.ordinal() + 1];
             sharped = false;
@@ -158,7 +159,8 @@ public class Note {
      * @param tone The tone within the octave.
      * @return The new note.
      */
-    public static Note flat(int octave, Tone tone) {
+    @NotNull
+    public static Note flat(int octave, @NotNull Tone tone) {
         Validate.isTrue(octave != 2, "Octave cannot be 2 for flats");
         tone = tone == Tone.G ? Tone.F : Tone.values()[tone.ordinal() - 1];
         return new Note(octave, tone, tone.isSharpable());
@@ -172,7 +174,8 @@ public class Note {
      *     to be F#.
      * @return The new note.
      */
-    public static Note sharp(int octave, Tone tone) {
+    @NotNull
+    public static Note sharp(int octave, @NotNull Tone tone) {
         return new Note(octave, tone, true);
     }
 
@@ -183,7 +186,8 @@ public class Note {
      * @param tone The tone within the octave.
      * @return The new note.
      */
-    public static Note natural(int octave, Tone tone) {
+    @NotNull
+    public static Note natural(int octave, @NotNull Tone tone) {
         Validate.isTrue(octave != 2, "Octave cannot be 2 for naturals");
         return new Note(octave, tone, false);
     }
@@ -191,6 +195,7 @@ public class Note {
     /**
      * @return The note a semitone above this one.
      */
+    @NotNull
     public Note sharped() {
         Validate.isTrue(note < 24, "This note cannot be sharped because it is the highest known note!");
         return new Note(note + 1);
@@ -199,6 +204,7 @@ public class Note {
     /**
      * @return The note a semitone below this one.
      */
+    @NotNull
     public Note flattened() {
         Validate.isTrue(note > 0, "This note cannot be flattened because it is the lowest known note!");
         return new Note(note - 1);
@@ -233,6 +239,7 @@ public class Note {
      *
      * @return the tone of this note.
      */
+    @NotNull
     public Tone getTone() {
         return Tone.getById(getToneByte());
     }

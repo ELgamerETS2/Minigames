@@ -6,12 +6,14 @@ import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
 import org.bukkit.event.Cancellable;
 import org.bukkit.event.HandlerList;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 /**
  * Called when a player statistic is incremented.
  * <p>
- * This event is not called for {@link org.bukkit.Statistic#PLAY_ONE_TICK} or
- * movement based statistics.
+ * This event is not called for some high frequency statistics, e.g. movement
+ * based statistics.
  *
  */
 public class PlayerStatisticIncrementEvent extends PlayerEvent implements Cancellable {
@@ -23,8 +25,8 @@ public class PlayerStatisticIncrementEvent extends PlayerEvent implements Cancel
     private final EntityType entityType;
     private final Material material;
 
-    public PlayerStatisticIncrementEvent(Player player, Statistic statistic, int initialValue, int newValue) {
-        super (player);
+    public PlayerStatisticIncrementEvent(@NotNull Player player, @NotNull Statistic statistic, int initialValue, int newValue) {
+        super(player);
         this.statistic = statistic;
         this.initialValue = initialValue;
         this.newValue = newValue;
@@ -32,8 +34,8 @@ public class PlayerStatisticIncrementEvent extends PlayerEvent implements Cancel
         this.material = null;
     }
 
-    public PlayerStatisticIncrementEvent(Player player, Statistic statistic, int initialValue, int newValue, EntityType entityType) {
-        super (player);
+    public PlayerStatisticIncrementEvent(@NotNull Player player, @NotNull Statistic statistic, int initialValue, int newValue, @NotNull EntityType entityType) {
+        super(player);
         this.statistic = statistic;
         this.initialValue = initialValue;
         this.newValue = newValue;
@@ -41,8 +43,8 @@ public class PlayerStatisticIncrementEvent extends PlayerEvent implements Cancel
         this.material = null;
     }
 
-    public PlayerStatisticIncrementEvent(Player player, Statistic statistic, int initialValue, int newValue, Material material) {
-        super (player);
+    public PlayerStatisticIncrementEvent(@NotNull Player player, @NotNull Statistic statistic, int initialValue, int newValue, @NotNull Material material) {
+        super(player);
         this.statistic = statistic;
         this.initialValue = initialValue;
         this.newValue = newValue;
@@ -55,6 +57,7 @@ public class PlayerStatisticIncrementEvent extends PlayerEvent implements Cancel
      *
      * @return the incremented statistic
      */
+    @NotNull
     public Statistic getStatistic() {
         return statistic;
     }
@@ -83,6 +86,7 @@ public class PlayerStatisticIncrementEvent extends PlayerEvent implements Cancel
      *
      * @return the EntityType of the statistic
      */
+    @Nullable
     public EntityType getEntityType() {
         return entityType;
     }
@@ -93,23 +97,28 @@ public class PlayerStatisticIncrementEvent extends PlayerEvent implements Cancel
      *
      * @return the Material of the statistic
      */
+    @Nullable
     public Material getMaterial() {
         return material;
     }
 
+    @Override
     public boolean isCancelled() {
         return isCancelled;
     }
 
+    @Override
     public void setCancelled(boolean cancel) {
         this.isCancelled = cancel;
     }
 
+    @NotNull
     @Override
     public HandlerList getHandlers() {
         return handlers;
     }
 
+    @NotNull
     public static HandlerList getHandlerList() {
         return handlers;
     }

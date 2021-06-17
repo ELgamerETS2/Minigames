@@ -247,7 +247,7 @@ Unsuccesful-Prevents mods from starting games which are already running
     - /mystats
       - Shows 1. Total points, 2. Total games played, 3. Total time played
 1.7.0.1
--Added "" to uuid is sql syntax
+-Added "" to uuid in sql syntax
 1.7.0.2
 -Adds initialising stats record array when collecting all stats records in order to fix a null pointer exception
 1.7.0.3
@@ -416,3 +416,53 @@ Unsuccesful-Prevents mods from starting games which are already running
 -Adds message saying checkpoints blocks were not added properly if they were not added properly
 -Sorts out handling of no river race maps, checkpoints or grids
 -Changes to some console outputs
+
+-----------------------------------------------------------------------------
+1.12.0 - /lobby update
+-Fixes the RiverRaceStartGrids DDL
+
+-Add /lobby [add/delete/list] to allow players to add new lobbies
+-Added LobbyID field to DB, and associated class, made the the Primary key
+-Removed Name and Version as primary keys
+
+-Updated console error outputs for creating the tables
+
+-Made the GUI item into an emerald
+
+1.12.1
+-Taken out RRWand interact ignored console message
+
+-Fixed the Lobbies DDL to add RiverRaceX,Y,Z fields
+
+-Fixed null error when no checkpoints were found
+-Adds no checkpoints, no rrmaps and no rrgrids found message
+
+-Changed lobby, hide lobby and rr lobby spawns to the middle of the block
+
+-Fixes issue where count of a checkpoints blocks started from -1 not 0 so not all blocks where collected
+
+-Added try catch statement around the contents of terminate() in RiverRaceGame and HideAndSeekGame
+-In finally, call a lobby function which creates a new game
+
+-Changes starting mechanism of hide and seek lobby
+    -Checks player count every 5 seconds
+    -If player count reaches 2, start a countdown sequence
+    -Display time until game - 60 second timer starts
+    -If player count falls bellow 2, stop the sequence
+-Adds this same starting mechanism to river race
+
+-The new mechanism stops games from being created constantly by making use of the gameIsStarting boolean
+
+-Sets fly to enabled during the 10 seconds before the hide and seek starts
+-Then re teleports players back to the start for the start of the game
+
+-Colour adjustments to make it more consistent
+
+1.12.2
+-Updated the IDE to have the 1.16 source
+-Updates code to work with 1.16 as this is the server version
+-----------------------------------------------------------------------------
+1.13.0 - Statistics update
+-Migrates the /mystats command into a GUI
+-Players can access the GUI using their head icon in the 8th slot
+

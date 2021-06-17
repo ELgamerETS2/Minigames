@@ -1,6 +1,8 @@
 package org.bukkit.entity;
 
 import java.util.UUID;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 public interface AnimalTamer {
 
@@ -9,6 +11,7 @@ public interface AnimalTamer {
      *
      * @return The name to reference on tamed animals or null if a name cannot be obtained
      */
+    @Nullable
     public String getName();
 
     /**
@@ -16,5 +19,6 @@ public interface AnimalTamer {
      *
      * @return The UUID to reference on tamed animals
      */
+    @NotNull
     public UUID getUniqueId();
 }

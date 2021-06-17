@@ -87,7 +87,7 @@ public class RiverRaceMap
 				
 				//Stores results into the object
 				this.szLocation = resultSet.getString("Location");
-				this.mapWorld = minigamesMain.getInstance().getServer().getWorld(resultSet.getString("MapWorld"));
+				this.mapWorld = Bukkit.getWorld(resultSet.getString("MapWorld"));
 			}
 			else
 			{

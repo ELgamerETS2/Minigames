@@ -31,7 +31,7 @@ public class MainLobby
 	}
 	
 	public MainLobby(minigamesMain CorePlugin)
-	{		
+	{
 		MainLobby[] ActiveLobbies = allActiveLobbies();
 		int iTotalLobbies = ActiveLobbies.length;
 		
@@ -100,7 +100,7 @@ public class MainLobby
 	{
 		this.szWorldName = szWorldName;
 	}
-	
+		
 	//Getters
 	public boolean getActive()
 	{
@@ -307,7 +307,9 @@ public class MainLobby
 		{
 			//Compiles the command to add the new user
 			sql = "INSERT INTO `Lobbies` "
-					+"(`Name`, `Version`, `Active`, `StartX`, `StartY`, `StartZ`, `Wait`)"
+					+"(`Name`, `Version`, `Active`, `LocationX`, `LocationY`, `LocationZ`, `WorldName`, "
+					+ "`HidePlatformX`, `HidePlatformY`, `HidePlatformZ`, "
+					+ "`RiverRaceX`, `RiverRaceY`, `RiverRaceZ`)"
 					+ " VALUES("
 					+ "\""+szName+"\", "
 					+ "\""+iVersion+"\", "

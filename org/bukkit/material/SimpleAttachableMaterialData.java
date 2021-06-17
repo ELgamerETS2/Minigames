@@ -5,22 +5,12 @@ import org.bukkit.block.BlockFace;
 
 /**
  * Simple utility class for attachable MaterialData subclasses
+ *
+ * @deprecated all usage of MaterialData is deprecated and subject to removal.
+ * Use {@link org.bukkit.block.data.BlockData}.
  */
+@Deprecated
 public abstract class SimpleAttachableMaterialData extends MaterialData implements Attachable {
-
-    /**
-     *
-     * @deprecated Magic value
-     */
-    @Deprecated
-    public SimpleAttachableMaterialData(int type) {
-        super(type);
-    }
-
-    public SimpleAttachableMaterialData(int type, BlockFace direction) {
-        this(type);
-        setFacingDirection(direction);
-    }
 
     public SimpleAttachableMaterialData(Material type, BlockFace direction) {
         this(type);
@@ -32,16 +22,8 @@ public abstract class SimpleAttachableMaterialData extends MaterialData implemen
     }
 
     /**
-     *
-     * @deprecated Magic value
-     */
-    @Deprecated
-    public SimpleAttachableMaterialData(int type, byte data) {
-        super(type, data);
-    }
-
-    /**
-     *
+     * @param type the type
+     * @param data the raw data value
      * @deprecated Magic value
      */
     @Deprecated
@@ -49,6 +31,7 @@ public abstract class SimpleAttachableMaterialData extends MaterialData implemen
         super(type, data);
     }
 
+    @Override
     public BlockFace getFacing() {
         BlockFace attachedFace = getAttachedFace();
         return attachedFace == null ? null : attachedFace.getOppositeFace();

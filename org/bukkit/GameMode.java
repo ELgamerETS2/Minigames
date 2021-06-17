@@ -1,10 +1,9 @@
 package org.bukkit;
 
-import java.util.Map;
-
-import org.bukkit.entity.HumanEntity;
-
 import com.google.common.collect.Maps;
+import java.util.Map;
+import org.bukkit.entity.HumanEntity;
+import org.jetbrains.annotations.Nullable;
 
 /**
  * Represents the various type of game modes that {@link HumanEntity}s may
@@ -25,10 +24,17 @@ public enum GameMode {
     /**
      * Adventure mode cannot break blocks without the correct tools.
      */
-    ADVENTURE(2);
+    ADVENTURE(2),
+
+    /**
+     * Spectator mode cannot interact with the world in anyway and is
+     * invisible to normal players. This grants the player the
+     * ability to no-clip through the world.
+     */
+    SPECTATOR(3);
 
     private final int value;
-    private final static Map<Integer, GameMode> BY_ID = Maps.newHashMap();
+    private static final Map<Integer, GameMode> BY_ID = Maps.newHashMap();
 
     private GameMode(final int value) {
         this.value = value;
@@ -54,6 +60,7 @@ public enum GameMode {
      * @deprecated Magic value
      */
     @Deprecated
+    @Nullable
     public static GameMode getByValue(final int value) {
         return BY_ID.get(value);
     }

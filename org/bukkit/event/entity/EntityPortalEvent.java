@@ -1,9 +1,10 @@
 package org.bukkit.event.entity;
 
 import org.bukkit.Location;
-import org.bukkit.TravelAgent;
 import org.bukkit.entity.Entity;
 import org.bukkit.event.HandlerList;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 /**
  * Called when a non-player entity is about to teleport because it is in
@@ -13,69 +14,43 @@ import org.bukkit.event.HandlerList;
  */
 public class EntityPortalEvent extends EntityTeleportEvent {
     private static final HandlerList handlers = new HandlerList();
-    protected boolean useTravelAgent = true;
-    protected TravelAgent travelAgent;
+    private int searchRadius = 128;
 
-    public EntityPortalEvent(final Entity entity, final Location from, final Location to, final TravelAgent pta) {
+    public EntityPortalEvent(@NotNull final Entity entity, @NotNull final Location from, @Nullable final Location to) {
         super(entity, from, to);
-        this.travelAgent = pta;
+    }
+
+    public EntityPortalEvent(@NotNull Entity entity, @NotNull Location from, @Nullable Location to, int searchRadius) {
+        super(entity, from, to);
+        this.searchRadius = searchRadius;
     }
 
     /**
-     * Sets whether or not the Travel Agent will be used.
-     * <p>
-     * If this is set to true, the TravelAgent will try to find a Portal at
-     * the {@link #getTo()} Location, and will try to create one if there is
-     * none.
-     * <p>
-     * If this is set to false, the {@link #getEntity()} will only be
-     * teleported to the {@link #getTo()} Location.
+     * Set the Block radius to search in for available portals.
      *
-     * @param useTravelAgent whether to use the Travel Agent
+     * @param searchRadius the radius in which to search for a portal from the
+     * location
      */
-    public void useTravelAgent(boolean useTravelAgent) {
-        this.useTravelAgent = useTravelAgent;
+    public void setSearchRadius(int searchRadius) {
+        this.searchRadius = searchRadius;
     }
 
     /**
-     * Gets whether or not the Travel Agent will be used.
-     * <p>
-     * If this is set to true, the TravelAgent will try to find a Portal at
-     * the {@link #getTo()} Location, and will try to create one if there is
-     * none.
-     * <p>
-     * If this is set to false, the {@link #getEntity()} will only be
-     * teleported to the {@link #getTo()} Location.
+     * Gets the search radius value for finding an available portal.
      *
-     * @return whether to use the Travel Agent
+     * @return the currently set search radius
      */
-    public boolean useTravelAgent() {
-        return useTravelAgent;
+    public int getSearchRadius() {
+        return searchRadius;
     }
 
-    /**
-     * Gets the Travel Agent used (or not) in this event.
-     *
-     * @return the Travel Agent used (or not) in this event
-     */
-    public TravelAgent getPortalTravelAgent() {
-        return this.travelAgent;
-    }
-
-    /**
-     * Sets the Travel Agent used (or not) in this event.
-     *
-     * @param travelAgent the Travel Agent used (or not) in this event
-     */
-    public void setPortalTravelAgent(TravelAgent travelAgent) {
-        this.travelAgent = travelAgent;
-    }
-
+    @NotNull
     @Override
     public HandlerList getHandlers() {
         return handlers;
     }
 
+    @NotNull
     public static HandlerList getHandlerList() {
         return handlers;
     }

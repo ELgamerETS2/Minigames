@@ -1,4 +1,5 @@
 /BrewEvent.class
+/BrewingStandFuelEvent.class
 /ClickType.class
 /CraftItemEvent.class
 /DragType.class
@@ -17,4 +18,8 @@
 /InventoryPickupItemEvent.class
 /InventoryType$SlotType.class
 /InventoryType.class
+/PrepareAnvilEvent.class
 /PrepareItemCraftEvent.class
+/PrepareSmithingEvent.class
+/TradeSelectEvent.class
+/package-info.class

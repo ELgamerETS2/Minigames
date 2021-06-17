@@ -5,19 +5,14 @@ import org.bukkit.block.BlockFace;
 
 /**
  * Represents a trap door
+ *
+ * @deprecated all usage of MaterialData is deprecated and subject to removal.
+ * Use {@link org.bukkit.block.data.BlockData}.
  */
+@Deprecated
 public class TrapDoor extends SimpleAttachableMaterialData implements Openable {
     public TrapDoor() {
-        super(Material.TRAP_DOOR);
-    }
-
-    /**
-     *
-     * @deprecated Magic value
-     */
-    @Deprecated
-    public TrapDoor(final int type) {
-        super(type);
+        super(Material.LEGACY_TRAP_DOOR);
     }
 
     public TrapDoor(final Material type) {
@@ -25,16 +20,8 @@ public class TrapDoor extends SimpleAttachableMaterialData implements Openable {
     }
 
     /**
-     *
-     * @deprecated Magic value
-     */
-    @Deprecated
-    public TrapDoor(final int type, final byte data) {
-        super(type, data);
-    }
-
-    /**
-     *
+     * @param type the type
+     * @param data the raw data value
      * @deprecated Magic value
      */
     @Deprecated
@@ -42,10 +29,12 @@ public class TrapDoor extends SimpleAttachableMaterialData implements Openable {
         super(type, data);
     }
 
+    @Override
     public boolean isOpen() {
         return ((getData() & 0x4) == 0x4);
     }
 
+    @Override
     public void setOpen(boolean isOpen) {
         byte data = getData();
 
@@ -80,6 +69,7 @@ public class TrapDoor extends SimpleAttachableMaterialData implements Openable {
         setData((byte) dat);
     }
 
+    @Override
     public BlockFace getAttachedFace() {
         byte data = (byte) (getData() & 0x3);
 
@@ -101,6 +91,7 @@ public class TrapDoor extends SimpleAttachableMaterialData implements Openable {
 
     }
 
+    @Override
     public void setFacingDirection(BlockFace face) {
         byte data = (byte) (getData() & 0xC);
 

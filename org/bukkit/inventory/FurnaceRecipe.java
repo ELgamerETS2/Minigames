@@ -1,48 +1,65 @@
 package org.bukkit.inventory;
 
+import java.util.Collections;
 import org.bukkit.Material;
+import org.bukkit.NamespacedKey;
 import org.bukkit.material.MaterialData;
+import org.jetbrains.annotations.NotNull;
 
 /**
- * Represents a smelting recipe.
+ * Represents a furnace recipe.
  */
-public class FurnaceRecipe implements Recipe {
-    private ItemStack output;
-    private ItemStack ingredient;
+public class FurnaceRecipe extends CookingRecipe<FurnaceRecipe> {
 
-    /**
-     * Create a furnace recipe to craft the specified ItemStack.
-     *
-     * @param result The item you want the recipe to create.
-     * @param source The input material.
-     */
-    public FurnaceRecipe(ItemStack result, Material source) {
-        this(result, source, 0);
-    }
-
-    /**
-     * Create a furnace recipe to craft the specified ItemStack.
-     *
-     * @param result The item you want the recipe to create.
-     * @param source The input material.
-     */
-    public FurnaceRecipe(ItemStack result, MaterialData source) {
-        this(result, source.getItemType(), source.getData());
-    }
-
-    /**
-     * Create a furnace recipe to craft the specified ItemStack.
-     *
-     * @param result The item you want the recipe to create.
-     * @param source The input material.
-     * @param data The data value. (Note: This is currently ignored by the
-     *     CraftBukkit server.)
-     * @deprecated Magic value
-     */
     @Deprecated
-    public FurnaceRecipe(ItemStack result, Material source, int data) {
-        this.output = new ItemStack(result);
-        this.ingredient = new ItemStack(source, 1, (short) data);
+    public FurnaceRecipe(@NotNull ItemStack result, @NotNull Material source) {
+        this(NamespacedKey.randomKey(), result, source, 0, 0, 200);
+    }
+
+    @Deprecated
+    public FurnaceRecipe(@NotNull ItemStack result, @NotNull MaterialData source) {
+        this(NamespacedKey.randomKey(), result, source.getItemType(), source.getData(), 0, 200);
+    }
+
+    @Deprecated
+    public FurnaceRecipe(@NotNull ItemStack result, @NotNull MaterialData source, float experience) {
+        this(NamespacedKey.randomKey(), result, source.getItemType(), source.getData(), experience, 200);
+    }
+
+    @Deprecated
+    public FurnaceRecipe(@NotNull ItemStack result, @NotNull Material source, int data) {
+        this(NamespacedKey.randomKey(), result, source, data, 0, 200);
+    }
+
+    /**
+     * Create a furnace recipe to craft the specified ItemStack.
+     *
+     * @param key The unique recipe key
+     * @param result The item you want the recipe to create.
+     * @param source The input material.
+     * @param experience The experience given by this recipe
+     * @param cookingTime The cooking time (in ticks)
+     */
+    public FurnaceRecipe(@NotNull NamespacedKey key, @NotNull ItemStack result, @NotNull Material source, float experience, int cookingTime) {
+        this(key, result, source, 0, experience, cookingTime);
+    }
+
+    @Deprecated
+    public FurnaceRecipe(@NotNull NamespacedKey key, @NotNull ItemStack result, @NotNull Material source, int data, float experience, int cookingTime) {
+        this(key, result, new RecipeChoice.MaterialChoice(Collections.singletonList(source)), experience, cookingTime);
+    }
+
+    /**
+     * Create a furnace recipe to craft the specified ItemStack.
+     *
+     * @param key The unique recipe key
+     * @param result The item you want the recipe to create.
+     * @param input The input choices.
+     * @param experience The experience given by this recipe
+     * @param cookingTime The cooking time (in ticks)
+     */
+    public FurnaceRecipe(@NotNull NamespacedKey key, @NotNull ItemStack result, @NotNull RecipeChoice input, float experience, int cookingTime) {
+        super(key, result, input, experience, cookingTime);
     }
 
     /**
@@ -51,18 +68,15 @@ public class FurnaceRecipe implements Recipe {
      * @param input The input material.
      * @return The changed recipe, so you can chain calls.
      */
-    public FurnaceRecipe setInput(MaterialData input) {
+    @NotNull
+    public FurnaceRecipe setInput(@NotNull MaterialData input) {
         return setInput(input.getItemType(), input.getData());
     }
 
-    /**
-     * Sets the input of this furnace recipe.
-     *
-     * @param input The input material.
-     * @return The changed recipe, so you can chain calls.
-     */
-    public FurnaceRecipe setInput(Material input) {
-        return setInput(input, 0);
+    @NotNull
+    @Override
+    public FurnaceRecipe setInput(@NotNull Material input) {
+        return (FurnaceRecipe) super.setInput(input);
     }
 
     /**
@@ -75,26 +89,13 @@ public class FurnaceRecipe implements Recipe {
      * @deprecated Magic value
      */
     @Deprecated
-    public FurnaceRecipe setInput(Material input, int data) {
-        this.ingredient = new ItemStack(input, 1, (short) data);
-        return this;
+    public FurnaceRecipe setInput(@NotNull Material input, int data) {
+        return setInputChoice(new RecipeChoice.MaterialChoice(Collections.singletonList(input)));
     }
 
-    /**
-     * Get the input material.
-     *
-     * @return The input material.
-     */
-    public ItemStack getInput() {
-        return this.ingredient.clone();
-    }
-
-    /**
-     * Get the result of this recipe.
-     *
-     * @return The resulting stack.
-     */
-    public ItemStack getResult() {
-        return output.clone();
+    @NotNull
+    @Override
+    public FurnaceRecipe setInputChoice(@NotNull RecipeChoice input) {
+        return (FurnaceRecipe) super.setInputChoice(input);
     }
 }

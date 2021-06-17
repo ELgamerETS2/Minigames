@@ -1,5 +1,8 @@
 package org.bukkit.entity;
 
+import org.bukkit.Location;
+import org.jetbrains.annotations.Nullable;
+
 /**
  * Represents a Primed TNT.
  */
@@ -28,11 +31,26 @@ public interface TNTPrimed extends Explosive {
      * org.bukkit.World#spawn(Location, Class)} method, for example.)
      * <p>
      * The source will become null if the chunk this primed TNT is in is
-     * unloaded then reloaded. If the source Entity becomes invalidated for
-     * any reason, such being removed from the world, the returned value will
-     * be null.
+     * unloaded then reloaded. The source entity may be invalid if for example
+     * it has since died or been unloaded. Callers should check
+     * {@link Entity#isValid()}.
      *
      * @return the source of this primed TNT
      */
+    @Nullable
     public Entity getSource();
+
+    /**
+     * Sets the source of this primed TNT.
+     *
+     * The source is the entity responsible for the creation of this primed TNT.
+     * <p>
+     * Must be instance of {@link org.bukkit.entity.LivingEntity} otherwise will
+     * be set to null. The parameter is typed {@link
+     * org.bukkit.entity.Entity} to be consistent with {@link
+     * org.bukkit.entity.TNTPrimed#getSource()} method.
+     *
+     * @param source the source of this primed TNT
+     */
+    public void setSource(@Nullable Entity source);
 }

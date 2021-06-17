@@ -1,7 +1,6 @@
 package Minigames.Games.HideAndSeek;
 
 import java.util.ArrayList;
-import java.util.List;
 
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
@@ -17,9 +16,9 @@ import Minigames.Games.Gametype;
 public class HideAndSeekGame
 {
 	public final Game game;
-	public List<HideAndSeekHider> hiders;
+	public ArrayList<HideAndSeekHider> hiders;
 	public ArrayList<HideAndSeekFinder> finders;
-	public List<HideAndSeekPlayer> allOriginalPlayers;
+	public ArrayList<HideAndSeekPlayer> allOriginalPlayers;
 	private Player[] players;
 	public int iFinders;
 	public int iStartingHiders;
@@ -34,13 +33,13 @@ public class HideAndSeekGame
 	
 	private boolean registered;
 	
-	public boolean bTerminate;
-	public boolean bGamePlayStarted;
+	protected boolean bTerminate;
+	private boolean bGamePlayStarted;
 	
 	private Score score;
 	
 	public HideAndSeekGame(Player[] players, int iFinders, int iMap, minigamesMain plugin, HideAndSeekLobby HSL) //Input to be from lobby for whatever preferences are decided
-	{		
+	{
 		//Sets up the Game class
 		this.game = new Game(Gametype.Hide_And_Seek);
 		
@@ -99,7 +98,10 @@ public class HideAndSeekGame
                 {
                 	return;
                 }
-    			Announce.announce(getPlayers(), (ChatColor.DARK_PURPLE +""+time +" Seconds until start"));
+                if (time == 1)
+        			Announce.announce(getPlayers(), (ChatColor.DARK_PURPLE +""+time +" Second until start"));
+                else
+        			Announce.announce(getPlayers(), (ChatColor.DARK_PURPLE +""+time +" Seconds until start"));
                 this.time--;
             }
         }, 0L, 20L);
@@ -111,6 +113,7 @@ public class HideAndSeekGame
         
 		//Teleport players and get them fitted
 		teleportPlayers();
+		allowFlight();
 		
         if (bTerminate)
         {
@@ -124,7 +127,7 @@ public class HideAndSeekGame
         {
         	for (j = 0 ; j < players.length ; j++)
         	{
-        		players[i].showPlayer(players[j]);
+        		players[i].showPlayer(plugin, players[j]);
         	}
         }
         
@@ -138,6 +141,9 @@ public class HideAndSeekGame
                 {
                 	return;
                 }
+                
+                disableFlight();
+                teleportPlayers();
                 
             	game.setTimeStart();
             	game.storeGameInDatabase();
@@ -183,7 +189,7 @@ public class HideAndSeekGame
 			if (bUnique)
 			{
 				finders.add(newFinder);
-				HSL.TeamS.addPlayer(getPlayers()[iRandom]);
+				HSL.TeamS.addEntry(getPlayers()[iRandom].getDisplayName());
 				score = HSL.Found.getScore(getPlayers()[i].getDisplayName());
 				score.setScore(0);
 				(getPlayers()[iRandom]).setScoreboard(HSL.SB);
@@ -200,7 +206,7 @@ public class HideAndSeekGame
 			{
 				newHider = new HideAndSeekHider(getPlayers()[i]);
 				hiders.add(newHider);
-				HSL.TeamH.addPlayer(getPlayers()[i]);
+				HSL.TeamH.addEntry(getPlayers()[i].getDisplayName());
 				score = HSL.Found.getScore(getPlayers()[i].getDisplayName());
 				(getPlayers()[i]).setScoreboard(HSL.SB);
 			}
@@ -210,7 +216,7 @@ public class HideAndSeekGame
 		for (i = 0 ; i < finders.size() ; i++)
 		{
 			newFinder = finders.get(i);
-			Announce.announce(getPlayers(), (ChatColor.RED +newFinder.player.getDisplayName() +ChatColor.DARK_PURPLE +" is a seeker"));
+			Announce.announce(getPlayers(), (ChatColor.DARK_PURPLE +newFinder.player.getDisplayName() +ChatColor.LIGHT_PURPLE +" is a seeker"));
 		}
 	}
 	
@@ -238,7 +244,7 @@ public class HideAndSeekGame
 		game.setMapID(Map.iMapID);
 		
 		//Announce choice of map
-		Announce.announce(getPlayers(), (ChatColor.DARK_PURPLE +"The map choosen is "+ChatColor.BLUE +Map.szLocation +ChatColor.DARK_PURPLE+" by "+ChatColor.BLUE+Map.szCreator));
+		Announce.announce(getPlayers(), (ChatColor.LIGHT_PURPLE +"The map choosen is "+ChatColor.DARK_PURPLE +Map.szLocation +ChatColor.LIGHT_PURPLE+" by "+ChatColor.DARK_PURPLE+Map.szCreator));
 	}
 	
 	//-------------------------------------
@@ -254,24 +260,58 @@ public class HideAndSeekGame
 		}
 	}
 	
+	private void allowFlight()
+	{
+		for (HideAndSeekFinder finder : finders)
+		{
+			finder.player.setAllowFlight(true);
+			finder.player.setFlying(true);
+			finder.player.setFlySpeed(0.3F);
+		}
+		
+		for (HideAndSeekHider hider : hiders)
+		{
+			hider.player.setAllowFlight(true);
+			hider.player.setFlying(true);
+			hider.player.setFlySpeed(0.3F);
+		}
+	}
+	
+	public void disableFlight()
+	{
+		for (HideAndSeekFinder finder : finders)
+		{
+			finder.player.setFlySpeed(0.2F);
+			finder.player.setFlying(false);
+			finder.player.setAllowFlight(false);
+		}
+		
+		for (HideAndSeekHider hider : hiders)
+		{
+			hider.player.setFlySpeed(0.2F);
+			hider.player.setFlying(false);
+			hider.player.setAllowFlight(false);
+		}
+	}
+	
 	//-------------------------------------
 	//-----------Actual gameplay-----------
 	//-------------------------------------
 	private void game()
 	{
 		int i, j;
-		Announce.announce(getPlayers(), (ChatColor.GREEN +"The game has begun"));
-		Announce.announce(getPlayers(), (ChatColor.GREEN +"There are " +Map.iWait +" seconds for hiders to hide"));
+		Announce.announce(getPlayers(), (ChatColor.LIGHT_PURPLE +"The game has begun"));
+		Announce.announce(getPlayers(), (ChatColor.LIGHT_PURPLE +"There are " +Map.iWait +" seconds for hiders to hide"));
 		
 		for (i = 0 ; i < this.finders.size() ; i++)
 		{
-			finders.get(i).player.sendMessage("You are restricted for " +Map.iWait +" seconds");
+			finders.get(i).player.sendMessage(ChatColor.DARK_PURPLE +"You are restricted for " +Map.iWait +" seconds");
 			finders.get(i).player.setWalkSpeed(0);
 			finders.get(i).player.setFlySpeed(0);
 			
 			for (j = 0 ; j < hiders.size() ; j++)
 			{
-				finders.get(i).player.hidePlayer(hiders.get(j).player);
+				finders.get(i).player.hidePlayer(plugin, hiders.get(j).player);
 			}
 		}
 		
@@ -295,7 +335,7 @@ public class HideAndSeekGame
                 {
                     return;
                 }
-			    Announce.announce(getPlayers(), (ChatColor.GOLD +""+time));
+			    Announce.announce(getPlayers(), (ChatColor.DARK_PURPLE +""+time));
 			//	Announce.playNote(players, Sound.GLASS);             
                 this.time--;
             }
@@ -313,7 +353,6 @@ public class HideAndSeekGame
             public void run()
             {
             	int i, j;
-        		Announce.announce(getPlayers(), (ChatColor.GREEN +"GO!"));
         	//	Announce.playNote(players, Sound.FIREWORK_BLAST);
         		
     			SM.unRegister();
@@ -325,11 +364,11 @@ public class HideAndSeekGame
         			finders.get(i).player.setFlySpeed((float) 0.2);
         			for (j = 0 ; j < hiders.size() ; j++)
         			{
-        				finders.get(i).player.showPlayer(hiders.get(j).player);
+        				finders.get(i).player.showPlayer(plugin, hiders.get(j).player);
         			}
         		}
         		
-        		Announce.announce(getPlayers(), (ChatColor.RED +"The seekers have been release"));
+        		Announce.announce(getPlayers(), (ChatColor.DARK_PURPLE +"" +ChatColor.BOLD +"The seekers have been release"));
             }
         }, Map.iWait * 20L);
         
@@ -426,48 +465,56 @@ public class HideAndSeekGame
 	//Terminates the game
 	public void terminate()
 	{
-		//Records game termination in the log
-		Bukkit.getConsoleSender().sendMessage("[Minigames] [Hide] The game ended");
-				
-		//Sets game as not running in the lobby
-		//This is very important as if someone now leaves, it will prevent the game from attempting the remove them
-		//...from the game which could then trigger another termination on top of the current one.
-		plugin.HSLobby.gameIsRunning = false;
-		
-		//Unregisters damage listener
-		if (registered)
+		try
 		{
-			DD.unRegister();
-			registered = false;
+			//Records game termination in the log
+			Bukkit.getConsoleSender().sendMessage("[Minigames] [Hide] The game ended");
+
+			//Sets game as not running in the lobby
+			//This is very important as if someone now leaves, it will prevent the game from attempting the remove them
+			//...from the game which could then trigger another termination on top of the current one.
+			plugin.HSLobby.gameIsRunning = false;
+
+			//Unregisters damage listener
+			if (registered)
+			{
+				DD.unRegister();
+				registered = false;
+			}
+
+			//Announce termination and set terminate to true
+			this.bTerminate = true;
+			Announce.announce(getPlayers(), (ChatColor.GREEN +"The game has ended!"));
+
+			//Records whether game play started in the log
+			if (!bGamePlayStarted)
+				Bukkit.getConsoleSender().sendMessage("[Minigames] [Hide] The game play did not start");
+			else
+				Bukkit.getConsoleSender().sendMessage("[Minigames] [Hide] The game play did start");
+
+			//Checks whether game play started (i.e game added to DB)
+			if (bGamePlayStarted)
+			{
+				//Record end of game in database
+				game.setTimeEnd();
+				game.storeGameEndInDatabase();
+			}
+
+			//Wait 6 seconds before sending players back to the lobby
+			Bukkit.getScheduler().runTaskLater(this.plugin, new Runnable()
+			{
+				@Override
+				public void run()
+				{            	
+					//Notifies lobby of game ending
+					plugin.HSLobby.gameFinished(getPlayers(), finders, bGamePlayStarted);
+				}
+			}, 120L);
 		}
-		
-		//Announce termination and set terminate to true
-		this.bTerminate = true;
-		Announce.announce(getPlayers(), (ChatColor.GREEN +"The game has ended!"));
-		
-    	//Records whether game play started in the log
-    	if (!bGamePlayStarted)
-    		Bukkit.getConsoleSender().sendMessage("[Minigames] [Hide] The game play did not start");
-    	else
-    		Bukkit.getConsoleSender().sendMessage("[Minigames] [Hide] The game play did start");
-    	
-		//Checks whether game play started (i.e game added to DB)
-		if (bGamePlayStarted)
+		catch (Exception e)
 		{
-			//Record end of game in database
-			game.setTimeEnd();
-			game.storeGameEndInDatabase();
+			Bukkit.getConsoleSender().sendMessage("[Minigames] [Hide] terminate() - Error teriminating game");
+			e.printStackTrace();
 		}
-		
-        //Wait 6 seconds before sending players back to the lobby
-        Bukkit.getScheduler().runTaskLater(this.plugin, new Runnable()
-        {
-            @Override
-            public void run()
-            {            	
-        		//Notifies lobby of game ending
-        		plugin.HSLobby.gameFinished(getPlayers(), finders, bGamePlayStarted);
-            }
-        }, 120L);
 	}
 }

@@ -3,7 +3,6 @@ package org.bukkit.util.io;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.ObjectInputStream;
-
 import org.bukkit.configuration.serialization.ConfigurationSerializable;
 import org.bukkit.configuration.serialization.ConfigurationSerialization;
 
@@ -21,8 +20,9 @@ public class BukkitObjectInputStream extends ObjectInputStream {
     /**
      * Constructor provided to mirror super functionality.
      *
-     * @throws IOException
-     * @throws SecurityException
+     * @throws IOException if an I/O error occurs while creating this stream
+     * @throws SecurityException if a security manager exists and denies
+     * enabling subclassing
      * @see ObjectInputStream#ObjectInputStream()
      */
     protected BukkitObjectInputStream() throws IOException, SecurityException {
@@ -33,8 +33,8 @@ public class BukkitObjectInputStream extends ObjectInputStream {
     /**
      * Object input stream decoration constructor.
      *
-     * @param in
-     * @throws IOException
+     * @param in the input stream to wrap
+     * @throws IOException if an I/O error occurs while reading stream header
      * @see ObjectInputStream#ObjectInputStream(InputStream)
      */
     public BukkitObjectInputStream(InputStream in) throws IOException {

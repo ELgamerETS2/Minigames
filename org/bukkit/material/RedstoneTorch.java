@@ -4,19 +4,14 @@ import org.bukkit.Material;
 
 /**
  * Represents a redstone torch
+ *
+ * @deprecated all usage of MaterialData is deprecated and subject to removal.
+ * Use {@link org.bukkit.block.data.BlockData}.
  */
+@Deprecated
 public class RedstoneTorch extends Torch implements Redstone {
     public RedstoneTorch() {
-        super(Material.REDSTONE_TORCH_ON);
-    }
-
-    /**
-     *
-     * @deprecated Magic value
-     */
-    @Deprecated
-    public RedstoneTorch(final int type) {
-        super(type);
+        super(Material.LEGACY_REDSTONE_TORCH_ON);
     }
 
     public RedstoneTorch(final Material type) {
@@ -24,16 +19,8 @@ public class RedstoneTorch extends Torch implements Redstone {
     }
 
     /**
-     *
-     * @deprecated Magic value
-     */
-    @Deprecated
-    public RedstoneTorch(final int type, final byte data) {
-        super(type, data);
-    }
-
-    /**
-     *
+     * @param type the type
+     * @param data the raw data value
      * @deprecated Magic value
      */
     @Deprecated
@@ -47,8 +34,9 @@ public class RedstoneTorch extends Torch implements Redstone {
      *
      * @return true if powered, otherwise false
      */
+    @Override
     public boolean isPowered() {
-        return getItemType() == Material.REDSTONE_TORCH_ON;
+        return getItemType() == Material.LEGACY_REDSTONE_TORCH_ON;
     }
 
     @Override

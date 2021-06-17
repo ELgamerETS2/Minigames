@@ -1,9 +1,13 @@
 package org.bukkit.event;
 
+import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.PluginManager;
+import org.jetbrains.annotations.NotNull;
 
 /**
  * Represents an event.
+ *
+ * All events require a static method named getHandlerList() which returns the same {@link HandlerList} as {@link #getHandlers()}.
  *
  * @see PluginManager#callEvent(Event)
  * @see PluginManager#registerEvents(Listener,Plugin)
@@ -38,6 +42,7 @@ public abstract class Event {
      *
      * @return name of this event
      */
+    @NotNull
     public String getEventName() {
         if (name == null) {
             name = getClass().getSimpleName();
@@ -45,6 +50,7 @@ public abstract class Event {
         return name;
     }
 
+    @NotNull
     public abstract HandlerList getHandlers();
 
     /**

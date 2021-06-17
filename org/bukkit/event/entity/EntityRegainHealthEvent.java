@@ -3,7 +3,7 @@ package org.bukkit.event.entity;
 import org.bukkit.entity.Entity;
 import org.bukkit.event.Cancellable;
 import org.bukkit.event.HandlerList;
-import org.bukkit.util.NumberConversions;
+import org.jetbrains.annotations.NotNull;
 
 /**
  * Stores data for health-regain events
@@ -14,12 +14,7 @@ public class EntityRegainHealthEvent extends EntityEvent implements Cancellable 
     private double amount;
     private final RegainReason regainReason;
 
-    @Deprecated
-    public EntityRegainHealthEvent(final Entity entity, final int amount, final RegainReason regainReason) {
-        this(entity, (double) amount, regainReason);
-    }
-
-    public EntityRegainHealthEvent(final Entity entity, final double amount, final RegainReason regainReason) {
+    public EntityRegainHealthEvent(@NotNull final Entity entity, final double amount, @NotNull final RegainReason regainReason) {
         super(entity);
         this.amount = amount;
         this.regainReason = regainReason;
@@ -35,16 +30,6 @@ public class EntityRegainHealthEvent extends EntityEvent implements Cancellable 
     }
 
     /**
-     * This method exists for legacy reasons to provide backwards
-     * compatibility. It will not exist at runtime and should not be used
-     * under any circumstances.
-     */
-    @Deprecated
-    public int _INVALID_getAmount() {
-        return NumberConversions.ceil(getAmount());
-    }
-
-    /**
      * Sets the amount of regained health
      *
      * @param amount the amount of health the entity will regain
@@ -53,20 +38,12 @@ public class EntityRegainHealthEvent extends EntityEvent implements Cancellable 
         this.amount = amount;
     }
 
-    /**
-     * This method exists for legacy reasons to provide backwards
-     * compatibility. It will not exist at runtime and should not be used
-     * under any circumstances.
-     */
-    @Deprecated
-    public void _INVALID_setAmount(int amount) {
-        setAmount(amount);
-    }
-
+    @Override
     public boolean isCancelled() {
         return cancelled;
     }
 
+    @Override
     public void setCancelled(boolean cancel) {
         cancelled = cancel;
     }
@@ -77,15 +54,18 @@ public class EntityRegainHealthEvent extends EntityEvent implements Cancellable 
      * @return A RegainReason detailing the reason for the entity regaining
      *     health
      */
+    @NotNull
     public RegainReason getRegainReason() {
         return regainReason;
     }
 
+    @NotNull
     @Override
     public HandlerList getHandlers() {
         return handlers;
     }
 
+    @NotNull
     public static HandlerList getHandlerList() {
         return handlers;
     }

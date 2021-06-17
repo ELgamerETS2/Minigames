@@ -2,12 +2,24 @@ package org.bukkit.scheduler;
 
 import org.bukkit.Bukkit;
 import org.bukkit.plugin.Plugin;
+import org.jetbrains.annotations.NotNull;
 
 /**
  * This class is provided as an easy way to handle scheduling tasks.
  */
 public abstract class BukkitRunnable implements Runnable {
-    private int taskId = -1;
+    private BukkitTask task;
+
+    /**
+     * Returns true if this task has been cancelled.
+     *
+     * @return true if the task has been cancelled
+     * @throws IllegalStateException if task was not scheduled yet
+     */
+    public synchronized boolean isCancelled() throws IllegalStateException {
+        checkScheduled();
+        return task.isCancelled();
+    }
 
     /**
      * Attempts to cancel this task.
@@ -27,9 +39,10 @@ public abstract class BukkitRunnable implements Runnable {
      * @throws IllegalStateException if this was already scheduled
      * @see BukkitScheduler#runTask(Plugin, Runnable)
      */
-    public synchronized BukkitTask runTask(Plugin plugin) throws IllegalArgumentException, IllegalStateException {
-        checkState();
-        return setupId(Bukkit.getScheduler().runTask(plugin, this));
+    @NotNull
+    public synchronized BukkitTask runTask(@NotNull Plugin plugin) throws IllegalArgumentException, IllegalStateException {
+        checkNotYetScheduled();
+        return setupTask(Bukkit.getScheduler().runTask(plugin, (Runnable) this));
     }
 
     /**
@@ -44,9 +57,10 @@ public abstract class BukkitRunnable implements Runnable {
      * @throws IllegalStateException if this was already scheduled
      * @see BukkitScheduler#runTaskAsynchronously(Plugin, Runnable)
      */
-    public synchronized BukkitTask runTaskAsynchronously(Plugin plugin) throws IllegalArgumentException, IllegalStateException  {
-        checkState();
-        return setupId(Bukkit.getScheduler().runTaskAsynchronously(plugin, this));
+    @NotNull
+    public synchronized BukkitTask runTaskAsynchronously(@NotNull Plugin plugin) throws IllegalArgumentException, IllegalStateException {
+        checkNotYetScheduled();
+        return setupTask(Bukkit.getScheduler().runTaskAsynchronously(plugin, (Runnable) this));
     }
 
     /**
@@ -59,9 +73,10 @@ public abstract class BukkitRunnable implements Runnable {
      * @throws IllegalStateException if this was already scheduled
      * @see BukkitScheduler#runTaskLater(Plugin, Runnable, long)
      */
-    public synchronized BukkitTask runTaskLater(Plugin plugin, long delay) throws IllegalArgumentException, IllegalStateException  {
-        checkState();
-        return setupId(Bukkit.getScheduler().runTaskLater(plugin, this, delay));
+    @NotNull
+    public synchronized BukkitTask runTaskLater(@NotNull Plugin plugin, long delay) throws IllegalArgumentException, IllegalStateException {
+        checkNotYetScheduled();
+        return setupTask(Bukkit.getScheduler().runTaskLater(plugin, (Runnable) this, delay));
     }
 
     /**
@@ -78,9 +93,10 @@ public abstract class BukkitRunnable implements Runnable {
      * @throws IllegalStateException if this was already scheduled
      * @see BukkitScheduler#runTaskLaterAsynchronously(Plugin, Runnable, long)
      */
-    public synchronized BukkitTask runTaskLaterAsynchronously(Plugin plugin, long delay) throws IllegalArgumentException, IllegalStateException  {
-        checkState();
-        return setupId(Bukkit.getScheduler().runTaskLaterAsynchronously(plugin, this, delay));
+    @NotNull
+    public synchronized BukkitTask runTaskLaterAsynchronously(@NotNull Plugin plugin, long delay) throws IllegalArgumentException, IllegalStateException {
+        checkNotYetScheduled();
+        return setupTask(Bukkit.getScheduler().runTaskLaterAsynchronously(plugin, (Runnable) this, delay));
     }
 
     /**
@@ -95,9 +111,10 @@ public abstract class BukkitRunnable implements Runnable {
      * @throws IllegalStateException if this was already scheduled
      * @see BukkitScheduler#runTaskTimer(Plugin, Runnable, long, long)
      */
-    public synchronized BukkitTask runTaskTimer(Plugin plugin, long delay, long period) throws IllegalArgumentException, IllegalStateException  {
-        checkState();
-        return setupId(Bukkit.getScheduler().runTaskTimer(plugin, this, delay, period));
+    @NotNull
+    public synchronized BukkitTask runTaskTimer(@NotNull Plugin plugin, long delay, long period) throws IllegalArgumentException, IllegalStateException {
+        checkNotYetScheduled();
+        return setupTask(Bukkit.getScheduler().runTaskTimer(plugin, (Runnable) this, delay, period));
     }
 
     /**
@@ -117,9 +134,10 @@ public abstract class BukkitRunnable implements Runnable {
      * @see BukkitScheduler#runTaskTimerAsynchronously(Plugin, Runnable, long,
      *     long)
      */
-    public synchronized BukkitTask runTaskTimerAsynchronously(Plugin plugin, long delay, long period) throws IllegalArgumentException, IllegalStateException  {
-        checkState();
-        return setupId(Bukkit.getScheduler().runTaskTimerAsynchronously(plugin, this, delay, period));
+    @NotNull
+    public synchronized BukkitTask runTaskTimerAsynchronously(@NotNull Plugin plugin, long delay, long period) throws IllegalArgumentException, IllegalStateException {
+        checkNotYetScheduled();
+        return setupTask(Bukkit.getScheduler().runTaskTimerAsynchronously(plugin, (Runnable) this, delay, period));
     }
 
     /**
@@ -129,21 +147,25 @@ public abstract class BukkitRunnable implements Runnable {
      * @throws IllegalStateException if task was not scheduled yet
      */
     public synchronized int getTaskId() throws IllegalStateException {
-        final int id = taskId;
-        if (id == -1) {
+        checkScheduled();
+        return task.getTaskId();
+    }
+
+    private void checkScheduled() {
+        if (task == null) {
             throw new IllegalStateException("Not scheduled yet");
         }
-        return id;
     }
 
-    private void checkState() {
-        if (taskId != -1) {
-            throw new IllegalStateException("Already scheduled as " + taskId);
+    private void checkNotYetScheduled() {
+        if (task != null) {
+            throw new IllegalStateException("Already scheduled as " + task.getTaskId());
         }
     }
 
-    private BukkitTask setupId(final BukkitTask task) {
-        this.taskId = task.getTaskId();
+    @NotNull
+    private BukkitTask setupTask(@NotNull final BukkitTask task) {
+        this.task = task;
         return task;
     }
 }

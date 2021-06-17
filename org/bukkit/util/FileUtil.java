@@ -1,10 +1,11 @@
 package org.bukkit.util;
 
-import java.nio.channels.FileChannel;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.nio.channels.FileChannel;
+import org.jetbrains.annotations.NotNull;
 
 /**
  * Class containing file utilities
@@ -18,7 +19,7 @@ public class FileUtil {
      * @param outFile the target filename
      * @return true on success
      */
-    public static boolean copy(File inFile, File outFile) {
+    public static boolean copy(@NotNull File inFile, @NotNull File outFile) {
         if (!inFile.exists()) {
             return false;
         }

@@ -1,10 +1,14 @@
 package org.bukkit.event;
 
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.EnumMap;
+import java.util.List;
+import java.util.ListIterator;
+import java.util.Map.Entry;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.RegisteredListener;
-
-import java.util.*;
-import java.util.Map.Entry;
+import org.jetbrains.annotations.NotNull;
 
 /**
  * A list of event handlers, stored per-event. Based on lahwran's fevents.
@@ -63,7 +67,7 @@ public class HandlerList {
      *
      * @param plugin plugin to unregister
      */
-    public static void unregisterAll(Plugin plugin) {
+    public static void unregisterAll(@NotNull Plugin plugin) {
         synchronized (allLists) {
             for (HandlerList h : allLists) {
                 h.unregister(plugin);
@@ -76,7 +80,7 @@ public class HandlerList {
      *
      * @param listener listener to unregister
      */
-    public static void unregisterAll(Listener listener) {
+    public static void unregisterAll(@NotNull Listener listener) {
         synchronized (allLists) {
             for (HandlerList h : allLists) {
                 h.unregister(listener);
@@ -104,7 +108,7 @@ public class HandlerList {
      *
      * @param listener listener to register
      */
-    public synchronized void register(RegisteredListener listener) {
+    public synchronized void register(@NotNull RegisteredListener listener) {
         if (handlerslots.get(listener.getPriority()).contains(listener))
             throw new IllegalStateException("This listener is already registered to priority " + listener.getPriority().toString());
         handlers = null;
@@ -116,7 +120,7 @@ public class HandlerList {
      *
      * @param listeners listeners to register
      */
-    public void registerAll(Collection<RegisteredListener> listeners) {
+    public void registerAll(@NotNull Collection<RegisteredListener> listeners) {
         for (RegisteredListener listener : listeners) {
             register(listener);
         }
@@ -127,7 +131,7 @@ public class HandlerList {
      *
      * @param listener listener to remove
      */
-    public synchronized void unregister(RegisteredListener listener) {
+    public synchronized void unregister(@NotNull RegisteredListener listener) {
         if (handlerslots.get(listener.getPriority()).remove(listener)) {
             handlers = null;
         }
@@ -138,7 +142,7 @@ public class HandlerList {
      *
      * @param plugin plugin to remove
      */
-    public synchronized void unregister(Plugin plugin) {
+    public synchronized void unregister(@NotNull Plugin plugin) {
         boolean changed = false;
         for (List<RegisteredListener> list : handlerslots.values()) {
             for (ListIterator<RegisteredListener> i = list.listIterator(); i.hasNext();) {
@@ -156,7 +160,7 @@ public class HandlerList {
      *
      * @param listener listener to remove
      */
-    public synchronized void unregister(Listener listener) {
+    public synchronized void unregister(@NotNull Listener listener) {
         boolean changed = false;
         for (List<RegisteredListener> list : handlerslots.values()) {
             for (ListIterator<RegisteredListener> i = list.listIterator(); i.hasNext();) {
@@ -186,6 +190,7 @@ public class HandlerList {
      *
      * @return the array of registered listeners
      */
+    @NotNull
     public RegisteredListener[] getRegisteredListeners() {
         RegisteredListener[] handlers;
         while ((handlers = this.handlers) == null) bake(); // This prevents fringe cases of returning null
@@ -199,7 +204,8 @@ public class HandlerList {
      * @param plugin the plugin to get the listeners of
      * @return the list of registered listeners
      */
-    public static ArrayList<RegisteredListener> getRegisteredListeners(Plugin plugin) {
+    @NotNull
+    public static ArrayList<RegisteredListener> getRegisteredListeners(@NotNull Plugin plugin) {
         ArrayList<RegisteredListener> listeners = new ArrayList<RegisteredListener>();
         synchronized (allLists) {
             for (HandlerList h : allLists) {
@@ -223,6 +229,7 @@ public class HandlerList {
      * @return the list of all handler lists
      */
     @SuppressWarnings("unchecked")
+    @NotNull
     public static ArrayList<HandlerList> getHandlerLists() {
         synchronized (allLists) {
             return (ArrayList<HandlerList>) allLists.clone();

@@ -98,8 +98,15 @@ public class RRMap implements CommandExecutor
 			}
 			//Get a list of mapIDs
 			int[] mapIDs = RiverRaceMap.MapIDs();
+			
 			//Initiate Map array with length of the amount of MapIDs just found
 			RiverRaceMap[] Maps = new RiverRaceMap[mapIDs.length];
+			
+			if (Maps.length == 0)
+			{
+				sender.sendMessage(ChatColor.GREEN +"No maps found");
+				return true;
+			}
 			
 			//Get details of each map
 			for (int i = 0 ; i < mapIDs.length ; i++)

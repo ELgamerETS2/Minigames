@@ -5,10 +5,14 @@ import org.bukkit.NetherWartsState;
 
 /**
  * Represents nether wart
+ *
+ * @deprecated all usage of MaterialData is deprecated and subject to removal.
+ * Use {@link org.bukkit.block.data.BlockData}.
  */
+@Deprecated
 public class NetherWarts extends MaterialData {
     public NetherWarts() {
-        super(Material.NETHER_WARTS);
+        super(Material.LEGACY_NETHER_WARTS);
     }
 
     public NetherWarts(NetherWartsState state) {
@@ -16,30 +20,13 @@ public class NetherWarts extends MaterialData {
         setState(state);
     }
 
-    /**
-     *
-     * @deprecated Magic value
-     */
-    @Deprecated
-    public NetherWarts(final int type) {
+    public NetherWarts(final Material type) {
         super(type);
     }
 
-    public NetherWarts(final Material type) {
-        super (type);
-    }
-
     /**
-     *
-     * @deprecated Magic value
-     */
-    @Deprecated
-    public NetherWarts(final int type, final byte data) {
-        super(type, data);
-    }
-
-    /**
-     *
+     * @param type the type
+     * @param data the raw data value
      * @deprecated Magic value
      */
     @Deprecated

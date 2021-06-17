@@ -1,6 +1,7 @@
 package org.bukkit.map;
 
 import java.awt.Image;
+import org.jetbrains.annotations.NotNull;
 
 /**
  * Represents a canvas for drawing to a map. Each canvas is associated with a
@@ -14,6 +15,7 @@ public interface MapCanvas {
      *
      * @return The MapView this canvas is attached to.
      */
+    @NotNull
     public MapView getMapView();
 
     /**
@@ -21,6 +23,7 @@ public interface MapCanvas {
      *
      * @return The MapCursorCollection associated with this canvas.
      */
+    @NotNull
     public MapCursorCollection getCursors();
 
     /**
@@ -30,7 +33,7 @@ public interface MapCanvas {
      *
      * @param cursors The MapCursorCollection to associate with this canvas.
      */
-    public void setCursors(MapCursorCollection cursors);
+    public void setCursors(@NotNull MapCursorCollection cursors);
 
     /**
      * Draw a pixel to the canvas.
@@ -66,7 +69,7 @@ public interface MapCanvas {
      * @param y The y coordinate of the image.
      * @param image The Image to draw.
      */
-    public void drawImage(int x, int y, Image image);
+    public void drawImage(int x, int y, @NotNull Image image);
 
     /**
      * Render text to the map using fancy formatting. Newline (\n) characters
@@ -79,6 +82,6 @@ public interface MapCanvas {
      * @param font The font to use.
      * @param text The formatted text to render.
      */
-    public void drawText(int x, int y, MapFont font, String text);
+    public void drawText(int x, int y, @NotNull MapFont font, @NotNull String text);
 
 }

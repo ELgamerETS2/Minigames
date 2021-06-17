@@ -39,7 +39,7 @@ public class LobbyGUI
 
 		createItem(inv, Material.LADDER, 1, 12, ChatColor.LIGHT_PURPLE + "" + ChatColor.BOLD + "Hide and Seek");
 
-		createItem(inv, Material.BOAT, 1, 16, ChatColor.BLUE + "" + ChatColor.BOLD + "River Race");
+		createItem(inv, Material.OAK_BOAT, 1, 16, ChatColor.BLUE + "" + ChatColor.BOLD + "River Race");
 
 		toReturn.setContents(inv.getContents());
 		return toReturn;

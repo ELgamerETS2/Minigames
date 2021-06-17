@@ -2,9 +2,8 @@ package org.bukkit.event.inventory;
 
 import org.bukkit.entity.HumanEntity;
 import org.bukkit.event.Cancellable;
-import org.bukkit.event.Event.Result;
 import org.bukkit.inventory.InventoryView;
-import org.bukkit.inventory.ItemStack;
+import org.jetbrains.annotations.NotNull;
 
 /**
  * An abstract base class for events that describe an interaction between a
@@ -13,7 +12,7 @@ import org.bukkit.inventory.ItemStack;
 public abstract class InventoryInteractEvent extends InventoryEvent implements Cancellable {
     private Result result = Result.DEFAULT;
 
-    public InventoryInteractEvent(InventoryView transaction) {
+    public InventoryInteractEvent(@NotNull InventoryView transaction) {
         super(transaction);
     }
 
@@ -22,6 +21,7 @@ public abstract class InventoryInteractEvent extends InventoryEvent implements C
      *
      * @return The clicking player.
      */
+    @NotNull
     public HumanEntity getWhoClicked() {
         return getView().getPlayer();
     }
@@ -30,20 +30,21 @@ public abstract class InventoryInteractEvent extends InventoryEvent implements C
      * Sets the result of this event. This will change whether or not this
      * event is considered cancelled.
      *
+     * @param newResult the new {@link org.bukkit.event.Event.Result} for this event
      * @see #isCancelled()
-     * @param newResult the new {@link Result} for this event
      */
-    public void setResult(Result newResult) {
+    public void setResult(@NotNull Result newResult) {
         result = newResult;
     }
 
     /**
-     * Gets the {@link Result} of this event. The Result describes the
+     * Gets the {@link org.bukkit.event.Event.Result} of this event. The Result describes the
      * behavior that will be applied to the inventory in relation to this
      * event.
      *
      * @return the Result of this event.
      */
+    @NotNull
     public Result getResult() {
         return result;
     }
@@ -58,19 +59,21 @@ public abstract class InventoryInteractEvent extends InventoryEvent implements C
      *
      * @return whether the event is cancelled
      */
+    @Override
     public boolean isCancelled() {
         return getResult() == Result.DENY;
     }
 
     /**
-     * Proxy method to {@link #setResult(Event.Result)} for the Cancellable
-     * interface. {@link #setResult(Event.Result)} is preferred, as it allows
+     * Proxy method to {@link #setResult(org.bukkit.event.Event.Result)} for the Cancellable
+     * interface. {@link #setResult(org.bukkit.event.Event.Result)} is preferred, as it allows
      * you to specify the Result beyond Result.DENY and Result.ALLOW.
      * <p>
      * {@inheritDoc}
      *
      * @param toCancel result becomes DENY if true, ALLOW if false
      */
+    @Override
     public void setCancelled(boolean toCancel) {
         setResult(toCancel ? Result.DENY : Result.ALLOW);
     }

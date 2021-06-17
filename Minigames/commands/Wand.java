@@ -29,12 +29,12 @@ public class Wand implements Listener
 	{
 		if (!e.getPlayer().hasPermission("Minigames.boatchecks"))
 		{
-			Bukkit.getConsoleSender().sendMessage("[Minigames] [RRWand] Player doesn't have perms so interact ignored");
+		//	Player doesn't have perms so interact ignored
 			return;
 		}
 		if (e.getAction() != Action.LEFT_CLICK_BLOCK)
 		{
-			Bukkit.getConsoleSender().sendMessage("[Minigames] [RRWand] Do left click so interact ignored");
+		//	Do left click so interact ignored
 			return;
 		}
 		if (e.getPlayer().getInventory().getItemInHand().equals(IS))

@@ -2,49 +2,26 @@ package org.bukkit.event.entity;
 
 import org.bukkit.Material;
 import org.bukkit.block.Block;
+import org.bukkit.block.data.BlockData;
 import org.bukkit.entity.Entity;
-import org.bukkit.entity.LivingEntity;
 import org.bukkit.event.Cancellable;
 import org.bukkit.event.HandlerList;
+import org.jetbrains.annotations.NotNull;
 
 /**
- * Called when any Entity, excluding players, changes a block.
+ * Called when any Entity changes a block and a more specific event is not available.
  */
 public class EntityChangeBlockEvent extends EntityEvent implements Cancellable {
     private static final HandlerList handlers = new HandlerList();
     private final Block block;
     private boolean cancel;
-    private final Material to;
-    private final byte data;
+    private final BlockData to;
 
-    /**
-     *
-     * @param what the LivingEntity causing the change
-     * @param block the block (before the change)
-     * @param to the future material being changed to
-     * @deprecated Provided as a backward compatibility before the data byte
-     *     was provided, and type increased to all entities
-     */
-    @Deprecated
-    public EntityChangeBlockEvent(final LivingEntity what, final Block block, final Material to) {
-        this (what, block, to, (byte) 0);
-    }
-
-    /**
-     *
-     * @param what the Entity causing the change
-     * @param block the block (before the change)
-     * @param to the future material being changed to
-     * @param data the future block data
-     * @deprecated Magic value
-     */
-    @Deprecated
-    public EntityChangeBlockEvent(final Entity what, final Block block, final Material to, final byte data) {
+    public EntityChangeBlockEvent(@NotNull final Entity what, @NotNull final Block block, @NotNull final BlockData to) {
         super(what);
         this.block = block;
         this.cancel = false;
         this.to = to;
-        this.data = data;
     }
 
     /**
@@ -52,14 +29,17 @@ public class EntityChangeBlockEvent extends EntityEvent implements Cancellable {
      *
      * @return the block that is changing
      */
+    @NotNull
     public Block getBlock() {
         return block;
     }
 
+    @Override
     public boolean isCancelled() {
         return cancel;
     }
 
+    @Override
     public void setCancelled(boolean cancel) {
         this.cancel = cancel;
     }
@@ -69,26 +49,28 @@ public class EntityChangeBlockEvent extends EntityEvent implements Cancellable {
      *
      * @return the material that the block is changing into
      */
+    @NotNull
     public Material getTo() {
-        return to;
+        return to.getMaterial();
     }
 
     /**
      * Gets the data for the block that would be changed into
      *
      * @return the data for the block that would be changed into
-     * @deprecated Magic value
      */
-    @Deprecated
-    public byte getData() {
-        return data;
+    @NotNull
+    public BlockData getBlockData() {
+        return to;
     }
 
+    @NotNull
     @Override
     public HandlerList getHandlers() {
         return handlers;
     }
 
+    @NotNull
     public static HandlerList getHandlerList() {
         return handlers;
     }

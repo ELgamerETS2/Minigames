@@ -62,20 +62,26 @@ public class RRGrid implements CommandExecutor
 			{
 				if (args[1].matches("[0-9]+"))
 				{
-					RiverRaceStartGrid[] Maps = RiverRaceStartGrid.allStartGrids(Integer.parseInt(args[1]));
+					RiverRaceStartGrid[] Grids = RiverRaceStartGrid.allStartGrids(Integer.parseInt(args[1]));
+					
+					if (Grids.length == 0)
+					{
+						sender.sendMessage(ChatColor.GREEN +"No start grids found");
+						return true;
+					}
 					
 					//Get details of each map
-					for (int i = 0 ; i < Maps.length ; i++)
+					for (int i = 0 ; i < Grids.length ; i++)
 					{
 						sender.sendMessage(ChatColor.DARK_AQUA +"[Start Grid Found]:");
-						sender.sendMessage(ChatColor.AQUA +"MapID: "+Maps[i].getMapID());
-						sender.sendMessage(ChatColor.AQUA +"GridID: "+Maps[i].getGridID());
-						if (Maps[i].getLeft())
+						sender.sendMessage(ChatColor.AQUA +"MapID: "+Grids[i].getMapID());
+						sender.sendMessage(ChatColor.AQUA +"GridID: "+Grids[i].getGridID());
+						if (Grids[i].getLeft())
 							sender.sendMessage(ChatColor.AQUA +"Direction: Left");
 						else
 							sender.sendMessage(ChatColor.AQUA +"Direction: Right");
-						sender.sendMessage(ChatColor.AQUA +"Position from centre: "+Maps[i].getPositionFromCentre());
-						sender.sendMessage(ChatColor.AQUA +"Coordinates: ("+Maps[i].getX()+", "+Maps[i].getY() +", "+Maps[i].getZ()+")");
+						sender.sendMessage(ChatColor.AQUA +"Position from centre: "+Grids[i].getPositionFromCentre());
+						sender.sendMessage(ChatColor.AQUA +"Coordinates: ("+Grids[i].getX()+", "+Grids[i].getY() +", "+Grids[i].getZ()+")");
 					}
 					return true;
 				}

@@ -1,6 +1,8 @@
 package org.bukkit.scoreboard;
 
 import org.bukkit.OfflinePlayer;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 /**
  * A score entry for an {@link #getEntry() entry} on an {@link
@@ -17,6 +19,7 @@ public interface Score {
      * @see #getEntry()
      */
     @Deprecated
+    @NotNull
     OfflinePlayer getPlayer();
 
     /**
@@ -24,6 +27,7 @@ public interface Score {
      *
      * @return this Score's tracked entry
      */
+    @NotNull
     String getEntry();
 
     /**
@@ -31,6 +35,7 @@ public interface Score {
      *
      * @return this Score's tracked objective
      */
+    @NotNull
     Objective getObjective();
 
     /**
@@ -52,10 +57,20 @@ public interface Score {
     void setScore(int score) throws IllegalStateException;
 
     /**
+     * Shows if this score has been set at any point in time.
+     *
+     * @return if this score has been set before
+     * @throws IllegalStateException if the associated objective has been
+     *     unregistered
+     */
+    boolean isScoreSet() throws IllegalStateException;
+
+    /**
      * Gets the scoreboard for the associated objective.
      *
      * @return the owning objective's scoreboard, or null if it has been
      *     {@link Objective#unregister() unregistered}
      */
+    @Nullable
     Scoreboard getScoreboard();
 }

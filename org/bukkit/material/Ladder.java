@@ -1,23 +1,18 @@
 package org.bukkit.material;
 
-import org.bukkit.block.BlockFace;
 import org.bukkit.Material;
+import org.bukkit.block.BlockFace;
 
 /**
  * Represents Ladder data
+ *
+ * @deprecated all usage of MaterialData is deprecated and subject to removal.
+ * Use {@link org.bukkit.block.data.BlockData}.
  */
+@Deprecated
 public class Ladder extends SimpleAttachableMaterialData {
     public Ladder() {
-        super(Material.LADDER);
-    }
-
-    /**
-     *
-     * @deprecated Magic value
-     */
-    @Deprecated
-    public Ladder(final int type) {
-        super(type);
+        super(Material.LEGACY_LADDER);
     }
 
     public Ladder(final Material type) {
@@ -25,16 +20,8 @@ public class Ladder extends SimpleAttachableMaterialData {
     }
 
     /**
-     *
-     * @deprecated Magic value
-     */
-    @Deprecated
-    public Ladder(final int type, final byte data) {
-        super(type, data);
-    }
-
-    /**
-     *
+     * @param type the type
+     * @param data the raw data value
      * @deprecated Magic value
      */
     @Deprecated
@@ -47,6 +34,7 @@ public class Ladder extends SimpleAttachableMaterialData {
      *
      * @return BlockFace attached to
      */
+    @Override
     public BlockFace getAttachedFace() {
         byte data = getData();
 
@@ -70,6 +58,7 @@ public class Ladder extends SimpleAttachableMaterialData {
     /**
      * Sets the direction this ladder is facing
      */
+    @Override
     public void setFacingDirection(BlockFace face) {
         byte data = (byte) 0x0;
 

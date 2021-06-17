@@ -36,7 +36,6 @@ public class SwitchBoat implements Listener
 			return;
 		else
 			racer.removeBoat();
-
 	}
 	
 	@EventHandler

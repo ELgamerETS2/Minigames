@@ -1,6 +1,6 @@
 package org.bukkit.conversations;
 
-import org.bukkit.command.CommandSender;
+import org.jetbrains.annotations.NotNull;
 
 /**
  * A ConversationPrefix implementation prepends all output from the
@@ -15,5 +15,6 @@ public interface ConversationPrefix {
      * @param context Context information about the conversation.
      * @return The prefix text.
      */
-    String getPrefix(ConversationContext context);
+    @NotNull
+    String getPrefix(@NotNull ConversationContext context);
 }

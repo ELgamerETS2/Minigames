@@ -2,6 +2,9 @@ package org.bukkit.map;
 
 import java.util.List;
 import org.bukkit.World;
+import org.bukkit.inventory.meta.MapMeta;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 /**
  * Represents a map item.
@@ -32,6 +35,7 @@ public interface MapView {
          * @deprecated Magic value
          */
         @Deprecated
+        @Nullable
         public static Scale valueOf(byte value) {
             switch (value) {
             case 0: return CLOSEST;
@@ -56,14 +60,11 @@ public interface MapView {
     }
 
     /**
-     * Get the ID of this map item. Corresponds to the damage value of a map
-     * in an inventory.
+     * Get the ID of this map item for use with {@link MapMeta}.
      *
      * @return The ID of the map.
-     * @deprecated Magic value
      */
-    @Deprecated
-    public short getId();
+    public int getId();
 
     /**
      * Check whether this map is virtual. A map is virtual if its lowermost
@@ -78,6 +79,7 @@ public interface MapView {
      *
      * @return The scale of the map.
      */
+    @NotNull
     public Scale getScale();
 
     /**
@@ -85,7 +87,7 @@ public interface MapView {
      *
      * @param scale The scale to set.
      */
-    public void setScale(Scale scale);
+    public void setScale(@NotNull Scale scale);
 
     /**
      * Get the center X position of this map.
@@ -122,6 +124,7 @@ public interface MapView {
      *
      * @return The World this map is associated with.
      */
+    @Nullable
     public World getWorld();
 
     /**
@@ -130,13 +133,14 @@ public interface MapView {
      *
      * @param world The World to associate this map with.
      */
-    public void setWorld(World world);
+    public void setWorld(@NotNull World world);
 
     /**
      * Get a list of MapRenderers currently in effect.
      *
-     * @return A List<MapRenderer> containing each map renderer.
+     * @return A {@code List<MapRenderer>} containing each map renderer.
      */
+    @NotNull
     public List<MapRenderer> getRenderers();
 
     /**
@@ -144,7 +148,7 @@ public interface MapView {
      *
      * @param renderer The MapRenderer to add.
      */
-    public void addRenderer(MapRenderer renderer);
+    public void addRenderer(@NotNull MapRenderer renderer);
 
     /**
      * Remove a renderer from this map.
@@ -152,6 +156,55 @@ public interface MapView {
      * @param renderer The MapRenderer to remove.
      * @return True if the renderer was successfully removed.
      */
-    public boolean removeRenderer(MapRenderer renderer);
+    public boolean removeRenderer(@Nullable MapRenderer renderer);
 
+    /**
+     * Gets whether a position cursor should be shown when the map is near its
+     * center.
+     *
+     * @return tracking status
+     */
+    boolean isTrackingPosition();
+
+    /**
+     * Sets whether a position cursor should be shown when the map is near its
+     * center.
+     *
+     * @param trackingPosition tracking status
+     */
+    void setTrackingPosition(boolean trackingPosition);
+
+    /**
+     * Whether the map will show a smaller position cursor (true), or no
+     * position cursor (false) when cursor is outside of map's range.
+     *
+     * @return unlimited tracking state
+     */
+    boolean isUnlimitedTracking();
+
+    /**
+     * Whether the map will show a smaller position cursor (true), or no
+     * position cursor (false) when cursor is outside of map's range.
+     *
+     * @param unlimited tracking state
+     */
+    void setUnlimitedTracking(boolean unlimited);
+
+    /**
+     * Gets whether the map is locked or not.
+     *
+     * A locked map may not be explored further.
+     *
+     * @return lock status
+     */
+    boolean isLocked();
+
+    /**
+     * Gets whether the map is locked or not.
+     *
+     * A locked map may not be explored further.
+     *
+     * @param locked status
+     */
+    void setLocked(boolean locked);
 }

@@ -1,5 +1,10 @@
 package org.bukkit.plugin;
 
+import com.google.common.base.Preconditions;
+import com.google.common.collect.ImmutableSet;
+import com.google.common.graph.GraphBuilder;
+import com.google.common.graph.Graphs;
+import com.google.common.graph.MutableGraph;
 import java.io.File;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Method;
@@ -9,6 +14,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -17,9 +23,9 @@ import java.util.WeakHashMap;
 import java.util.logging.Level;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-
 import org.apache.commons.lang.Validate;
 import org.bukkit.Server;
+import org.bukkit.World;
 import org.bukkit.command.Command;
 import org.bukkit.command.PluginCommandYamlParser;
 import org.bukkit.command.SimpleCommandMap;
@@ -31,8 +37,8 @@ import org.bukkit.permissions.Permissible;
 import org.bukkit.permissions.Permission;
 import org.bukkit.permissions.PermissionDefault;
 import org.bukkit.util.FileUtil;
-
-import com.google.common.collect.ImmutableSet;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 /**
  * Handles all plugin management from the Server
@@ -42,7 +48,8 @@ public final class SimplePluginManager implements PluginManager {
     private final Map<Pattern, PluginLoader> fileAssociations = new HashMap<Pattern, PluginLoader>();
     private final List<Plugin> plugins = new ArrayList<Plugin>();
     private final Map<String, Plugin> lookupNames = new HashMap<String, Plugin>();
-    private static File updateDirectory = null;
+    private MutableGraph<String> dependencyGraph = GraphBuilder.directed().build();
+    private File updateDirectory;
     private final SimpleCommandMap commandMap;
     private final Map<String, Permission> permissions = new HashMap<String, Permission>();
     private final Map<Boolean, Set<Permission>> defaultPerms = new LinkedHashMap<Boolean, Set<Permission>>();
@@ -50,12 +57,12 @@ public final class SimplePluginManager implements PluginManager {
     private final Map<Boolean, Map<Permissible, Boolean>> defSubs = new HashMap<Boolean, Map<Permissible, Boolean>>();
     private boolean useTimings = false;
 
-    public SimplePluginManager(Server instance, SimpleCommandMap commandMap) {
+    public SimplePluginManager(@NotNull Server instance, @NotNull SimpleCommandMap commandMap) {
         server = instance;
         this.commandMap = commandMap;
 
-        defaultPerms.put(true, new HashSet<Permission>());
-        defaultPerms.put(false, new HashSet<Permission>());
+        defaultPerms.put(true, new LinkedHashSet<Permission>());
+        defaultPerms.put(false, new LinkedHashSet<Permission>());
     }
 
     /**
@@ -65,7 +72,8 @@ public final class SimplePluginManager implements PluginManager {
      * @throws IllegalArgumentException Thrown when the given Class is not a
      *     valid PluginLoader
      */
-    public void registerInterface(Class<? extends PluginLoader> loader) throws IllegalArgumentException {
+    @Override
+    public void registerInterface(@NotNull Class<? extends PluginLoader> loader) throws IllegalArgumentException {
         PluginLoader instance;
 
         if (PluginLoader.class.isAssignableFrom(loader)) {
@@ -100,7 +108,9 @@ public final class SimplePluginManager implements PluginManager {
      * @param directory Directory to check for plugins
      * @return A list of all plugins loaded
      */
-    public Plugin[] loadPlugins(File directory) {
+    @Override
+    @NotNull
+    public Plugin[] loadPlugins(@NotNull File directory) {
         Validate.notNull(directory, "Directory cannot be null");
         Validate.isTrue(directory.isDirectory(), "Directory must be a directory");
 
@@ -113,6 +123,7 @@ public final class SimplePluginManager implements PluginManager {
 
         Map<String, File> plugins = new HashMap<String, File>();
         Set<String> loadedPlugins = new HashSet<String>();
+        Map<String, String> pluginsProvided = new HashMap<>();
         Map<String, Collection<String>> dependencies = new HashMap<String, Collection<String>>();
         Map<String, Collection<String>> softDependencies = new HashMap<String, Collection<String>>();
 
@@ -136,11 +147,8 @@ public final class SimplePluginManager implements PluginManager {
                     server.getLogger().log(Level.SEVERE, "Could not load '" + file.getPath() + "' in folder '" + directory.getPath() + "': Restricted Name");
                     continue;
                 } else if (description.rawName.indexOf(' ') != -1) {
-                    server.getLogger().warning(String.format(
-                        "Plugin `%s' uses the space-character (0x20) in its name `%s' - this is discouraged",
-                        description.getFullName(),
-                        description.rawName
-                        ));
+                    server.getLogger().log(Level.SEVERE, "Could not load '" + file.getPath() + "' in folder '" + directory.getPath() + "': uses the space-character (0x20) in its name");
+                    continue;
                 }
             } catch (InvalidDescriptionException ex) {
                 server.getLogger().log(Level.SEVERE, "Could not load '" + file.getPath() + "' in folder '" + directory.getPath() + "'", ex);
@@ -155,7 +163,39 @@ public final class SimplePluginManager implements PluginManager {
                     file.getPath(),
                     replacedFile.getPath(),
                     directory.getPath()
+                ));
+            }
+
+            String removedProvided = pluginsProvided.remove(description.getName());
+            if (removedProvided != null) {
+                server.getLogger().warning(String.format(
+                        "Ambiguous plugin name `%s'. It is also provided by `%s'",
+                        description.getName(),
+                        removedProvided
+                ));
+            }
+
+            for (String provided : description.getProvides()) {
+                File pluginFile = plugins.get(provided);
+                if (pluginFile != null) {
+                    server.getLogger().warning(String.format(
+                            "`%s provides `%s' while this is also the name of `%s' in `%s'",
+                            file.getPath(),
+                            provided,
+                            pluginFile.getPath(),
+                            directory.getPath()
                     ));
+                } else {
+                    String replacedPlugin = pluginsProvided.put(provided, description.getName());
+                    if (replacedPlugin != null) {
+                        server.getLogger().warning(String.format(
+                                "`%s' is provided by both `%s' and `%s'",
+                                provided,
+                                description.getName(),
+                                replacedPlugin
+                        ));
+                    }
+                }
             }
 
             Collection<String> softDependencySet = description.getSoftDepend();
@@ -166,11 +206,19 @@ public final class SimplePluginManager implements PluginManager {
                 } else {
                     softDependencies.put(description.getName(), new LinkedList<String>(softDependencySet));
                 }
+
+                for (String depend : softDependencySet) {
+                    dependencyGraph.putEdge(description.getName(), depend);
+                }
             }
 
             Collection<String> dependencySet = description.getDepend();
             if (dependencySet != null && !dependencySet.isEmpty()) {
                 dependencies.put(description.getName(), new LinkedList<String>(dependencySet));
+
+                for (String depend : dependencySet) {
+                    dependencyGraph.putEdge(description.getName(), depend);
+                }
             }
 
             Collection<String> loadBeforeSet = description.getLoadBefore();
@@ -184,16 +232,19 @@ public final class SimplePluginManager implements PluginManager {
                         shortSoftDependency.add(description.getName());
                         softDependencies.put(loadBeforeTarget, shortSoftDependency);
                     }
+
+                    dependencyGraph.putEdge(loadBeforeTarget, description.getName());
                 }
             }
         }
 
         while (!plugins.isEmpty()) {
             boolean missingDependency = true;
-            Iterator<String> pluginIterator = plugins.keySet().iterator();
+            Iterator<Map.Entry<String, File>> pluginIterator = plugins.entrySet().iterator();
 
             while (pluginIterator.hasNext()) {
-                String plugin = pluginIterator.next();
+                Map.Entry<String, File> entry = pluginIterator.next();
+                String plugin = entry.getKey();
 
                 if (dependencies.containsKey(plugin)) {
                     Iterator<String> dependencyIterator = dependencies.get(plugin).iterator();
@@ -206,17 +257,16 @@ public final class SimplePluginManager implements PluginManager {
                             dependencyIterator.remove();
 
                         // We have a dependency not found
-                        } else if (!plugins.containsKey(dependency)) {
+                        } else if (!plugins.containsKey(dependency) && !pluginsProvided.containsKey(dependency)) {
                             missingDependency = false;
-                            File file = plugins.get(plugin);
                             pluginIterator.remove();
                             softDependencies.remove(plugin);
                             dependencies.remove(plugin);
 
                             server.getLogger().log(
                                 Level.SEVERE,
-                                "Could not load '" + file.getPath() + "' in folder '" + directory.getPath() + "'",
-                                new UnknownDependencyException(dependency));
+                                "Could not load '" + entry.getValue().getPath() + "' in folder '" + directory.getPath() + "'",
+                                new UnknownDependencyException("Unknown dependency " + dependency + ". Please download and install " + dependency + " to run this plugin."));
                             break;
                         }
                     }
@@ -232,7 +282,7 @@ public final class SimplePluginManager implements PluginManager {
                         String softDependency = softDependencyIterator.next();
 
                         // Soft depend is no longer around
-                        if (!plugins.containsKey(softDependency)) {
+                        if (!plugins.containsKey(softDependency) && !pluginsProvided.containsKey(softDependency)) {
                             softDependencyIterator.remove();
                         }
                     }
@@ -248,8 +298,14 @@ public final class SimplePluginManager implements PluginManager {
                     missingDependency = false;
 
                     try {
-                        result.add(loadPlugin(file));
-                        loadedPlugins.add(plugin);
+                        Plugin loadedPlugin = loadPlugin(file);
+                        if (loadedPlugin != null) {
+                            result.add(loadedPlugin);
+                            loadedPlugins.add(loadedPlugin.getName());
+                            loadedPlugins.addAll(loadedPlugin.getDescription().getProvides());
+                        } else {
+                            server.getLogger().log(Level.SEVERE, "Could not load '" + file.getPath() + "' in folder '" + directory.getPath() + "'");
+                        }
                         continue;
                     } catch (InvalidPluginException ex) {
                         server.getLogger().log(Level.SEVERE, "Could not load '" + file.getPath() + "' in folder '" + directory.getPath() + "'", ex);
@@ -260,20 +316,27 @@ public final class SimplePluginManager implements PluginManager {
             if (missingDependency) {
                 // We now iterate over plugins until something loads
                 // This loop will ignore soft dependencies
-                pluginIterator = plugins.keySet().iterator();
+                pluginIterator = plugins.entrySet().iterator();
 
                 while (pluginIterator.hasNext()) {
-                    String plugin = pluginIterator.next();
+                    Map.Entry<String, File> entry = pluginIterator.next();
+                    String plugin = entry.getKey();
 
                     if (!dependencies.containsKey(plugin)) {
                         softDependencies.remove(plugin);
                         missingDependency = false;
-                        File file = plugins.get(plugin);
+                        File file = entry.getValue();
                         pluginIterator.remove();
 
                         try {
-                            result.add(loadPlugin(file));
-                            loadedPlugins.add(plugin);
+                            Plugin loadedPlugin = loadPlugin(file);
+                            if (loadedPlugin != null) {
+                                result.add(loadedPlugin);
+                                loadedPlugins.add(loadedPlugin.getName());
+                                loadedPlugins.addAll(loadedPlugin.getDescription().getProvides());
+                            } else {
+                                server.getLogger().log(Level.SEVERE, "Could not load '" + file.getPath() + "' in folder '" + directory.getPath() + "'");
+                            }
                             break;
                         } catch (InvalidPluginException ex) {
                             server.getLogger().log(Level.SEVERE, "Could not load '" + file.getPath() + "' in folder '" + directory.getPath() + "'", ex);
@@ -310,7 +373,9 @@ public final class SimplePluginManager implements PluginManager {
      * @throws UnknownDependencyException If a required dependency could not
      *     be found
      */
-    public synchronized Plugin loadPlugin(File file) throws InvalidPluginException, UnknownDependencyException {
+    @Override
+    @Nullable
+    public synchronized Plugin loadPlugin(@NotNull File file) throws InvalidPluginException, UnknownDependencyException {
         Validate.notNull(file, "File cannot be null");
 
         checkUpdate(file);
@@ -332,12 +397,15 @@ public final class SimplePluginManager implements PluginManager {
         if (result != null) {
             plugins.add(result);
             lookupNames.put(result.getDescription().getName(), result);
+            for (String provided : result.getDescription().getProvides()) {
+                lookupNames.putIfAbsent(provided, result);
+            }
         }
 
         return result;
     }
 
-    private void checkUpdate(File file) {
+    private void checkUpdate(@NotNull File file) {
         if (updateDirectory == null || !updateDirectory.isDirectory()) {
             return;
         }
@@ -356,12 +424,16 @@ public final class SimplePluginManager implements PluginManager {
      * @param name Name of the plugin to check
      * @return Plugin if it exists, otherwise null
      */
-    public synchronized Plugin getPlugin(String name) {
+    @Override
+    @Nullable
+    public synchronized Plugin getPlugin(@NotNull String name) {
         return lookupNames.get(name.replace(' ', '_'));
     }
 
+    @Override
+    @NotNull
     public synchronized Plugin[] getPlugins() {
-        return plugins.toArray(new Plugin[0]);
+        return plugins.toArray(new Plugin[plugins.size()]);
     }
 
     /**
@@ -372,7 +444,8 @@ public final class SimplePluginManager implements PluginManager {
      * @param name Name of the plugin to check
      * @return true if the plugin is enabled, otherwise false
      */
-    public boolean isPluginEnabled(String name) {
+    @Override
+    public boolean isPluginEnabled(@NotNull String name) {
         Plugin plugin = getPlugin(name);
 
         return isPluginEnabled(plugin);
@@ -384,7 +457,8 @@ public final class SimplePluginManager implements PluginManager {
      * @param plugin Plugin to check
      * @return true if the plugin is enabled, otherwise false
      */
-    public boolean isPluginEnabled(Plugin plugin) {
+    @Override
+    public boolean isPluginEnabled(@Nullable Plugin plugin) {
         if ((plugin != null) && (plugins.contains(plugin))) {
             return plugin.isEnabled();
         } else {
@@ -392,7 +466,8 @@ public final class SimplePluginManager implements PluginManager {
         }
     }
 
-    public void enablePlugin(final Plugin plugin) {
+    @Override
+    public void enablePlugin(@NotNull final Plugin plugin) {
         if (!plugin.isEnabled()) {
             List<Command> pluginCommands = PluginCommandYamlParser.parse(plugin);
 
@@ -410,6 +485,7 @@ public final class SimplePluginManager implements PluginManager {
         }
     }
 
+    @Override
     public void disablePlugins() {
         Plugin[] plugins = getPlugins();
         for (int i = plugins.length - 1; i >= 0; i--) {
@@ -417,7 +493,8 @@ public final class SimplePluginManager implements PluginManager {
         }
     }
 
-    public void disablePlugin(final Plugin plugin) {
+    @Override
+    public void disablePlugin(@NotNull final Plugin plugin) {
         if (plugin.isEnabled()) {
             try {
                 plugin.getPluginLoader().disablePlugin(plugin);
@@ -446,17 +523,27 @@ public final class SimplePluginManager implements PluginManager {
             try {
                 server.getMessenger().unregisterIncomingPluginChannel(plugin);
                 server.getMessenger().unregisterOutgoingPluginChannel(plugin);
-            } catch(Throwable ex) {
+            } catch (Throwable ex) {
                 server.getLogger().log(Level.SEVERE, "Error occurred (in the plugin loader) while unregistering plugin channels for " + plugin.getDescription().getFullName() + " (Is it up to date?)", ex);
+            }
+
+            try {
+                for (World world : server.getWorlds()) {
+                    world.removePluginChunkTickets(plugin);
+                }
+            } catch (Throwable ex) {
+                server.getLogger().log(Level.SEVERE, "Error occurred (in the plugin loader) while removing chunk tickets for " + plugin.getDescription().getFullName() + " (Is it up to date?)", ex);
             }
         }
     }
 
+    @Override
     public void clearPlugins() {
         synchronized (this) {
             disablePlugins();
             plugins.clear();
             lookupNames.clear();
+            dependencyGraph = GraphBuilder.directed().build();
             HandlerList.unregisterAll();
             fileAssociations.clear();
             permissions.clear();
@@ -467,12 +554,11 @@ public final class SimplePluginManager implements PluginManager {
 
     /**
      * Calls an event with the given details.
-     * <p>
-     * This method only synchronizes when the event is not asynchronous.
      *
      * @param event Event details
      */
-    public void callEvent(Event event) {
+    @Override
+    public void callEvent(@NotNull Event event) {
         if (event.isAsynchronous()) {
             if (Thread.holdsLock(this)) {
                 throw new IllegalStateException(event.getEventName() + " cannot be triggered asynchronously from inside synchronized code.");
@@ -480,15 +566,16 @@ public final class SimplePluginManager implements PluginManager {
             if (server.isPrimaryThread()) {
                 throw new IllegalStateException(event.getEventName() + " cannot be triggered asynchronously from primary server thread.");
             }
-            fireEvent(event);
         } else {
-            synchronized (this) {
-                fireEvent(event);
+            if (!server.isPrimaryThread()) {
+                throw new IllegalStateException(event.getEventName() + " cannot be triggered asynchronously from another thread.");
             }
         }
+
+        fireEvent(event);
     }
 
-    private void fireEvent(Event event) {
+    private void fireEvent(@NotNull Event event) {
         HandlerList handlers = event.getHandlers();
         RegisteredListener[] listeners = handlers.getRegisteredListeners();
 
@@ -518,7 +605,8 @@ public final class SimplePluginManager implements PluginManager {
         }
     }
 
-    public void registerEvents(Listener listener, Plugin plugin) {
+    @Override
+    public void registerEvents(@NotNull Listener listener, @NotNull Plugin plugin) {
         if (!plugin.isEnabled()) {
             throw new IllegalPluginAccessException("Plugin attempted to register " + listener + " while not enabled");
         }
@@ -529,7 +617,8 @@ public final class SimplePluginManager implements PluginManager {
 
     }
 
-    public void registerEvent(Class<? extends Event> event, Listener listener, EventPriority priority, EventExecutor executor, Plugin plugin) {
+    @Override
+    public void registerEvent(@NotNull Class<? extends Event> event, @NotNull Listener listener, @NotNull EventPriority priority, @NotNull EventExecutor executor, @NotNull Plugin plugin) {
         registerEvent(event, listener, priority, executor, plugin, false);
     }
 
@@ -545,7 +634,8 @@ public final class SimplePluginManager implements PluginManager {
      * @param ignoreCancelled Do not call executor if event was already
      *     cancelled
      */
-    public void registerEvent(Class<? extends Event> event, Listener listener, EventPriority priority, EventExecutor executor, Plugin plugin, boolean ignoreCancelled) {
+    @Override
+    public void registerEvent(@NotNull Class<? extends Event> event, @NotNull Listener listener, @NotNull EventPriority priority, @NotNull EventExecutor executor, @NotNull Plugin plugin, boolean ignoreCancelled) {
         Validate.notNull(listener, "Listener cannot be null");
         Validate.notNull(priority, "Priority cannot be null");
         Validate.notNull(executor, "Executor cannot be null");
@@ -562,7 +652,8 @@ public final class SimplePluginManager implements PluginManager {
         }
     }
 
-    private HandlerList getEventListeners(Class<? extends Event> type) {
+    @NotNull
+    private HandlerList getEventListeners(@NotNull Class<? extends Event> type) {
         try {
             Method method = getRegistrationClass(type).getDeclaredMethod("getHandlerList");
             method.setAccessible(true);
@@ -572,7 +663,8 @@ public final class SimplePluginManager implements PluginManager {
         }
     }
 
-    private Class<? extends Event> getRegistrationClass(Class<? extends Event> clazz) {
+    @NotNull
+    private Class<? extends Event> getRegistrationClass(@NotNull Class<? extends Event> clazz) {
         try {
             clazz.getDeclaredMethod("getHandlerList");
             return clazz;
@@ -582,56 +674,79 @@ public final class SimplePluginManager implements PluginManager {
                     && Event.class.isAssignableFrom(clazz.getSuperclass())) {
                 return getRegistrationClass(clazz.getSuperclass().asSubclass(Event.class));
             } else {
-                throw new IllegalPluginAccessException("Unable to find handler list for event " + clazz.getName());
+                throw new IllegalPluginAccessException("Unable to find handler list for event " + clazz.getName() + ". Static getHandlerList method required!");
             }
         }
     }
 
-    public Permission getPermission(String name) {
-        return permissions.get(name.toLowerCase());
+    @Override
+    @Nullable
+    public Permission getPermission(@NotNull String name) {
+        return permissions.get(name.toLowerCase(java.util.Locale.ENGLISH));
     }
 
-    public void addPermission(Permission perm) {
-        String name = perm.getName().toLowerCase();
+    @Override
+    public void addPermission(@NotNull Permission perm) {
+        addPermission(perm, true);
+    }
+
+    @Deprecated
+    public void addPermission(@NotNull Permission perm, boolean dirty) {
+        String name = perm.getName().toLowerCase(java.util.Locale.ENGLISH);
 
         if (permissions.containsKey(name)) {
             throw new IllegalArgumentException("The permission " + name + " is already defined!");
         }
 
         permissions.put(name, perm);
-        calculatePermissionDefault(perm);
+        calculatePermissionDefault(perm, dirty);
     }
 
+    @Override
+    @NotNull
     public Set<Permission> getDefaultPermissions(boolean op) {
         return ImmutableSet.copyOf(defaultPerms.get(op));
     }
 
-    public void removePermission(Permission perm) {
+    @Override
+    public void removePermission(@NotNull Permission perm) {
         removePermission(perm.getName());
     }
 
-    public void removePermission(String name) {
-        permissions.remove(name.toLowerCase());
+    @Override
+    public void removePermission(@NotNull String name) {
+        permissions.remove(name.toLowerCase(java.util.Locale.ENGLISH));
     }
 
-    public void recalculatePermissionDefaults(Permission perm) {
-        if (permissions.containsValue(perm)) {
+    @Override
+    public void recalculatePermissionDefaults(@NotNull Permission perm) {
+        if (perm != null && permissions.containsKey(perm.getName().toLowerCase(java.util.Locale.ENGLISH))) {
             defaultPerms.get(true).remove(perm);
             defaultPerms.get(false).remove(perm);
 
-            calculatePermissionDefault(perm);
+            calculatePermissionDefault(perm, true);
         }
     }
 
-    private void calculatePermissionDefault(Permission perm) {
+    private void calculatePermissionDefault(@NotNull Permission perm, boolean dirty) {
         if ((perm.getDefault() == PermissionDefault.OP) || (perm.getDefault() == PermissionDefault.TRUE)) {
             defaultPerms.get(true).add(perm);
-            dirtyPermissibles(true);
+            if (dirty) {
+                dirtyPermissibles(true);
+            }
         }
         if ((perm.getDefault() == PermissionDefault.NOT_OP) || (perm.getDefault() == PermissionDefault.TRUE)) {
             defaultPerms.get(false).add(perm);
-            dirtyPermissibles(false);
+            if (dirty) {
+                dirtyPermissibles(false);
+            }
         }
+    }
+
+    @Deprecated
+    public void dirtyPermissibles() {
+        dirtyPermissibles(true);
+        dirtyPermissibles(false);
     }
 
     private void dirtyPermissibles(boolean op) {
@@ -642,8 +757,9 @@ public final class SimplePluginManager implements PluginManager {
         }
     }
 
-    public void subscribeToPermission(String permission, Permissible permissible) {
-        String name = permission.toLowerCase();
+    @Override
+    public void subscribeToPermission(@NotNull String permission, @NotNull Permissible permissible) {
+        String name = permission.toLowerCase(java.util.Locale.ENGLISH);
         Map<Permissible, Boolean> map = permSubs.get(name);
 
         if (map == null) {
@@ -654,8 +770,9 @@ public final class SimplePluginManager implements PluginManager {
         map.put(permissible, true);
     }
 
-    public void unsubscribeFromPermission(String permission, Permissible permissible) {
-        String name = permission.toLowerCase();
+    @Override
+    public void unsubscribeFromPermission(@NotNull String permission, @NotNull Permissible permissible) {
+        String name = permission.toLowerCase(java.util.Locale.ENGLISH);
         Map<Permissible, Boolean> map = permSubs.get(name);
 
         if (map != null) {
@@ -667,8 +784,10 @@ public final class SimplePluginManager implements PluginManager {
         }
     }
 
-    public Set<Permissible> getPermissionSubscriptions(String permission) {
-        String name = permission.toLowerCase();
+    @Override
+    @NotNull
+    public Set<Permissible> getPermissionSubscriptions(@NotNull String permission) {
+        String name = permission.toLowerCase(java.util.Locale.ENGLISH);
         Map<Permissible, Boolean> map = permSubs.get(name);
 
         if (map == null) {
@@ -678,7 +797,8 @@ public final class SimplePluginManager implements PluginManager {
         }
     }
 
-    public void subscribeToDefaultPerms(boolean op, Permissible permissible) {
+    @Override
+    public void subscribeToDefaultPerms(boolean op, @NotNull Permissible permissible) {
         Map<Permissible, Boolean> map = defSubs.get(op);
 
         if (map == null) {
@@ -689,7 +809,8 @@ public final class SimplePluginManager implements PluginManager {
         map.put(permissible, true);
     }
 
-    public void unsubscribeFromDefaultPerms(boolean op, Permissible permissible) {
+    @Override
+    public void unsubscribeFromDefaultPerms(boolean op, @NotNull Permissible permissible) {
         Map<Permissible, Boolean> map = defSubs.get(op);
 
         if (map != null) {
@@ -701,6 +822,8 @@ public final class SimplePluginManager implements PluginManager {
         }
     }
 
+    @Override
+    @NotNull
     public Set<Permissible> getDefaultPermSubscriptions(boolean op) {
         Map<Permissible, Boolean> map = defSubs.get(op);
 
@@ -711,10 +834,30 @@ public final class SimplePluginManager implements PluginManager {
         }
     }
 
+    @Override
+    @NotNull
     public Set<Permission> getPermissions() {
         return new HashSet<Permission>(permissions.values());
     }
 
+    public boolean isTransitiveDepend(@NotNull PluginDescriptionFile plugin, @NotNull PluginDescriptionFile depend) {
+        Preconditions.checkArgument(plugin != null, "plugin");
+        Preconditions.checkArgument(depend != null, "depend");
+
+        if (dependencyGraph.nodes().contains(plugin.getName())) {
+            if (Graphs.reachableNodes(dependencyGraph, plugin.getName()).contains(depend.getName())) {
+                return true;
+            }
+            for (String provided : depend.getProvides()) {
+                if (Graphs.reachableNodes(dependencyGraph, plugin.getName()).contains(provided)) {
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+
+    @Override
     public boolean useTimings() {
         return useTimings;
     }

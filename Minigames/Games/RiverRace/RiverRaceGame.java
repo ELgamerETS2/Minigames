@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
+import org.bukkit.TreeSpecies;
 import org.bukkit.entity.Boat;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;import org.bukkit.scoreboard.DisplaySlot;
@@ -83,8 +84,7 @@ public class RiverRaceGame
 		//Scoreboard
 		SBM = Bukkit.getScoreboardManager();
 		SB = SBM.getNewScoreboard();
-		objCheckpoints = SB.registerNewObjective("Checkpoints", "dummy");
-		objCheckpoints.setDisplayName(ChatColor.BLUE +"Leaderboard");
+		objCheckpoints = SB.registerNewObjective("Checkpoints", "dummy", ChatColor.BLUE +"Leaderboard");
 		objCheckpoints.setDisplaySlot(DisplaySlot.SIDEBAR);
 	}
 	
@@ -228,7 +228,7 @@ public class RiverRaceGame
 	private Boat newBoat(Location location)
 	{
 		Boat boat = (Boat) location.getWorld().spawnEntity(location, EntityType.BOAT);
-		boat.setMaxSpeed(0.0001D);
+		boat.setWoodType(TreeSpecies.GENERIC);
 		return boat;
 	}
 	
@@ -276,72 +276,81 @@ public class RiverRaceGame
 	
 	public void terminate(TerminateType Reason)
 	{
-		bTerminate = true;
-		Bukkit.getConsoleSender().sendMessage("[Minigames] [River Race] Game terminated. Reason: "+Reason.toString());
-				
-		Bukkit.getConsoleSender().sendMessage("[Minigames] [River Race] Checkpoints: " +ListenerCheckpoints.size());
-		for (int i = 0; i < ListenerCheckpoints.size() - 1; i++)
+		try
 		{
-			ListenerCheckpoints.get(i).unRegister();
-			Bukkit.getConsoleSender().sendMessage("[Minigames] [River Race] Unregistered index " +i);
+			bTerminate = true;
+			Bukkit.getConsoleSender().sendMessage("[Minigames] [River Race] Game terminated. Reason: "+Reason.toString());
+			
+			FinishLine.unRegister();
+			Bukkit.getConsoleSender().sendMessage("[Minigames] [River Race] Unregistered finish line");
+			
+			Bukkit.getConsoleSender().sendMessage("[Minigames] [River Race] Checkpoints: " +ListenerCheckpoints.size());
+			for (int i = 0; i < ListenerCheckpoints.size() - 1; i++)
+			{
+				ListenerCheckpoints.get(i).unRegister();
+				Bukkit.getConsoleSender().sendMessage("[Minigames] [River Race] Unregistered index " +i);
+			}
+			
+			//Announce end
+			switch (Reason)
+			{
+			case All_Players_Finished:
+				Announce.announce(getPlayers(), (ChatColor.GREEN +"All players have finished"));
+				Announce.announce(getPlayers(), (ChatColor.GREEN +"1st: "+FinishLine.Finished.get(0).getPlayer().getName()));
+				if (FinishLine.Finished.size() > 1)
+					Announce.announce(getPlayers(), (ChatColor.GREEN +"2nd: "+FinishLine.Finished.get(1).getPlayer().getName()));
+				if (FinishLine.Finished.size() > 2)
+					Announce.announce(getPlayers(), (ChatColor.GREEN +"3rd: "+FinishLine.Finished.get(2).getPlayer().getName()));
+				break;
+			case Last_Player_Left:
+				Announce.announce(getPlayers(), (ChatColor.GREEN +"The last player has left"));
+				Announce.announce(getPlayers(), (ChatColor.GREEN +"1st: "+FinishLine.Finished.get(0).getPlayer().getName()));
+				if (FinishLine.Finished.size() > 1)
+					Announce.announce(getPlayers(), (ChatColor.GREEN +"2nd: "+FinishLine.Finished.get(1).getPlayer().getName()));
+				if (FinishLine.Finished.size() > 2)
+					Announce.announce(getPlayers(), (ChatColor.GREEN +"3rd: "+FinishLine.Finished.get(2).getPlayer().getName()));
+				break;
+			case No_Map_Found:
+				Announce.announce(getPlayers(), (ChatColor.GOLD +"No river was found to race on"));
+				break;
+			case Manual:
+				Announce.announce(getPlayers(), (ChatColor.GOLD +"The game was terminated"));
+				break;
+			case No_Checkpoints_Found:
+				Announce.announce(getPlayers(), (ChatColor.GOLD +"No checkpoints for this map were found"));
+			default:
+				break;
+			}
+
+			//Records whether game play started in the log
+			if (!bGamePlayStarted)
+				Bukkit.getConsoleSender().sendMessage("[Minigames] [River Race] The game play did not start");
+			else
+				Bukkit.getConsoleSender().sendMessage("[Minigames] [River Race] The game play did start");
+
+			//Wait 6 seconds before sending players back to the lobby
+			Bukkit.getScheduler().runTaskLater(this.plugin, new Runnable()
+			{
+				@Override
+				public void run()
+				{            	
+					//Notifies lobby of game ending
+					RRL.gameFinished(racers, bGamePlayStarted);
+				}
+			}, 120L);
+
+			//Checks whether game play started (i.e game added to DB)
+			if (bGamePlayStarted)
+			{
+				//Record end of game in database
+				game.setTimeEnd();
+				game.storeGameEndInDatabase();
+			}
 		}
-		FinishLine.unRegister();
-		Bukkit.getConsoleSender().sendMessage("[Minigames] [River Race] Unregistered finish line");
-		
-		//Announce end
-		switch (Reason)
+		catch (Exception e)
 		{
-		case All_Players_Finished:
-			Announce.announce(getPlayers(), (ChatColor.GREEN +"All players have finished"));
-			Announce.announce(getPlayers(), (ChatColor.GREEN +"1st: "+FinishLine.Finished.get(0).getPlayer().getName()));
-			if (FinishLine.Finished.size() > 1)
-				Announce.announce(getPlayers(), (ChatColor.GREEN +"2nd: "+FinishLine.Finished.get(1).getPlayer().getName()));
-			if (FinishLine.Finished.size() > 2)
-				Announce.announce(getPlayers(), (ChatColor.GREEN +"3rd: "+FinishLine.Finished.get(2).getPlayer().getName()));
-			break;
-		case Last_Player_Left:
-			Announce.announce(getPlayers(), (ChatColor.GREEN +"The last player has left"));
-			Announce.announce(getPlayers(), (ChatColor.GREEN +"1st: "+FinishLine.Finished.get(0).getPlayer().getName()));
-			if (FinishLine.Finished.size() > 1)
-				Announce.announce(getPlayers(), (ChatColor.GREEN +"2nd: "+FinishLine.Finished.get(1).getPlayer().getName()));
-			if (FinishLine.Finished.size() > 2)
-				Announce.announce(getPlayers(), (ChatColor.GREEN +"3rd: "+FinishLine.Finished.get(2).getPlayer().getName()));
-			break;
-		case No_Map_Found:
-			Announce.announce(getPlayers(), (ChatColor.GOLD +"No river was found to race on"));
-			break;
-		case Manual:
-			Announce.announce(getPlayers(), (ChatColor.GOLD +"The game was terminated"));
-			break;
-		case No_Checkpoints_Found:
-			Announce.announce(getPlayers(), (ChatColor.GOLD +"No checkpoints for this map were found"));
-		default:
-			break;
-		}
-		
-    	//Records whether game play started in the log
-    	if (!bGamePlayStarted)
-    		Bukkit.getConsoleSender().sendMessage("[Minigames] [River Race] The game play did not start");
-    	else
-    		Bukkit.getConsoleSender().sendMessage("[Minigames] [River Race] The game play did start");
-    			
-        //Wait 6 seconds before sending players back to the lobby
-        Bukkit.getScheduler().runTaskLater(this.plugin, new Runnable()
-        {
-            @Override
-            public void run()
-            {            	
-        		//Notifies lobby of game ending
-        		RRL.gameFinished(racers, bGamePlayStarted);
-            }
-        }, 120L);
-        
-		//Checks whether game play started (i.e game added to DB)
-		if (bGamePlayStarted)
-		{
-			//Record end of game in database
-			game.setTimeEnd();
-			game.storeGameEndInDatabase();
+			Bukkit.getConsoleSender().sendMessage("[Minigames] [RiverRaceGame] terminate() - Error teriminating game");
+			e.printStackTrace();
 		}
 	}
 }

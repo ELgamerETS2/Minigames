@@ -5,14 +5,18 @@ import org.bukkit.block.BlockFace;
 
 /**
  * Represents a bed.
+ *
+ * @deprecated all usage of MaterialData is deprecated and subject to removal.
+ * Use {@link org.bukkit.block.data.BlockData}.
  */
+@Deprecated
 public class Bed extends MaterialData implements Directional {
 
     /**
      * Default constructor for a bed.
      */
     public Bed() {
-        super(Material.BED_BLOCK);
+        super(Material.LEGACY_BED_BLOCK);
     }
 
     /**
@@ -25,30 +29,13 @@ public class Bed extends MaterialData implements Directional {
         setFacingDirection(direction);
     }
 
-    /**
-     *
-     * @deprecated Magic value
-     */
-    @Deprecated
-    public Bed(final int type) {
-        super(type);
-    }
-
     public Bed(final Material type) {
         super(type);
     }
 
     /**
-     *
-     * @deprecated Magic value
-     */
-    @Deprecated
-    public Bed(final int type, final byte data) {
-        super(type, data);
-    }
-
-    /**
-     *
+     * @param type the type
+     * @param data the raw data value
      * @deprecated Magic value
      */
     @Deprecated
@@ -78,6 +65,7 @@ public class Bed extends MaterialData implements Directional {
      * Set which direction the head of the bed is facing. Note that this will
      * only affect one of the two blocks the bed is made of.
      */
+    @Override
     public void setFacingDirection(BlockFace face) {
         byte data;
 
@@ -111,6 +99,7 @@ public class Bed extends MaterialData implements Directional {
      *
      * @return the direction the head of the bed is facing
      */
+    @Override
     public BlockFace getFacing() {
         byte data = (byte) (getData() & 0x7);
 

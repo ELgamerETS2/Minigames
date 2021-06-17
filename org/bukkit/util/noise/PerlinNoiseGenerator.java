@@ -2,21 +2,22 @@ package org.bukkit.util.noise;
 
 import java.util.Random;
 import org.bukkit.World;
+import org.jetbrains.annotations.NotNull;
 
 /**
  * Generates noise using the "classic" perlin generator
  *
- * @see SimplexNoiseGenerator "Improved" and faster version with slighly
+ * @see SimplexNoiseGenerator "Improved" and faster version with slightly
  *     different results
  */
 public class PerlinNoiseGenerator extends NoiseGenerator {
-    protected static final int grad3[][] = {{1, 1, 0}, {-1, 1, 0}, {1, -1, 0}, {-1, -1, 0},
+    protected static final int[][] grad3 = {{1, 1, 0}, {-1, 1, 0}, {1, -1, 0}, {-1, -1, 0},
         {1, 0, 1}, {-1, 0, 1}, {1, 0, -1}, {-1, 0, -1},
         {0, 1, 1}, {0, -1, 1}, {0, 1, -1}, {0, -1, -1}};
     private static final PerlinNoiseGenerator instance = new PerlinNoiseGenerator();
 
     protected PerlinNoiseGenerator() {
-        int p[] = {151, 160, 137, 91, 90, 15, 131, 13, 201,
+        int[] p = {151, 160, 137, 91, 90, 15, 131, 13, 201,
             95, 96, 53, 194, 233, 7, 225, 140, 36, 103, 30, 69, 142, 8, 99, 37,
             240, 21, 10, 23, 190, 6, 148, 247, 120, 234, 75, 0, 26, 197, 62,
             94, 252, 219, 203, 117, 35, 11, 32, 57, 177, 33, 88, 237, 149, 56,
@@ -45,7 +46,7 @@ public class PerlinNoiseGenerator extends NoiseGenerator {
      *
      * @param world World to construct this generator for
      */
-    public PerlinNoiseGenerator(World world) {
+    public PerlinNoiseGenerator(@NotNull World world) {
         this(new Random(world.getSeed()));
     }
 
@@ -63,7 +64,7 @@ public class PerlinNoiseGenerator extends NoiseGenerator {
      *
      * @param rand Random to construct with
      */
-    public PerlinNoiseGenerator(Random rand) {
+    public PerlinNoiseGenerator(@NotNull Random rand) {
         offsetX = rand.nextDouble() * 256;
         offsetY = rand.nextDouble() * 256;
         offsetZ = rand.nextDouble() * 256;
@@ -123,6 +124,7 @@ public class PerlinNoiseGenerator extends NoiseGenerator {
      *
      * @return Singleton
      */
+    @NotNull
     public static PerlinNoiseGenerator getInstance() {
         return instance;
     }

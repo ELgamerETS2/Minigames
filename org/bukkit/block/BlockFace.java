@@ -1,5 +1,8 @@
 package org.bukkit.block;
 
+import org.bukkit.util.Vector;
+import org.jetbrains.annotations.NotNull;
+
 /**
  * Represents the face of a block
  */
@@ -67,6 +70,21 @@ public enum BlockFace {
         return modZ;
     }
 
+    /**
+     * Gets the normal vector corresponding to this block face.
+     *
+     * @return the normal vector
+     */
+    @NotNull
+    public Vector getDirection() {
+        Vector direction = new Vector(modX, modY, modZ);
+        if (modX != 0 || modY != 0 || modZ != 0) {
+            direction.normalize();
+        }
+        return direction;
+    }
+
+    @NotNull
     public BlockFace getOppositeFace() {
         switch (this) {
         case NORTH:

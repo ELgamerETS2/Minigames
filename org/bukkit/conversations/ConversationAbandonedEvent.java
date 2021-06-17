@@ -1,6 +1,8 @@
 package org.bukkit.conversations;
 
 import java.util.EventObject;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 /**
  * ConversationAbandonedEvent contains information about an abandoned
@@ -11,11 +13,11 @@ public class ConversationAbandonedEvent extends EventObject {
     private ConversationContext context;
     private ConversationCanceller canceller;
 
-    public ConversationAbandonedEvent(Conversation conversation) {
+    public ConversationAbandonedEvent(@NotNull Conversation conversation) {
         this(conversation, null);
     }
 
-    public ConversationAbandonedEvent(Conversation conversation, ConversationCanceller canceller) {
+    public ConversationAbandonedEvent(@NotNull Conversation conversation, @Nullable ConversationCanceller canceller) {
         super(conversation);
         this.context = conversation.getContext();
         this.canceller = canceller;
@@ -26,6 +28,7 @@ public class ConversationAbandonedEvent extends EventObject {
      *
      * @return The object that abandoned the conversation.
      */
+    @Nullable
     public ConversationCanceller getCanceller() {
         return canceller;
     }
@@ -35,6 +38,7 @@ public class ConversationAbandonedEvent extends EventObject {
      *
      * @return The abandoned conversation's conversation context.
      */
+    @NotNull
     public ConversationContext getContext() {
         return context;
     }

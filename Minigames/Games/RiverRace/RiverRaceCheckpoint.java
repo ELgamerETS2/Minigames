@@ -209,7 +209,7 @@ public class RiverRaceCheckpoint
 			resultSet = SQL.executeQuery(sql);
 			//Moves the curser to the next line
 			bSuccess = resultSet.next();
-			
+			iCount = 0;
 			//If no map is found, program will notify thing
 			if (bSuccess == false)
 			{

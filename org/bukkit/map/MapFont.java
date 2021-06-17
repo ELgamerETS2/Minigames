@@ -1,6 +1,9 @@
 package org.bukkit.map;
 
 import java.util.HashMap;
+import org.bukkit.ChatColor;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 /**
  * Represents a bitmap font drawable to a map.
@@ -18,7 +21,7 @@ public class MapFont {
      * @param sprite The CharacterSprite to set.
      * @throws IllegalStateException if this font is static.
      */
-    public void setChar(char ch, CharacterSprite sprite) {
+    public void setChar(char ch, @NotNull CharacterSprite sprite) {
         if (!malleable) {
             throw new IllegalStateException("this font is not malleable");
         }
@@ -36,6 +39,7 @@ public class MapFont {
      * @return The CharacterSprite associated with the character, or null if
      *     there is none.
      */
+    @Nullable
     public CharacterSprite getChar(char ch) {
         return chars.get(ch);
     }
@@ -47,18 +51,20 @@ public class MapFont {
      * @param text The text.
      * @return The width in pixels.
      */
-    public int getWidth(String text) {
+    public int getWidth(@NotNull String text) {
         if (!isValid(text)) {
             throw new IllegalArgumentException("text contains invalid characters");
         }
 
-        if (text.length() == 0){
+        if (text.length() == 0) {
             return 0;
         }
 
         int result = 0;
         for (int i = 0; i < text.length(); ++i) {
-            result += chars.get(text.charAt(i)).getWidth();
+            char ch = text.charAt(i);
+            if (ch == ChatColor.COLOR_CHAR) continue;
+            result += chars.get(ch).getWidth();
         }
         result += text.length() - 1; // Account for 1px spacing between characters
 
@@ -81,10 +87,10 @@ public class MapFont {
      * @return True if the string contains only defined characters, false
      *     otherwise.
      */
-    public boolean isValid(String text) {
+    public boolean isValid(@NotNull String text) {
         for (int i = 0; i < text.length(); ++i) {
             char ch = text.charAt(i);
-            if (ch == '\u00A7' || ch == '\n') continue;
+            if (ch == ChatColor.COLOR_CHAR || ch == '\n') continue;
             if (chars.get(ch) == null) return false;
         }
         return true;
@@ -99,7 +105,7 @@ public class MapFont {
         private final int height;
         private final boolean[] data;
 
-        public CharacterSprite(int width, int height, boolean[] data) {
+        public CharacterSprite(int width, int height, @NotNull boolean[] data) {
             this.width = width;
             this.height = height;
             this.data = data;

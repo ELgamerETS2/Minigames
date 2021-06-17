@@ -1,7 +1,12 @@
 /Criterias.class
 /DisplaySlot.class
+/NameTagVisibility.class
 /Objective.class
+/RenderType.class
 /Score.class
 /Scoreboard.class
 /ScoreboardManager.class
+/Team$Option.class
+/Team$OptionStatus.class
 /Team.class
+/package-info.class

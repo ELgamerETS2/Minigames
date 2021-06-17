@@ -5,11 +5,15 @@ import org.bukkit.block.BlockFace;
 
 /**
  * Represents a dispenser.
+ *
+ * @deprecated all usage of MaterialData is deprecated and subject to removal.
+ * Use {@link org.bukkit.block.data.BlockData}.
  */
+@Deprecated
 public class Dispenser extends FurnaceAndDispenser {
 
     public Dispenser() {
-        super(Material.DISPENSER);
+        super(Material.LEGACY_DISPENSER);
     }
 
     public Dispenser(BlockFace direction) {
@@ -17,30 +21,13 @@ public class Dispenser extends FurnaceAndDispenser {
         setFacingDirection(direction);
     }
 
-    /**
-     *
-     * @deprecated Magic value
-     */
-    @Deprecated
-    public Dispenser(final int type) {
-        super(type);
-    }
-
     public Dispenser(final Material type) {
         super(type);
     }
 
     /**
-     *
-     * @deprecated Magic value
-     */
-    @Deprecated
-    public Dispenser(final int type, final byte data) {
-        super(type, data);
-    }
-
-    /**
-     *
+     * @param type the type
+     * @param data the raw data value
      * @deprecated Magic value
      */
     @Deprecated
@@ -48,6 +35,7 @@ public class Dispenser extends FurnaceAndDispenser {
         super(type, data);
     }
 
+    @Override
     public void setFacingDirection(BlockFace face) {
         byte data;
 
@@ -80,6 +68,7 @@ public class Dispenser extends FurnaceAndDispenser {
         setData(data);
     }
 
+    @Override
     public BlockFace getFacing() {
         int data = getData() & 0x7;
 

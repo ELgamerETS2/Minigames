@@ -1,6 +1,12 @@
 /Enchantment.class
+/EnchantmentOffer.class
 /EnchantmentTarget$1.class
 /EnchantmentTarget$10.class
+/EnchantmentTarget$11.class
+/EnchantmentTarget$12.class
+/EnchantmentTarget$13.class
+/EnchantmentTarget$14.class
+/EnchantmentTarget$15.class
 /EnchantmentTarget$2.class
 /EnchantmentTarget$3.class
 /EnchantmentTarget$4.class
@@ -11,3 +17,4 @@
 /EnchantmentTarget$9.class
 /EnchantmentTarget.class
 /EnchantmentWrapper.class
+/package-info.class

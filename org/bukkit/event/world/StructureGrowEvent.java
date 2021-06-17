@@ -7,10 +7,12 @@ import org.bukkit.block.BlockState;
 import org.bukkit.entity.Player;
 import org.bukkit.event.Cancellable;
 import org.bukkit.event.HandlerList;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 /**
- * Event that is called when an organic structure attempts to grow (Sapling ->
- * Tree), (Mushroom -> Huge Mushroom), naturally or using bonemeal.
+ * Event that is called when an organic structure attempts to grow (Sapling {@literal ->}
+ * Tree), (Mushroom {@literal ->} Huge Mushroom), naturally or using bonemeal.
  */
 public class StructureGrowEvent extends WorldEvent implements Cancellable {
     private static final HandlerList handlers = new HandlerList();
@@ -21,7 +23,7 @@ public class StructureGrowEvent extends WorldEvent implements Cancellable {
     private final Player player;
     private final List<BlockState> blocks;
 
-    public StructureGrowEvent(final Location location, final TreeType species, final boolean bonemeal, final Player player, final List<BlockState> blocks) {
+    public StructureGrowEvent(@NotNull final Location location, @NotNull final TreeType species, final boolean bonemeal, @Nullable final Player player, @NotNull final List<BlockState> blocks) {
         super(location.getWorld());
         this.location = location;
         this.species = species;
@@ -35,6 +37,7 @@ public class StructureGrowEvent extends WorldEvent implements Cancellable {
      *
      * @return Location of the structure
      */
+    @NotNull
     public Location getLocation() {
         return location;
     }
@@ -45,6 +48,7 @@ public class StructureGrowEvent extends WorldEvent implements Cancellable {
      *
      * @return Structure species
      */
+    @NotNull
     public TreeType getSpecies() {
         return species;
     }
@@ -64,32 +68,38 @@ public class StructureGrowEvent extends WorldEvent implements Cancellable {
      * @return Player that created the structure, null if was not created
      *     manually
      */
+    @Nullable
     public Player getPlayer() {
         return player;
     }
 
     /**
-     * Gets an ArrayList of all blocks associated with the structure.
+     * Gets a list of all blocks associated with the structure.
      *
-     * @return ArrayList of all blocks associated with the structure.
+     * @return list of all blocks associated with the structure.
      */
+    @NotNull
     public List<BlockState> getBlocks() {
         return blocks;
     }
 
+    @Override
     public boolean isCancelled() {
         return cancelled;
     }
 
+    @Override
     public void setCancelled(boolean cancel) {
         cancelled = cancel;
     }
 
+    @NotNull
     @Override
     public HandlerList getHandlers() {
         return handlers;
     }
 
+    @NotNull
     public static HandlerList getHandlerList() {
         return handlers;
     }

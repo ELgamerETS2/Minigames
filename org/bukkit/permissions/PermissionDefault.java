@@ -2,6 +2,8 @@ package org.bukkit.permissions;
 
 import java.util.HashMap;
 import java.util.Map;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 /**
  * Represents the possible default values for permissions
@@ -13,9 +15,9 @@ public enum PermissionDefault {
     NOT_OP("!op", "notop", "!operator", "notoperator", "!admin", "notadmin");
 
     private final String[] names;
-    private final static Map<String, PermissionDefault> lookup = new HashMap<String, PermissionDefault>();
+    private static final Map<String, PermissionDefault> lookup = new HashMap<String, PermissionDefault>();
 
-    private PermissionDefault(String... names) {
+    private PermissionDefault(/*@NotNull*/ String... names) {
         this.names = names;
     }
 
@@ -47,8 +49,9 @@ public enum PermissionDefault {
      * @param name Name of the default
      * @return Specified value, or null if not found
      */
-    public static PermissionDefault getByName(String name) {
-        return lookup.get(name.toLowerCase().replaceAll("[^a-z!]", ""));
+    @Nullable
+    public static PermissionDefault getByName(@NotNull String name) {
+        return lookup.get(name.toLowerCase(java.util.Locale.ENGLISH).replaceAll("[^a-z!]", ""));
     }
 
     @Override

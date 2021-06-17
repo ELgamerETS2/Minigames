@@ -1,12 +1,15 @@
 package org.bukkit.map;
 
+import org.jetbrains.annotations.NotNull;
+
 /**
  * Represents the built-in Minecraft font.
  */
 public class MinecraftFont extends MapFont {
 
-    private static final int spaceSize = 2;
+    private static final int spaceSize = 3;
 
+    // CHECKSTYLE:OFF
     private static final String fontChars =
         " !\"#$%&'()*+,-./0123456789:;<=>?" +
         "@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_" +
@@ -276,10 +279,12 @@ public class MinecraftFont extends MapFont {
         /* 254 */  {0,0,60,60,60,60,0,0},
         /* 255 */  {0,0,0,0,0,0,0,0},
     };
+    // CHECKSTYLE:ON
 
     /**
      * A static non-malleable MinecraftFont.
      */
+    @NotNull
     public static final MinecraftFont Font = new MinecraftFont(false);
 
     /**

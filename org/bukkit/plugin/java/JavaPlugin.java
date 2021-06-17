@@ -1,5 +1,6 @@
 package org.bukkit.plugin.java;
 
+import com.google.common.base.Charsets;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -9,37 +10,23 @@ import java.io.OutputStream;
 import java.io.Reader;
 import java.net.URL;
 import java.net.URLConnection;
-import java.nio.charset.Charset;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-
 import org.apache.commons.lang.Validate;
 import org.bukkit.Server;
-import org.bukkit.Warning.WarningState;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.command.PluginCommand;
-import org.bukkit.configuration.InvalidConfigurationException;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.generator.ChunkGenerator;
-import org.bukkit.plugin.AuthorNagException;
-import org.bukkit.plugin.PluginAwareness;
 import org.bukkit.plugin.PluginBase;
 import org.bukkit.plugin.PluginDescriptionFile;
 import org.bukkit.plugin.PluginLoader;
 import org.bukkit.plugin.PluginLogger;
-
-import com.avaje.ebean.EbeanServer;
-import com.avaje.ebean.EbeanServerFactory;
-import com.avaje.ebean.config.DataSourceConfig;
-import com.avaje.ebean.config.ServerConfig;
-import com.avaje.ebeaninternal.api.SpiEbeanServer;
-import com.avaje.ebeaninternal.server.ddl.DdlGenerator;
-import com.google.common.base.Charsets;
-import com.google.common.io.ByteStreams;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 /**
  * Represents a Java plugin
@@ -53,7 +40,6 @@ public abstract class JavaPlugin extends PluginBase {
     private File dataFolder = null;
     private ClassLoader classLoader = null;
     private boolean naggable = true;
-    private EbeanServer ebean = null;
     private FileConfiguration newConfig = null;
     private File configFile = null;
     private PluginLogger logger = null;
@@ -66,23 +52,7 @@ public abstract class JavaPlugin extends PluginBase {
         ((PluginClassLoader) classLoader).initialize(this);
     }
 
-    /**
-     * @deprecated This method is intended for unit testing purposes when the
-     *     other {@linkplain #JavaPlugin(JavaPluginLoader,
-     *     PluginDescriptionFile, File, File) constructor} cannot be used.
-     *     <p>
-     *     Its existence may be temporary.
-     */
-    @Deprecated
-    protected JavaPlugin(final PluginLoader loader, final Server server, final PluginDescriptionFile description, final File dataFolder, final File file) {
-        final ClassLoader classLoader = this.getClass().getClassLoader();
-        if (classLoader instanceof PluginClassLoader) {
-            throw new IllegalStateException("Cannot use initialization constructor at runtime");
-        }
-        init(loader, server, description, dataFolder, file, classLoader);
-    }
-
-    protected JavaPlugin(final JavaPluginLoader loader, final PluginDescriptionFile description, final File dataFolder, final File file) {
+    protected JavaPlugin(@NotNull final JavaPluginLoader loader, @NotNull final PluginDescriptionFile description, @NotNull final File dataFolder, @NotNull final File file) {
         final ClassLoader classLoader = this.getClass().getClassLoader();
         if (classLoader instanceof PluginClassLoader) {
             throw new IllegalStateException("Cannot use initialization constructor at runtime");
@@ -96,6 +66,7 @@ public abstract class JavaPlugin extends PluginBase {
      *
      * @return The folder.
      */
+    @NotNull
     @Override
     public final File getDataFolder() {
         return dataFolder;
@@ -106,6 +77,7 @@ public abstract class JavaPlugin extends PluginBase {
      *
      * @return PluginLoader that controls this plugin
      */
+    @NotNull
     @Override
     public final PluginLoader getPluginLoader() {
         return loader;
@@ -116,6 +88,7 @@ public abstract class JavaPlugin extends PluginBase {
      *
      * @return Server running this plugin
      */
+    @NotNull
     @Override
     public final Server getServer() {
         return server;
@@ -137,6 +110,7 @@ public abstract class JavaPlugin extends PluginBase {
      *
      * @return File containing this plugin
      */
+    @NotNull
     protected File getFile() {
         return file;
     }
@@ -146,11 +120,13 @@ public abstract class JavaPlugin extends PluginBase {
      *
      * @return Contents of the plugin.yaml file
      */
+    @NotNull
     @Override
     public final PluginDescriptionFile getDescription() {
         return description;
     }
 
+    @NotNull
     @Override
     public FileConfiguration getConfig() {
         if (newConfig == null) {
@@ -160,25 +136,22 @@ public abstract class JavaPlugin extends PluginBase {
     }
 
     /**
-     * Provides a reader for a text file located inside the jar. The behavior
-     * of this method adheres to {@link
-     * org.bukkit.plugin.PluginAwareness.Flags#UTF8}, or if not defined, uses
-     * UTF8 if {@link FileConfiguration#UTF8_OVERRIDE} is specified, or system
-     * default otherwise.
+     * Provides a reader for a text file located inside the jar.
+     * <p>
+     * The returned reader will read text with the UTF-8 charset.
      *
      * @param file the filename of the resource to load
      * @return null if {@link #getResource(String)} returns null
      * @throws IllegalArgumentException if file is null
      * @see ClassLoader#getResourceAsStream(String)
      */
-    @SuppressWarnings("deprecation")
-    protected final Reader getTextResource(String file) {
+    @Nullable
+    protected final Reader getTextResource(@NotNull String file) {
         final InputStream in = getResource(file);
 
-        return in == null ? null : new InputStreamReader(in, isStrictlyUTF8() || FileConfiguration.UTF8_OVERRIDE ? Charsets.UTF_8 : Charset.defaultCharset());
+        return in == null ? null : new InputStreamReader(in, Charsets.UTF_8);
     }
 
-    @SuppressWarnings("deprecation")
     @Override
     public void reloadConfig() {
         newConfig = YamlConfiguration.loadConfiguration(configFile);
@@ -188,36 +161,7 @@ public abstract class JavaPlugin extends PluginBase {
             return;
         }
 
-        final YamlConfiguration defConfig;
-        if (isStrictlyUTF8() || FileConfiguration.UTF8_OVERRIDE) {
-            defConfig = YamlConfiguration.loadConfiguration(new InputStreamReader(defConfigStream, Charsets.UTF_8));
-        } else {
-            final byte[] contents;
-            defConfig = new YamlConfiguration();
-            try {
-                contents = ByteStreams.toByteArray(defConfigStream);
-            } catch (final IOException e) {
-                getLogger().log(Level.SEVERE, "Unexpected failure reading config.yml", e);
-                return;
-            }
-
-            final String text = new String(contents, Charset.defaultCharset());
-            if (!text.equals(new String(contents, Charsets.UTF_8))) {
-                getLogger().warning("Default system encoding may have misread config.yml from plugin jar");
-            }
-
-            try {
-                defConfig.loadFromString(text);
-            } catch (final InvalidConfigurationException e) {
-                getLogger().log(Level.SEVERE, "Cannot load configuration from jar", e);
-            }
-        }
-
-        newConfig.setDefaults(defConfig);
-    }
-
-    private boolean isStrictlyUTF8() {
-        return getDescription().getAwareness().contains(PluginAwareness.Flags.UTF8);
+        newConfig.setDefaults(YamlConfiguration.loadConfiguration(new InputStreamReader(defConfigStream, Charsets.UTF_8)));
     }
 
     @Override
@@ -237,7 +181,7 @@ public abstract class JavaPlugin extends PluginBase {
     }
 
     @Override
-    public void saveResource(String resourcePath, boolean replace) {
+    public void saveResource(@NotNull String resourcePath, boolean replace) {
         if (resourcePath == null || resourcePath.equals("")) {
             throw new IllegalArgumentException("ResourcePath cannot be null or empty");
         }
@@ -274,8 +218,9 @@ public abstract class JavaPlugin extends PluginBase {
         }
     }
 
+    @Nullable
     @Override
-    public InputStream getResource(String filename) {
+    public InputStream getResource(@NotNull String filename) {
         if (filename == null) {
             throw new IllegalArgumentException("Filename cannot be null");
         }
@@ -300,6 +245,7 @@ public abstract class JavaPlugin extends PluginBase {
      *
      * @return ClassLoader holding this plugin
      */
+    @NotNull
     protected final ClassLoader getClassLoader() {
         return classLoader;
     }
@@ -321,19 +267,8 @@ public abstract class JavaPlugin extends PluginBase {
         }
     }
 
-    /**
-     * @deprecated This method is legacy and will be removed - it must be
-     *     replaced by the specially provided constructor(s).
-     */
-    @Deprecated
-    protected final void initialize(PluginLoader loader, Server server, PluginDescriptionFile description, File dataFolder, File file, ClassLoader classLoader) {
-        if (server.getWarningState() == WarningState.OFF) {
-            return;
-        }
-        getLogger().log(Level.WARNING, getClass().getName() + " is already initialized", server.getWarningState() == WarningState.DEFAULT ? null : new AuthorNagException("Explicit initialization"));
-    }
 
-    final void init(PluginLoader loader, Server server, PluginDescriptionFile description, File dataFolder, File file, ClassLoader classLoader) {
+    final void init(@NotNull PluginLoader loader, @NotNull Server server, @NotNull PluginDescriptionFile description, @NotNull File dataFolder, @NotNull File file, @NotNull ClassLoader classLoader) {
         this.loader = loader;
         this.server = server;
         this.file = file;
@@ -342,61 +277,13 @@ public abstract class JavaPlugin extends PluginBase {
         this.classLoader = classLoader;
         this.configFile = new File(dataFolder, "config.yml");
         this.logger = new PluginLogger(this);
-
-        if (description.isDatabaseEnabled()) {
-            ServerConfig db = new ServerConfig();
-
-            db.setDefaultServer(false);
-            db.setRegister(false);
-            db.setClasses(getDatabaseClasses());
-            db.setName(description.getName());
-            server.configureDbConfig(db);
-
-            DataSourceConfig ds = db.getDataSourceConfig();
-
-            ds.setUrl(replaceDatabaseString(ds.getUrl()));
-            dataFolder.mkdirs();
-
-            ClassLoader previous = Thread.currentThread().getContextClassLoader();
-
-            Thread.currentThread().setContextClassLoader(classLoader);
-            ebean = EbeanServerFactory.create(db);
-            Thread.currentThread().setContextClassLoader(previous);
-        }
-    }
-
-    /**
-     * Provides a list of all classes that should be persisted in the database
-     *
-     * @return List of Classes that are Ebeans
-     */
-    public List<Class<?>> getDatabaseClasses() {
-        return new ArrayList<Class<?>>();
-    }
-
-    private String replaceDatabaseString(String input) {
-        input = input.replaceAll("\\{DIR\\}", dataFolder.getPath().replaceAll("\\\\", "/") + "/");
-        input = input.replaceAll("\\{NAME\\}", description.getName().replaceAll("[^\\w_-]", ""));
-        return input;
-    }
-
-    /**
-     * Gets the initialization status of this plugin
-     *
-     * @return true if this plugin is initialized, otherwise false
-     * @deprecated This method cannot return false, as {@link
-     *     JavaPlugin} is now initialized in the constructor.
-     */
-    @Deprecated
-    public final boolean isInitialized() {
-        return true;
     }
 
     /**
      * {@inheritDoc}
      */
     @Override
-    public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
+    public boolean onCommand(@NotNull CommandSender sender, @NotNull Command command, @NotNull String label, @NotNull String[] args) {
         return false;
     }
 
@@ -404,7 +291,8 @@ public abstract class JavaPlugin extends PluginBase {
      * {@inheritDoc}
      */
     @Override
-    public List<String> onTabComplete(CommandSender sender, Command command, String alias, String[] args) {
+    @Nullable
+    public List<String> onTabComplete(@NotNull CommandSender sender, @NotNull Command command, @NotNull String alias, @NotNull String[] args) {
         return null;
     }
 
@@ -416,12 +304,13 @@ public abstract class JavaPlugin extends PluginBase {
      * @param name name or alias of the command
      * @return the plugin command if found, otherwise null
      */
-    public PluginCommand getCommand(String name) {
-        String alias = name.toLowerCase();
+    @Nullable
+    public PluginCommand getCommand(@NotNull String name) {
+        String alias = name.toLowerCase(java.util.Locale.ENGLISH);
         PluginCommand command = getServer().getPluginCommand(alias);
 
         if (command == null || command.getPlugin() != this) {
-            command = getServer().getPluginCommand(description.getName().toLowerCase() + ":" + alias);
+            command = getServer().getPluginCommand(description.getName().toLowerCase(java.util.Locale.ENGLISH) + ":" + alias);
         }
 
         if (command != null && command.getPlugin() == this) {
@@ -440,8 +329,9 @@ public abstract class JavaPlugin extends PluginBase {
     @Override
     public void onEnable() {}
 
+    @Nullable
     @Override
-    public ChunkGenerator getDefaultWorldGenerator(String worldName, String id) {
+    public ChunkGenerator getDefaultWorldGenerator(@NotNull String worldName, @Nullable String id) {
         return null;
     }
 
@@ -455,30 +345,13 @@ public abstract class JavaPlugin extends PluginBase {
         this.naggable = canNag;
     }
 
+    @NotNull
     @Override
-    public EbeanServer getDatabase() {
-        return ebean;
-    }
-
-    protected void installDDL() {
-        SpiEbeanServer serv = (SpiEbeanServer) getDatabase();
-        DdlGenerator gen = serv.getDdlGenerator();
-
-        gen.runScript(false, gen.generateCreateDdl());
-    }
-
-    protected void removeDDL() {
-        SpiEbeanServer serv = (SpiEbeanServer) getDatabase();
-        DdlGenerator gen = serv.getDdlGenerator();
-
-        gen.runScript(true, gen.generateDropDdl());
-    }
-
-    @Override
-    public final Logger getLogger() {
+    public Logger getLogger() {
         return logger;
     }
 
+    @NotNull
     @Override
     public String toString() {
         return description.getFullName();
@@ -493,6 +366,7 @@ public abstract class JavaPlugin extends PluginBase {
      * does not extend the class, where the intended plugin would have
      * resided in a different jar / classloader.
      *
+     * @param <T> a class that extends JavaPlugin
      * @param clazz the class desired
      * @return the plugin that provides and implements said class
      * @throws IllegalArgumentException if clazz is null
@@ -506,7 +380,8 @@ public abstract class JavaPlugin extends PluginBase {
      * @throws ClassCastException if plugin that provided the class does not
      *     extend the class
      */
-    public static <T extends JavaPlugin> T getPlugin(Class<T> clazz) {
+    @NotNull
+    public static <T extends JavaPlugin> T getPlugin(@NotNull Class<T> clazz) {
         Validate.notNull(clazz, "Null class cannot have a plugin");
         if (!JavaPlugin.class.isAssignableFrom(clazz)) {
             throw new IllegalArgumentException(clazz + " does not extend " + JavaPlugin.class);
@@ -526,13 +401,16 @@ public abstract class JavaPlugin extends PluginBase {
      * This method provides fast access to the plugin that has provided the
      * given class.
      *
+     * @param clazz a class belonging to a plugin
+     * @return the plugin that provided the class
      * @throws IllegalArgumentException if the class is not provided by a
      *     JavaPlugin
      * @throws IllegalArgumentException if class is null
      * @throws IllegalStateException if called from the static initializer for
      *     given JavaPlugin
      */
-    public static JavaPlugin getProvidingPlugin(Class<?> clazz) {
+    @NotNull
+    public static JavaPlugin getProvidingPlugin(@NotNull Class<?> clazz) {
         Validate.notNull(clazz, "Null class cannot have a plugin");
         final ClassLoader cl = clazz.getClassLoader();
         if (!(cl instanceof PluginClassLoader)) {

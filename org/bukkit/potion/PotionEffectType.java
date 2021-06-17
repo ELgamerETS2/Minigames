@@ -1,9 +1,12 @@
 package org.bukkit.potion;
 
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
-
 import org.apache.commons.lang.Validate;
+import org.bukkit.Color;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 /**
  * Represents a type of potion and its effect on an entity.
@@ -126,6 +129,51 @@ public abstract class PotionEffectType {
      */
     public static final PotionEffectType SATURATION = new PotionEffectTypeWrapper(23);
 
+    /**
+     * Outlines the entity so that it can be seen from afar.
+     */
+    public static final PotionEffectType GLOWING = new PotionEffectTypeWrapper(24);
+
+    /**
+     * Causes the entity to float into the air.
+     */
+    public static final PotionEffectType LEVITATION = new PotionEffectTypeWrapper(25);
+
+    /**
+     * Loot table luck.
+     */
+    public static final PotionEffectType LUCK = new PotionEffectTypeWrapper(26);
+
+    /**
+     * Loot table unluck.
+     */
+    public static final PotionEffectType UNLUCK = new PotionEffectTypeWrapper(27);
+
+    /**
+     * Slows entity fall rate.
+     */
+    public static final PotionEffectType SLOW_FALLING = new PotionEffectTypeWrapper(28);
+
+    /**
+     * Effects granted by a nearby conduit. Includes enhanced underwater abilities.
+     */
+    public static final PotionEffectType CONDUIT_POWER = new PotionEffectTypeWrapper(29);
+
+    /**
+     * Squee'ek uh'k kk'kkkk squeek eee'eek.
+     */
+    public static final PotionEffectType DOLPHINS_GRACE = new PotionEffectTypeWrapper(30);
+
+    /**
+     * oof.
+     */
+    public static final PotionEffectType BAD_OMEN = new PotionEffectTypeWrapper(31);
+
+    /**
+     * \o/.
+     */
+    public static final PotionEffectType HERO_OF_THE_VILLAGE = new PotionEffectTypeWrapper(32);
+
     private final int id;
 
     protected PotionEffectType(int id) {
@@ -141,15 +189,18 @@ public abstract class PotionEffectType {
      * @param amplifier the effect's amplifier
      * @return a resulting potion effect
      */
+    @NotNull
     public PotionEffect createEffect(int duration, int amplifier) {
-        return Potion.getBrewer().createEffect(this, duration, amplifier);
+        return new PotionEffect(this, isInstant() ? 1 : (int) (duration * getDurationModifier()), amplifier);
     }
 
     /**
      * Returns the duration modifier applied to effects of this type.
      *
      * @return duration modifier
+     * @deprecated unused, always 1.0
      */
+    @Deprecated
     public abstract double getDurationModifier();
 
     /**
@@ -168,6 +219,7 @@ public abstract class PotionEffectType {
      *
      * @return The name of this effect type
      */
+    @NotNull
     public abstract String getName();
 
     /**
@@ -176,6 +228,14 @@ public abstract class PotionEffectType {
      * @return whether this type is normally instant
      */
     public abstract boolean isInstant();
+
+    /**
+     * Returns the color of this effect type.
+     *
+     * @return the color
+     */
+    @NotNull
+    public abstract Color getColor();
 
     @Override
     public boolean equals(Object obj) {
@@ -202,7 +262,7 @@ public abstract class PotionEffectType {
         return "PotionEffectType[" + id + ", " + getName() + "]";
     }
 
-    private static final PotionEffectType[] byId = new PotionEffectType[24];
+    private static final PotionEffectType[] byId = new PotionEffectType[33];
     private static final Map<String, PotionEffectType> byName = new HashMap<String, PotionEffectType>();
     // will break on updates.
     private static boolean acceptingNew = true;
@@ -215,6 +275,7 @@ public abstract class PotionEffectType {
      * @deprecated Magic value
      */
     @Deprecated
+    @Nullable
     public static PotionEffectType getById(int id) {
         if (id >= byId.length || id < 0)
             return null;
@@ -227,9 +288,10 @@ public abstract class PotionEffectType {
      * @param name Name of PotionEffectType to fetch
      * @return Resulting PotionEffectType, or null if not found.
      */
-    public static PotionEffectType getByName(String name) {
+    @Nullable
+    public static PotionEffectType getByName(@NotNull String name) {
         Validate.notNull(name, "name cannot be null");
-        return byName.get(name.toLowerCase());
+        return byName.get(name.toLowerCase(java.util.Locale.ENGLISH));
     }
 
     /**
@@ -239,8 +301,8 @@ public abstract class PotionEffectType {
      *
      * @param type PotionType to register
      */
-    public static void registerPotionEffectType(PotionEffectType type) {
-        if (byId[type.id] != null || byName.containsKey(type.getName().toLowerCase())) {
+    public static void registerPotionEffectType(@NotNull PotionEffectType type) {
+        if (byId[type.id] != null || byName.containsKey(type.getName().toLowerCase(java.util.Locale.ENGLISH))) {
             throw new IllegalArgumentException("Cannot set already-set type");
         } else if (!acceptingNew) {
             throw new IllegalStateException(
@@ -248,7 +310,7 @@ public abstract class PotionEffectType {
         }
 
         byId[type.id] = type;
-        byName.put(type.getName().toLowerCase(), type);
+        byName.put(type.getName().toLowerCase(java.util.Locale.ENGLISH), type);
     }
 
     /**
@@ -260,10 +322,12 @@ public abstract class PotionEffectType {
 
     /**
      * Returns an array of all the registered {@link PotionEffectType}s.
+     * This array is not necessarily in any particular order.
      *
      * @return Array of types.
      */
+    @NotNull
     public static PotionEffectType[] values() {
-        return byId.clone();
+        return Arrays.copyOfRange(byId, 1, byId.length);
     }
 }

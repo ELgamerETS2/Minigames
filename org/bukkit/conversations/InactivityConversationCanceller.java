@@ -1,7 +1,7 @@
 package org.bukkit.conversations;
 
-import org.bukkit.Server;
 import org.bukkit.plugin.Plugin;
+import org.jetbrains.annotations.NotNull;
 
 /**
  * An InactivityConversationCanceller will cancel a {@link Conversation} after
@@ -19,23 +19,27 @@ public class InactivityConversationCanceller implements ConversationCanceller {
      * @param plugin The owning plugin.
      * @param timeoutSeconds The number of seconds of inactivity to wait.
      */
-    public InactivityConversationCanceller(Plugin plugin, int timeoutSeconds) {
+    public InactivityConversationCanceller(@NotNull Plugin plugin, int timeoutSeconds) {
         this.plugin = plugin;
         this.timeoutSeconds = timeoutSeconds;
     }
 
-    public void setConversation(Conversation conversation) {
+    @Override
+    public void setConversation(@NotNull Conversation conversation) {
         this.conversation = conversation;
         startTimer();
     }
 
-    public boolean cancelBasedOnInput(ConversationContext context, String input) {
+    @Override
+    public boolean cancelBasedOnInput(@NotNull ConversationContext context, @NotNull String input) {
         // Reset the inactivity timer
         stopTimer();
         startTimer();
         return false;
     }
 
+    @Override
+    @NotNull
     public ConversationCanceller clone() {
         return new InactivityConversationCanceller(plugin, timeoutSeconds);
     }
@@ -45,10 +49,11 @@ public class InactivityConversationCanceller implements ConversationCanceller {
      */
     private void startTimer() {
         taskId = plugin.getServer().getScheduler().scheduleSyncDelayedTask(plugin, new Runnable() {
+            @Override
             public void run() {
                 if (conversation.getState() == Conversation.ConversationState.UNSTARTED) {
                     startTimer();
-                } else if (conversation.getState() ==  Conversation.ConversationState.STARTED) {
+                } else if (conversation.getState() == Conversation.ConversationState.STARTED) {
                     cancelling(conversation);
                     conversation.abandon(new ConversationAbandonedEvent(conversation, InactivityConversationCanceller.this));
                 }
@@ -73,7 +78,7 @@ public class InactivityConversationCanceller implements ConversationCanceller {
      *
      * @param conversation The conversation being abandoned.
      */
-    protected void cancelling(Conversation conversation) {
+    protected void cancelling(@NotNull Conversation conversation) {
 
     }
 }

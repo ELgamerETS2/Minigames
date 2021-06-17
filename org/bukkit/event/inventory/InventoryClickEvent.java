@@ -1,18 +1,20 @@
 package org.bukkit.event.inventory;
 
-import org.bukkit.inventory.Inventory;
-import org.bukkit.inventory.InventoryView;
+import org.bukkit.Location;
 import org.bukkit.entity.HumanEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.event.HandlerList;
 import org.bukkit.event.inventory.InventoryType.SlotType;
-import org.bukkit.Location;
+import org.bukkit.inventory.Inventory;
+import org.bukkit.inventory.InventoryView;
 import org.bukkit.inventory.ItemStack;
-import org.bukkit.scheduler.BukkitScheduler;
 import org.bukkit.plugin.Plugin;
+import org.bukkit.scheduler.BukkitScheduler;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 /**
- * This event is called when a player clicks a slot in an inventory.
+ * This event is called when a player clicks in an inventory.
  * <p>
  * Because InventoryClickEvent occurs within a modification of the Inventory,
  * not all Inventory related methods are safe to use.
@@ -27,7 +29,7 @@ import org.bukkit.plugin.Plugin;
  * <li>{@link HumanEntity#openEnchanting(Location, boolean)}
  * <li>{@link InventoryView#close()}
  * </ul>
- * To invoke one of these methods, schedule a task using 
+ * To invoke one of these methods, schedule a task using
  * {@link BukkitScheduler#runTask(Plugin, Runnable)}, which will run the task
  * on the next tick. Also be aware that this is not an exhaustive list, and
  * other methods could potentially create issues as well.
@@ -53,12 +55,7 @@ public class InventoryClickEvent extends InventoryInteractEvent {
     private ItemStack current = null;
     private int hotbarKey = -1;
 
-    @Deprecated
-    public InventoryClickEvent(InventoryView view, SlotType type, int slot, boolean right, boolean shift) {
-        this(view, type, slot, right ? (shift ? ClickType.SHIFT_RIGHT : ClickType.RIGHT) : (shift ? ClickType.SHIFT_LEFT : ClickType.LEFT), InventoryAction.SWAP_WITH_CURSOR);
-    }
-
-    public InventoryClickEvent(InventoryView view, SlotType type, int slot, ClickType click, InventoryAction action) {
+    public InventoryClickEvent(@NotNull InventoryView view, @NotNull SlotType type, int slot, @NotNull ClickType click, @NotNull InventoryAction action) {
         super(view);
         this.slot_type = type;
         this.rawSlot = slot;
@@ -67,7 +64,7 @@ public class InventoryClickEvent extends InventoryInteractEvent {
         this.action = action;
     }
 
-    public InventoryClickEvent(InventoryView view, SlotType type, int slot, ClickType click, InventoryAction action, int key) {
+    public InventoryClickEvent(@NotNull InventoryView view, @NotNull SlotType type, int slot, @NotNull ClickType click, @NotNull InventoryAction action, int key) {
         this(view, type, slot, click, action);
         this.hotbarKey = key;
     }
@@ -77,6 +74,7 @@ public class InventoryClickEvent extends InventoryInteractEvent {
      *
      * @return the slot type
      */
+    @NotNull
     public SlotType getSlotType() {
         return slot_type;
     }
@@ -86,16 +84,17 @@ public class InventoryClickEvent extends InventoryInteractEvent {
      *
      * @return the cursor ItemStack
      */
+    @Nullable
     public ItemStack getCursor() {
         return getView().getCursor();
     }
 
     /**
-     * Gets the ItemStack currently in the clicked slot. Returns air for empty
-     * slots and null for clicking outside the inventory.
+     * Gets the ItemStack currently in the clicked slot.
      *
-     * @return the item in the clicked slot
+     * @return the item in the clicked
      */
+    @Nullable
     public ItemStack getCurrentItem() {
         if (slot_type == SlotType.OUTSIDE) {
             return current;
@@ -146,7 +145,7 @@ public class InventoryClickEvent extends InventoryInteractEvent {
      *     make unexpected changes in the behavior of the clicked Inventory.
      */
     @Deprecated
-    public void setCursor(ItemStack stack) {
+    public void setCursor(@Nullable ItemStack stack) {
         getView().setCursor(stack);
     }
 
@@ -155,12 +154,23 @@ public class InventoryClickEvent extends InventoryInteractEvent {
      *
      * @param stack the item to be placed in the current slot
      */
-    public void setCurrentItem(ItemStack stack) {
+    public void setCurrentItem(@Nullable ItemStack stack) {
         if (slot_type == SlotType.OUTSIDE) {
             current = stack;
         } else {
             getView().setItem(rawSlot, stack);
         }
+    }
+
+    /**
+     * Gets the inventory corresponding to the clicked slot.
+     *
+     * @see InventoryView#getInventory(int)
+     * @return inventory, or null if clicked outside
+     */
+    @Nullable
+    public Inventory getClickedInventory() {
+        return getView().getInventory(rawSlot);
     }
 
     /**
@@ -204,6 +214,7 @@ public class InventoryClickEvent extends InventoryInteractEvent {
      *
      * @return the InventoryAction that triggered this event.
      */
+    @NotNull
     public InventoryAction getAction() {
         return action;
     }
@@ -215,15 +226,18 @@ public class InventoryClickEvent extends InventoryInteractEvent {
      *
      * @return the type of inventory click
      */
+    @NotNull
     public ClickType getClick() {
         return click;
     }
 
+    @NotNull
     @Override
     public HandlerList getHandlers() {
         return handlers;
     }
 
+    @NotNull
     public static HandlerList getHandlerList() {
         return handlers;
     }

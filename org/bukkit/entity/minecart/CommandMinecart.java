@@ -1,9 +1,10 @@
 package org.bukkit.entity.minecart;
 
-import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Minecart;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
-public interface CommandMinecart extends Minecart, CommandSender {
+public interface CommandMinecart extends Minecart {
 
     /**
      * Gets the command that this CommandMinecart will run when activated.
@@ -12,6 +13,7 @@ public interface CommandMinecart extends Minecart, CommandSender {
      *
      * @return Command that this CommandMinecart will run when powered.
      */
+    @NotNull
     public String getCommand();
 
     /**
@@ -22,7 +24,7 @@ public interface CommandMinecart extends Minecart, CommandSender {
      * @param command Command that this CommandMinecart will run when
      *     activated.
      */
-    public void setCommand(String command);
+    public void setCommand(@Nullable String command);
 
     /**
      * Sets the name of this CommandMinecart.  The name is used with commands
@@ -31,6 +33,6 @@ public interface CommandMinecart extends Minecart, CommandSender {
      *
      * @param name New name for this CommandMinecart.
      */
-    public void setName(String name);
+    public void setName(@Nullable String name);
 
 }

@@ -5,6 +5,8 @@ import org.bukkit.World;
 import org.bukkit.inventory.DoubleChestInventory;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.InventoryHolder;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 /**
  * Represents a double chest.
@@ -12,39 +14,45 @@ import org.bukkit.inventory.InventoryHolder;
 public class DoubleChest implements InventoryHolder {
     private DoubleChestInventory inventory;
 
-    public DoubleChest(DoubleChestInventory chest) {
+    public DoubleChest(@NotNull DoubleChestInventory chest) {
         inventory = chest;
     }
 
+    @Override
+    @NotNull
     public Inventory getInventory() {
         return inventory;
     }
 
+    @Nullable
     public InventoryHolder getLeftSide() {
         return inventory.getLeftSide().getHolder();
     }
 
+    @Nullable
     public InventoryHolder getRightSide() {
         return inventory.getRightSide().getHolder();
     }
 
+    @NotNull
     public Location getLocation() {
-        return new Location(getWorld(), getX(), getY(), getZ());
+        return getInventory().getLocation();
     }
 
+    @Nullable
     public World getWorld() {
-        return ((Chest)getLeftSide()).getWorld();
+        return getLocation().getWorld();
     }
 
     public double getX() {
-        return 0.5 * (((Chest)getLeftSide()).getX() + ((Chest)getRightSide()).getX());
+        return getLocation().getX();
     }
 
     public double getY() {
-        return 0.5 * (((Chest)getLeftSide()).getY() + ((Chest)getRightSide()).getY());
+        return getLocation().getY();
     }
 
     public double getZ() {
-        return 0.5 * (((Chest)getLeftSide()).getZ() + ((Chest)getRightSide()).getZ());
+        return getLocation().getZ();
     }
 }

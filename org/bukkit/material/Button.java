@@ -1,23 +1,18 @@
 package org.bukkit.material;
 
-import org.bukkit.block.BlockFace;
 import org.bukkit.Material;
+import org.bukkit.block.BlockFace;
 
 /**
  * Represents a button
+ *
+ * @deprecated all usage of MaterialData is deprecated and subject to removal.
+ * Use {@link org.bukkit.block.data.BlockData}.
  */
+@Deprecated
 public class Button extends SimpleAttachableMaterialData implements Redstone {
     public Button() {
-        super(Material.STONE_BUTTON);
-    }
-
-    /**
-     *
-     * @deprecated Magic value
-     */
-    @Deprecated
-    public Button(final int type) {
-        super(type);
+        super(Material.LEGACY_STONE_BUTTON);
     }
 
     public Button(final Material type) {
@@ -25,16 +20,8 @@ public class Button extends SimpleAttachableMaterialData implements Redstone {
     }
 
     /**
-     *
-     * @deprecated Magic value
-     */
-    @Deprecated
-    public Button(final int type, final byte data) {
-        super(type, data);
-    }
-
-    /**
-     *
+     * @param type the type
+     * @param data the raw data value
      * @deprecated Magic value
      */
     @Deprecated
@@ -48,6 +35,7 @@ public class Button extends SimpleAttachableMaterialData implements Redstone {
      *
      * @return true if powered, otherwise false
      */
+    @Override
     public boolean isPowered() {
         return (getData() & 0x8) == 0x8;
     }
@@ -67,10 +55,14 @@ public class Button extends SimpleAttachableMaterialData implements Redstone {
      *
      * @return BlockFace attached to
      */
+    @Override
     public BlockFace getAttachedFace() {
         byte data = (byte) (getData() & 0x7);
 
         switch (data) {
+        case 0x0:
+            return BlockFace.UP;
+
         case 0x1:
             return BlockFace.WEST;
 
@@ -82,6 +74,9 @@ public class Button extends SimpleAttachableMaterialData implements Redstone {
 
         case 0x4:
             return BlockFace.SOUTH;
+
+        case 0x5:
+            return BlockFace.DOWN;
         }
 
         return null;
@@ -90,10 +85,15 @@ public class Button extends SimpleAttachableMaterialData implements Redstone {
     /**
      * Sets the direction this button is pointing toward
      */
+    @Override
     public void setFacingDirection(BlockFace face) {
         byte data = (byte) (getData() & 0x8);
 
         switch (face) {
+        case DOWN:
+            data |= 0x0;
+            break;
+
         case EAST:
             data |= 0x1;
             break;
@@ -108,6 +108,10 @@ public class Button extends SimpleAttachableMaterialData implements Redstone {
 
         case NORTH:
             data |= 0x4;
+            break;
+
+        case UP:
+            data |= 0x5;
             break;
         }
 

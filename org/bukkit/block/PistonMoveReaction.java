@@ -2,7 +2,12 @@ package org.bukkit.block;
 
 import java.util.HashMap;
 import java.util.Map;
+import org.jetbrains.annotations.Nullable;
 
+/**
+ * Represents how a block or entity will react when interacting with a piston
+ * when it is extending or retracting.
+ */
 public enum PistonMoveReaction {
 
     /**
@@ -16,7 +21,18 @@ public enum PistonMoveReaction {
     /**
      * Indicates that the block will resist being pushed or pulled.
      */
-    BLOCK(2);
+    BLOCK(2),
+    /**
+     * Indicates that the entity will ignore any interaction(s) with
+     * pistons.
+     * <br>
+     * Blocks should use {@link PistonMoveReaction#BLOCK}.
+     */
+    IGNORE(3),
+    /**
+     * Indicates that the block can only be pushed by pistons, not pulled.
+     */
+    PUSH_ONLY(4);
 
     private int id;
     private static Map<Integer, PistonMoveReaction> byId = new HashMap<Integer, PistonMoveReaction>();
@@ -45,6 +61,7 @@ public enum PistonMoveReaction {
      * @deprecated Magic value
      */
     @Deprecated
+    @Nullable
     public static PistonMoveReaction getById(int id) {
         return byId.get(id);
     }

@@ -2,12 +2,16 @@
 /ChunkLoadEvent.class
 /ChunkPopulateEvent.class
 /ChunkUnloadEvent.class
+/LootGenerateEvent.class
 /PortalCreateEvent$CreateReason.class
 /PortalCreateEvent.class
 /SpawnChangeEvent.class
 /StructureGrowEvent.class
+/TimeSkipEvent$SkipReason.class
+/TimeSkipEvent.class
 /WorldEvent.class
 /WorldInitEvent.class
 /WorldLoadEvent.class
 /WorldSaveEvent.class
 /WorldUnloadEvent.class
+/package-info.class

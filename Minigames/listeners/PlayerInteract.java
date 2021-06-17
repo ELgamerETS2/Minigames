@@ -2,13 +2,16 @@ package Minigames.listeners;
 
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
+import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.inventory.InventoryType;
 import org.bukkit.event.player.PlayerInteractEvent;
+import org.bukkit.inventory.meta.SkullMeta;
 
 import Minigames.minigamesMain;
-import Minigames.gui.LobbyGUI;
+import Minigames.gui.MenuGUI;
+import Minigames.gui.StatsGUI;
 
 public class PlayerInteract implements Listener
 {
@@ -20,16 +23,34 @@ public class PlayerInteract implements Listener
 
 	@EventHandler
 	public void interactEvent(PlayerInteractEvent e)
-	{	
-		if (e.getPlayer().getOpenInventory().getType() != InventoryType.CRAFTING && e.getPlayer().getOpenInventory().getType() != InventoryType.CREATIVE)
+	{
+		SkullMeta skullMeta;
+		Player player;
+		
+		player = e.getPlayer();
+		
+		if (player.getOpenInventory().getType() != InventoryType.CRAFTING && e.getPlayer().getOpenInventory().getType() != InventoryType.CREATIVE)
 		{
 		    return;
 		}
 		
-		if (e.getPlayer().getInventory().getItemInHand().equals(minigamesMain.gui))
+		if (player.getInventory().getItemInMainHand().equals(minigamesMain.menu))
 		{
 			e.setCancelled(true);
-			e.getPlayer().openInventory(LobbyGUI.GUI(e.getPlayer()));
+			player.openInventory(MenuGUI.GUI(e.getPlayer()));
+		}
+		
+		else if (player.getInventory().getItemInMainHand().hasItemMeta())
+		{
+			if (player.getInventory().getItemInMainHand().getItemMeta() instanceof SkullMeta)
+			{
+				skullMeta = (SkullMeta) (player.getInventory().getItemInMainHand().getItemMeta());
+				if (skullMeta.getOwningPlayer().getUniqueId().equals(player.getUniqueId()))
+				{
+					e.setCancelled(true);
+					player.openInventory(StatsGUI.GUI(player));
+				}
+			}
 		}
 	}
 }

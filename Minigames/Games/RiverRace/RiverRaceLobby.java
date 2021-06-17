@@ -82,6 +82,11 @@ public class RiverRaceLobby
 		//Kicks them out of hide and seek lobby
 		CorePlugin.HSLobby.playerLeaveLobby(player);
 		
+		//Chunks them out of the game
+		if (bGameIsRunning)
+		{
+			RRGame.playerLeave(player);
+		}
 		//Tests whether player is already in the lobby
 		if (players.contains(player))
 		{

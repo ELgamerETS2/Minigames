@@ -12,7 +12,7 @@ import Minigames.minigamesMain;
 import Minigames.Games.Game;
 import Minigames.Games.Gametype;
 
-public class StatRecord
+public class HideRecord
 {
 	private UUID uUuid;
 	private Game game;
@@ -21,7 +21,7 @@ public class StatRecord
 	//--------------------------------------------
 	//----------------Constructors----------------
 	//--------------------------------------------
-	public StatRecord(UUID uUuid, int gameID, int iPoints)
+	public HideRecord(UUID uUuid, int gameID, int iPoints)
 	{
 		this.uUuid = uUuid;
 		game = new Game();
@@ -29,7 +29,7 @@ public class StatRecord
 		this.iPoints = iPoints;
 	}
 	
-	public StatRecord()
+	public HideRecord()
 	{
 	}
 
@@ -89,12 +89,12 @@ public class StatRecord
 		return bSuccess;
 	}
 	
-	public static StatRecord[] getAllRecordsForPlayer(UUID UUID)
+	public static HideRecord[] getAllRecordsForPlayer(UUID UUID)
 	{
 		String szUUID = UUID.toString();
 		
 		int iCount = countAllForPlayer(szUUID);
-		StatRecord[] allRecords = new StatRecord[iCount];
+		HideRecord[] allRecords = new HideRecord[iCount];
 		
 		String sql;
 		Statement SQL = null;
@@ -115,7 +115,7 @@ public class StatRecord
 			i = 0;
 			while (resultSet.next())
 			{
-				allRecords[i] = new StatRecord();
+				allRecords[i] = new HideRecord();
 				allRecords[i].game = new Game();
 				allRecords[i].game.setGameByID(resultSet.getInt("GameID"));
 				allRecords[i].iPoints = resultSet.getInt("Points");
@@ -183,12 +183,12 @@ public class StatRecord
 		return iCount;
 	}
 	
-	public static StatRecord[] getAllRecordsForPlayerGame(UUID UUID, Gametype gametype)
+	public static HideRecord[] getAllRecordsForPlayerGame(UUID UUID, Gametype gametype)
 	{
 		String szUUID = UUID.toString();
 		
 		int iCount = countAllForPlayerGame(szUUID, gametype);
-		StatRecord[] allRecords = new StatRecord[iCount];
+		HideRecord[] allRecords = new HideRecord[iCount];
 		
 		String sql;
 		Statement SQL = null;
@@ -209,7 +209,7 @@ public class StatRecord
 			i = 0;
 			while (resultSet.next())
 			{
-				allRecords[i] = new StatRecord();
+				allRecords[i] = new HideRecord();
 				allRecords[i].game = new Game();
 				allRecords[i].game.setGameByID(resultSet.getInt("GameID"));
 				allRecords[i].iPoints = resultSet.getInt("Points");

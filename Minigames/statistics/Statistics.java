@@ -8,7 +8,7 @@ import Minigames.Games.HideAndSeek.HideAndSeekFinder;
 public class Statistics
 {
 	public minigamesMain CorePlugin;
-	public StatRecord[] records;
+	public HideRecord[] records;
 	
 	public Statistics(minigamesMain CorePlugin)
 	{
@@ -17,7 +17,7 @@ public class Statistics
 	
 	public void storeHideAndSeekPoints(ArrayList<HideAndSeekFinder> finders, int GameID)
 	{
-		this.records = new StatRecord[finders.size()];
+		this.records = new HideRecord[finders.size()];
 		int i;
 		
 		HideAndSeekFinder finder;
@@ -26,7 +26,7 @@ public class Statistics
 		for (i = 0 ; i < records.length ; i++)
 		{
 			finder = finders.get(i);
-			records[i] = new StatRecord(finder.player.getUniqueId(), GameID, finder.iPoints + finder.iFound);
+			records[i] = new HideRecord(finder.player.getUniqueId(), GameID, finder.iPoints + finder.iFound);
 			records[i].storeRecord();
 		}
 	}

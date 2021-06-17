@@ -1,6 +1,7 @@
 package Minigames.Games.RiverRace;
 
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.UUID;
 
 import org.bukkit.Bukkit;
@@ -14,6 +15,7 @@ import org.bukkit.event.player.PlayerMoveEvent;
 
 import Minigames.Announce;
 import Minigames.minigamesMain;
+import Minigames.statistics.RiverRaceTime;
 
 public class FinishLine implements Listener
 {
@@ -25,17 +27,25 @@ public class FinishLine implements Listener
 	private ArrayList<RiverRaceRacer> YetToFinish;
 	protected ArrayList<RiverRaceRacer> Finished;
 	
+	private ArrayList<RiverRaceTime> Times;
+	private RiverRaceTime TimeRecord;
+	
+	private final long iStartTime;
+	
 	public FinishLine(minigamesMain CorePlugin, RiverRaceGame RRGame, ArrayList<RiverRaceRacer> racers, int iNumber, Location[] locations)
 	{
+		//Store start time
+		iStartTime = Calendar.getInstance().getTimeInMillis();
 		//Set up checkpoint
 		this.RRGame = RRGame;
 		this.iNumber = iNumber;
 		
 		YetToFinish = new ArrayList<RiverRaceRacer>();
-		
+		Times = new ArrayList<RiverRaceTime>();
+				
 		for (int i = 0 ; i < racers.size() ; i++)
-		{
-			this.YetToFinish.add(racers.get(i));
+		{			
+			this.YetToFinish.add(racers.get(i));	
 		}
 		
 		this.Finished = new ArrayList<RiverRaceRacer>();
@@ -84,6 +94,10 @@ public class FinishLine implements Listener
 				{
 					YetToFinish.get(i).updateScore(iNumber);
 					Finished.add(YetToFinish.get(i));
+					
+					TimeRecord = new RiverRaceTime(YetToFinish.get(i).getUUID(), RRGame.game.getGameID(), iStartTime, Calendar.getInstance().getTimeInMillis());
+					Times.add(TimeRecord);
+					
 					String szName = YetToFinish.get(i).getPlayer().getName();
 					YetToFinish.remove(i);
 					dealWithFinish(szName);

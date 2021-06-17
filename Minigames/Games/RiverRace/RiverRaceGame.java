@@ -27,7 +27,7 @@ public class RiverRaceGame
 	//Used for access to the lobby and main plugin
 	private final minigamesMain plugin;
 	protected RiverRaceLobby RRL;
-
+	
 	//Stores the lists of players and racers
 	private Player[] players;
 	private ArrayList<RiverRaceRacer> racers = new ArrayList<RiverRaceRacer>();
@@ -104,6 +104,8 @@ public class RiverRaceGame
 		map = new RiverRaceMap(MapIDs[(int) ( Math.random() * MapIDs.length)]);
 		map.setMapFromMapID();
 		
+		game.setMapID(map.getMapID());
+		
 		//Get checkpoints
 		DBCheckPoints = RiverRaceCheckpoint.getAllForMapID(map.getMapID(), map.getWorld());
 		
@@ -177,7 +179,7 @@ public class RiverRaceGame
 			}
 		}, 0L, 20L);
 		
-		//Starts gameplay
+		//Starts gameplay after 5 seconds
 		Bukkit.getScheduler().runTaskLater(this.plugin, new Runnable()
 		{
 			@Override
@@ -192,7 +194,6 @@ public class RiverRaceGame
 				game();
 			}
 		}, 5 * 20L);
-
 		
 		if (bTerminate)
 		{
@@ -212,7 +213,6 @@ public class RiverRaceGame
 		game.setTimeStart();
 		game.storeGameInDatabase();
 		game.selectLastInsertID();
-		game.getGameID();
 		
 		Checkpoint newCheck;
 		
@@ -223,6 +223,7 @@ public class RiverRaceGame
 		}
 		
 		FinishLine = new FinishLine(plugin, this, racers, DBCheckPoints[DBCheckPoints.length - 1].getNumber(), DBCheckPoints[DBCheckPoints.length - 1].getLocations());
+		
 	}
 
 	private Boat newBoat(Location location)

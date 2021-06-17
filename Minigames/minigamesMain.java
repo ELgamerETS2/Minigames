@@ -30,7 +30,11 @@ import Minigames.commands.RRGrid;
 import Minigames.commands.RRMap;
 import Minigames.commands.RiverRace;
 import Minigames.commands.Wand;
-import Minigames.gui.LobbyGUI;
+import Minigames.gui.HideStatsGUI;
+import Minigames.gui.MenuGUI;
+import Minigames.gui.RiverRaceStatsGUI;
+import Minigames.gui.StatsGUI;
+import Minigames.gui.Utils;
 import Minigames.listeners.InventoryClicked;
 import Minigames.listeners.JoinEvent;
 import Minigames.listeners.PlayerInteract;
@@ -73,7 +77,10 @@ public class minigamesMain extends JavaPlugin
 	private String DB_CON;
 	
 	public ItemStack slot9;
-	public static ItemStack gui;
+	public static ItemStack menu;
+	
+	public ItemStack slot8;
+	public static ItemStack stats;
 	
 	public ArrayList<RRSelection> selections;
 	
@@ -128,6 +135,9 @@ public class minigamesMain extends JavaPlugin
 			//Stats
 			createStatsTable();
 			
+			//River Race Times
+			createRiverRaceTimesTable();
+			
 			//Lobbies
 			createLobbiesTable();
 		}
@@ -147,28 +157,48 @@ public class minigamesMain extends JavaPlugin
 		//--------------Create GUIs--------------
 		//---------------------------------------
 		
-		LobbyGUI.initialize();
+		MenuGUI.initialize();
+		StatsGUI.initialize();
+		HideStatsGUI.initialize();
+		RiverRaceStatsGUI.initialize();
 		
-		//Create gui item				
-		gui = new ItemStack(Material.EMERALD);
-		ItemMeta meta = gui.getItemMeta();
+		//Create menu item				
+		menu = new ItemStack(Material.EMERALD);
+		ItemMeta meta = menu.getItemMeta();
 		meta.setDisplayName(ChatColor.GREEN + "" + ChatColor.BOLD + "Minigames Menu");
-		gui.setItemMeta(meta);
+		menu.setItemMeta(meta);
 		
 		//1 second timer - updates slot
 		this.getServer().getScheduler().scheduleSyncRepeatingTask(this, new Runnable() {
-			public void run() {
-
+			public void run()
+			{
 				for (Player p : Bukkit.getOnlinePlayers())
 				{
+					//Menu
 					slot9 = p.getInventory().getItem(8);
 					if (slot9 == null)
 					{
-						p.getInventory().setItem(8, gui);
+						p.getInventory().setItem(8, menu);
 					}
-					else if (!slot9.equals(gui))
+					else if (!slot9.equals(menu))
 					{
-						p.getInventory().setItem(8, gui);
+						p.getInventory().setItem(8, menu);
+					}
+					
+					//Create stats item
+					stats = Utils.createPlayerSkull(p, 1, 7, ChatColor.GREEN + "" + ChatColor.BOLD + "Stats");
+					ItemMeta meta = stats.getItemMeta();
+					meta.setDisplayName(ChatColor.GREEN + "" + ChatColor.BOLD + "Stats");
+					stats.setItemMeta(meta);
+					
+					slot8 = p.getInventory().getItem(7);
+					if (slot8 == null)
+					{
+						p.getInventory().setItem(7, stats);
+					}
+					else if (!slot8.equals(stats))
+					{
+						p.getInventory().setItem(7, stats);
 					}
 				}
 			}
@@ -611,6 +641,53 @@ public class minigamesMain extends JavaPlugin
 		catch (Exception e)
 		{
 			Bukkit.getConsoleSender().sendMessage("[Minigames] [SQL] Error adding Stats Table");
+			e.printStackTrace();
+		}
+		return (bSuccess);
+	}
+	
+	public boolean createRiverRaceTimesTable()
+	{
+
+		boolean bSuccess = false;
+		int iCount = -1;
+
+		try
+		{
+			//Adds a weather pref table
+			sql = "CREATE TABLE IF NOT EXISTS `MinigameStats`.`RiverRaceTimes` (\n" + 
+					"				  `ScoreID` INT NOT NULL AUTO_INCREMENT,\n" + 
+					"				  `GameID` INT NOT NULL,\n" + 
+					"				  `Time` INT NOT NULL,\n" + 
+					"				  `PlayerUUID` VARCHAR(36) NOT NULL ,\n" + 
+					"				  PRIMARY KEY (`ScoreID`),\n" + 
+					"				  INDEX `Game_idx` (`GameID` ASC) VISIBLE,\n" + 
+					"				  CONSTRAINT `Game`\n" + 
+					"				    FOREIGN KEY (`GameID`)\n" + 
+					"				    REFERENCES `MinigameStats`.`Games` (`GameID`)\n" + 
+					"				    ON DELETE NO ACTION\n" + 
+					"				    ON UPDATE NO ACTION);";
+			
+			Bukkit.getConsoleSender().sendMessage("[Minigames] [SQL]: " + sql);
+			SQL = connection.createStatement();
+			//Executes the update and returns how many rows were changed
+			iCount = SQL.executeUpdate(sql);
+
+			//If only 1 record was changed, success is set to true
+			if (iCount == 1)
+			{
+				Bukkit.getConsoleSender().sendMessage("[Minigames]" +ChatColor.AQUA + "Created RiverRaceTimes table");			
+				bSuccess = true;
+			}
+		}
+		catch (SQLException se)
+		{
+			Bukkit.getConsoleSender().sendMessage("[Minigames] [SQL] SQL Error adding RiverRaceTimes Table");
+			se.printStackTrace();
+		}
+		catch (Exception e)
+		{
+			Bukkit.getConsoleSender().sendMessage("[Minigames] [SQL] Error adding RiverRaceTimes Table");
 			e.printStackTrace();
 		}
 		return (bSuccess);

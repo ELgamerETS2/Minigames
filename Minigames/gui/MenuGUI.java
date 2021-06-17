@@ -13,17 +13,19 @@ import org.bukkit.inventory.meta.ItemMeta;
 
 import Minigames.minigamesMain;
 
-public class LobbyGUI
+public class MenuGUI
 {
 	private static Inventory inv;
 	private static String inventory_name;
 	private static int inv_rows = 3 * 9;
-
+	
+	//Code for the method was taken from ElgamerYT
 	public static String getInventoryName()
 	{
 		return inventory_name;
 	}
-
+	
+	//Code for the method was taken from ElgamerYT
 	public static void initialize()
 	{
 		inventory_name = ChatColor.GREEN + "" + ChatColor.BOLD + "Minigames Menu";
@@ -31,6 +33,7 @@ public class LobbyGUI
 		inv = Bukkit.createInventory(null, inv_rows);
 	}
 	
+	//Some code for this method was taken from ElgamerYT
 	public static Inventory GUI (Player p)
 	{
 		Inventory toReturn = Bukkit.createInventory(null, inv_rows, getInventoryName());
@@ -65,6 +68,7 @@ public class LobbyGUI
 		}
 	}
 	
+	//Code for the method was taken from ElgamerYT
 	public static ItemStack createItem(Inventory inv, Material material, int amount, int invSlot, String displayName, String... loreString)
 	{
 		ItemStack item;
@@ -85,7 +89,5 @@ public class LobbyGUI
 		inv.setItem(invSlot - 1,  item);
 		
 		return item;
-		
 	}
-
 }

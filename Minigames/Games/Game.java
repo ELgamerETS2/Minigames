@@ -202,10 +202,12 @@ public class Game
 		}
 		catch (SQLException se)
 		{
+			Bukkit.getConsoleSender().sendMessage(ChatColor.RED + "[Minigames] [Games]  ["+gameType.toString() +"] SQL Error adding TimeEnd");
 			se.printStackTrace();
 		}
 		catch (Exception e)
 		{
+			Bukkit.getConsoleSender().sendMessage(ChatColor.RED + "[Minigames] [Games]  ["+gameType.toString() +"] Non-SQL Error adding TimeEnd");
 			e.printStackTrace();
 		}
 		return bSuccess;

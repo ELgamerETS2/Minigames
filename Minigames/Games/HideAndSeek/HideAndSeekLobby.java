@@ -163,6 +163,11 @@ public class HideAndSeekLobby
 		//Kicks them out of River Race lobby
 		CorePlugin.RRLobby.playerLeaveLobby(player);
 		
+		if (gameIsRunning)
+		{
+			HideGame.playerLeave(player);
+		}
+		
 		//Tests whether player is already in the lobby
 		if (players.contains(player))
 		{
@@ -191,7 +196,6 @@ public class HideAndSeekLobby
 			//Resets players speeds
 			player.setWalkSpeed((float) 0.2);
 			player.setFlySpeed((float) 0.2);
-			
 		}
 	}
 	

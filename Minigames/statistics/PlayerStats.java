@@ -1,7 +1,6 @@
 package Minigames.statistics;
 
 import java.sql.Date;
-import java.sql.Time;
 import java.sql.Timestamp;
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
@@ -22,7 +21,10 @@ public class PlayerStats
 	private Date dEnd;
 	
 	//Used to store values returned
-	StatRecord[] allPlayerRecords;
+	HideRecord[] allPlayerRecords;
+	
+	//Used to store values returned
+	RiverRaceTime[] allRiverRaceRecord;
 	
 	public int iTotalPoints;
 	public int iTotalGames;
@@ -32,8 +34,10 @@ public class PlayerStats
 	//Used when no game or time parameters are specified
 	public PlayerStats(UUID uuid)
 	{
+		//Sets values to default values
 		reset();
-		allPlayerRecords = StatRecord.getAllRecordsForPlayer(uuid);
+		
+		allPlayerRecords = HideRecord.getAllRecordsForPlayer(uuid);
 	}
 	
 	public PlayerStats(UUID uuid, Gametype gameType)
@@ -41,7 +45,7 @@ public class PlayerStats
 		//Sets values to default values
 		reset();
 		
-		allPlayerRecords = StatRecord.getAllRecordsForPlayerGame(uuid, gameType);
+		allPlayerRecords = HideRecord.getAllRecordsForPlayerGame(uuid, gameType);
 	}
 	
 	public PlayerStats(UUID uuid, PeriodType periodType, Gametype gameType)

@@ -461,8 +461,15 @@ Unsuccesful-Prevents mods from starting games which are already running
 1.12.2
 -Updated the IDE to have the 1.16 source
 -Updates code to work with 1.16 as this is the server version
+
 -----------------------------------------------------------------------------
 1.13.0 - Statistics update
 -Migrates the /mystats command into a GUI
 -Players can access the GUI using their head icon in the 8th slot
+-Added Hide and Seek stats - Games Played, Time Played, Points
 
+-Adds River Race Times table to DB, creates associated class
+-Creates a final int to hold epoch seconds at start of race in finishline
+-When someone crosses the line, it records the difference and stores it in the DB
+
+-Update PlayerJoinLobby to kick them out of a game if they are in one

@@ -1,5 +1,5 @@
 name: Minigames
-version: 1.12.2
+version: 1.13.2.2
 main: Minigames.minigamesMain
 description: Handles all lobbies, games, stats, commands and banning system. Stats commands must consider privacy and profilling issues. User should not be able to access too much info about other users. All admin requests should be recorded.
 api-version: 1.16
@@ -7,21 +7,18 @@ commands:
     hide:
         usage: /<command>
         description: Allows the player to join the hide and seek lobby
-    mystats:
-        usage: /<command>
-        description: Allows a player to see some of their stats
     hsmap:
         usage: /<command>
         description: Allows Mapmakers to manage Hide and Seek maps
+    rr:
+        usage: /<command>
+        description: Allows GameMakers to manually start and end River Race games
     rrmap:
         usage: /<command>
         description: Allows Mapmakers to manage River Race maps
     rrgrid:
         usage: /<command>
         description: Allows Mapmakers to manage River Race start grids
-    rr:
-        usage: /<command>
-        description: Allows GameMakers to manually start and end River Race games
     rrcheck:
         usage: /<command>
         description: Allows Mapmakers to add checkpoints to River Race maps
@@ -30,3 +27,4 @@ commands:
         description: Allows devs to manage lobbies
 depend:
  - Multiverse-Core
+ - DiscordSRV

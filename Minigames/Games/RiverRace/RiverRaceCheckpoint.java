@@ -49,9 +49,9 @@ public class RiverRaceCheckpoint
 		ResultSet resultSet = null;
 		
 		int i;
-		
-		//Counts total amount of maps first
-		int iCount = count();
+				
+		//Counts total amount of checkpoints first
+		int iCount = count(mapID);
 		
 		//Initiates the int array for storing MapIDs with length of the amount of maps just found
 		Checkpoints = new RiverRaceCheckpoint[iCount];
@@ -72,20 +72,20 @@ public class RiverRaceCheckpoint
 			SQL = minigamesMain.getInstance().getConnection().createStatement();
 			resultSet = SQL.executeQuery(sql);
 			
-			//Moves the curser to the next line
-			resultSet.next();
-						
-			//Checks that there is only 1 record returned
+			//Adds the details to the checkpoint object
 			for (i = 0 ; i < iCount ; i++)
 			{
+				//Moves the curser to the next line
+				if (!resultSet.next())
+				{
+					return Checkpoints;
+				}
+				
 				Checkpoints[i] = new RiverRaceCheckpoint(resultSet.getInt("MapID"), resultSet.getInt("Number"));
 				Checkpoints[i].iCheckPointID = resultSet.getInt("CheckPointID");
 				//Then get the locations
 				Checkpoints[i].GetLocations(world);
-				
-				resultSet.next();
-			}
-			
+			}			
 		}
 		catch (SQLException e)
 		{
@@ -95,7 +95,7 @@ public class RiverRaceCheckpoint
 	}
 	
 	//Counts the amount of checkpoints
-	public static int count()
+	public static int count(int mapID)
 	{
 		boolean bSuccess = false;
 		
@@ -109,34 +109,37 @@ public class RiverRaceCheckpoint
 		try
 		{
 			//Collects all maps
-			sql = "SELECT * FROM RiverRaceCheckPoints";
+			sql = "SELECT * FROM RiverRaceCheckPoints Where MapID = "+mapID;
 			Bukkit.getConsoleSender().sendMessage("[Minigames] [Count of RiverRaceCheckPoints]: "+sql);
 			
 			SQL = minigamesMain.getInstance().getConnection().createStatement();
 			resultSet = SQL.executeQuery(sql);
+			
 			//Moves the curser to the next line
 			bSuccess = resultSet.next();
 			
 			//If no map is found, program will notify thing
 			if (bSuccess == false)
 			{
-				System.out.println("No checkpoints found");
+				Bukkit.getConsoleSender().sendMessage("[Minigames] [Count]: No Checkpoints found");
 			}
 			else
 			{
 				iCount++;
-			}
-			
-			//Checks that there is only 1 record returned
-			while (resultSet.next() != false)
-			{
-				iCount++;
-			}
+				
+				//Keeps counting number of rows
+				while (resultSet.next() != false)
+				{
+					iCount++;
+				}
+			}			
 		}
 		catch (SQLException e)
 		{
+			Bukkit.getConsoleSender().sendMessage("[Minigames] [Count of RiverRaceCheckPoints]: Error whilst counting river race checkpoints");
 			e.printStackTrace();
 		}
+		Bukkit.getConsoleSender().sendMessage("[Minigames] [Count]: "+iCount);
 		return iCount;
 	}
 	

@@ -220,7 +220,7 @@ public class RiverRaceLobby
 	{
 		bGameIsRunning = true;
 				
-		RRGame = new RiverRaceGame(CorePlugin, this, (Player[]) players.toArray(new Player[players.size()]));
+		RRGame = new RiverRaceGame(CorePlugin, this, players);
 		
 		players = new ArrayList<Player>();
 		
@@ -257,7 +257,8 @@ public class RiverRaceLobby
 		}
 	}
 	
-	public void gameFinished(ArrayList<RiverRaceRacer> racers, boolean bGamePlayStarted)
+	//For if game play started
+	public void gameFinished(ArrayList<RiverRaceRacer> racers)
 	{
 		bGameIsRunning = false;
 		
@@ -267,8 +268,27 @@ public class RiverRaceLobby
 			//Removes them from boat and deletes boat
 			racer.unBoard();
 			
+			//Resets the player's scoreboard
+			racer.getPlayer().setScoreboard(Bukkit.getScoreboardManager().getMainScoreboard());
+			
 			//Adds the player to this lobby
 			playerJoinLobby(racer.getPlayer());
+		}
+	}
+	
+	//For if gameplay did not start
+	public void gameFinishedEarly(ArrayList<Player> players)
+	{
+		bGameIsRunning = false;
+		
+		///Add players back to the lobby
+		for (Player player : players)
+		{
+			//Resets the player's scoreboard
+			player.setScoreboard(Bukkit.getScoreboardManager().getMainScoreboard());
+			
+			//Adds the player to this lobby
+			playerJoinLobby(player);
 		}
 	}
 }

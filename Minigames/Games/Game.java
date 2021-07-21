@@ -50,6 +50,10 @@ public class Game
 	{
 		return this.TimeEnd;
 	}
+	public int getMapID()
+	{
+		return this.iMapID;
+	}
 
 	//Constructors
 	public Game()

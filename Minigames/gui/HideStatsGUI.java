@@ -6,8 +6,7 @@ import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
 
-import Minigames.Games.Gametype;
-import Minigames.statistics.PlayerStats;
+import Minigames.statistics.HideStats;
 
 public class HideStatsGUI
 {
@@ -30,19 +29,20 @@ public class HideStatsGUI
 	public static Inventory GUI (Player player)
 	{
 		Inventory toReturn = Bukkit.createInventory(null, inv_rows, getInventoryName());
-
+		
 		inv.clear();
 		
 		//Get stats for the player
-		PlayerStats playerstats = new PlayerStats(player.getUniqueId(), Gametype.Hide_And_Seek);
-		playerstats.countTotalPoints();
-		playerstats.countGames();
-		playerstats.getTimePlayed();
+		HideStats hidestats = new HideStats(player.getUniqueId());
+		hidestats.getGames();
+		hidestats.countTotalPoints();
+		hidestats.countGames();
+		hidestats.getTimePlayed();
 		
-		int iGamesPlayed = playerstats.iTotalGames;
+		int iGamesPlayed = hidestats.iTotalGames;
 		
 		//Get seconds played from playerstats object
-		int iSecondsRemaining = (int) playerstats.iSecondsPlayed;
+		int iSecondsRemaining = (int) hidestats.iSecondsPlayed;
 		
 		//Calculate time played in days, minutes, hours, seconds from total seconds
 		int iDays = iSecondsRemaining / 86400;
@@ -113,7 +113,7 @@ public class HideStatsGUI
 		Utils.createItem(inv, Material.LADDER, 1, 2, ChatColor.LIGHT_PURPLE + "" + ChatColor.BOLD + "Total games played", ChatColor.LIGHT_PURPLE +"" +iGamesPlayed);
 		
 		//Create item for points
-		Utils.createItem(inv, Material.GUNPOWDER, 1, 8, ChatColor.LIGHT_PURPLE + "" + ChatColor.BOLD + "Your points", ""+playerstats.iTotalPoints);
+		Utils.createItem(inv, Material.GUNPOWDER, 1, 8, ChatColor.LIGHT_PURPLE + "" + ChatColor.BOLD + "Your points", ChatColor.LIGHT_PURPLE +"" +hidestats.iTotalPoints);
 		
 		toReturn.setContents(inv.getContents());
 		return toReturn;

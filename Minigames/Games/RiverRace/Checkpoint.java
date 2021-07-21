@@ -6,11 +6,14 @@ import java.util.UUID;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
+//import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
-import org.bukkit.event.EventPriority;
+//import org.bukkit.event.EventPriority;
 import org.bukkit.event.HandlerList;
 import org.bukkit.event.Listener;
+//import org.bukkit.event.block.Action;
+//import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.player.PlayerMoveEvent;
 
 import Minigames.minigamesMain;
@@ -45,7 +48,25 @@ public class Checkpoint implements Listener
 		Bukkit.getConsoleSender().sendMessage(ChatColor.GOLD + "[Minigames] [River Race] Checkpoint "+this.iNumber +" loaded");
 	}
 	
-	@EventHandler(priority = EventPriority.HIGH)
+/*	@EventHandler
+	//New event to try to reduce lag on the minigames server
+	public void Pass2(PlayerInteractEvent event)
+	{
+		if (event.getAction() != Action.PHYSICAL)
+			return;
+		if (event.getMaterial() != Material.TRIPWIRE)
+			return;
+		Location location = event.getClickedBlock().getLocation();
+		
+		//Check whether the location they have moved to is in the checkpoint
+		if (locationIsInCheckpoint(location))
+		{
+			//Registers that the player has moved through the checkponiny
+			registerPlayer(event);
+		}
+	}
+*/	
+	@EventHandler
 	public void Pass(PlayerMoveEvent event)
 	{
 		Location location = event.getTo();
@@ -54,22 +75,7 @@ public class Checkpoint implements Listener
 			registerPlayer(event);
 		}
 	}
-	
-	private boolean locationIsInCheckpoint(Location location)
-	{
-		//Goes through all checkpoint blocks
-		for (int i = 0 ; i < locations.length ; i++)
-		{
-			//If the location is in one of these blocks, return true
-			if (location.getBlockX() == locations[i].getBlockX() && location.getBlockY() == locations[i].getBlockY() && location.getBlockZ() == locations[i].getBlockZ())
-			{
-				return true;
-			}
-		}
-		//If the location was in none of the checkpoint blocks, return false
-		return false;
-	}
-	
+		
 	private void registerPlayer(PlayerMoveEvent event)
 	{
 		Player player = event.getPlayer();
@@ -100,6 +106,21 @@ public class Checkpoint implements Listener
 				}
 			}
 		}
+	}
+	
+	private boolean locationIsInCheckpoint(Location location)
+	{
+		//Goes through all checkpoint blocks
+		for (int i = 0 ; i < locations.length ; i++)
+		{
+			//If the location is in one of these blocks, return true
+			if (location.getBlockX() == locations[i].getBlockX() && location.getBlockY() == locations[i].getBlockY() && location.getBlockZ() == locations[i].getBlockZ())
+			{
+				return true;
+			}
+		}
+		//If the location was in none of the checkpoint blocks, return false
+		return false;
 	}
 	
 	private boolean playerPastPrevious(UUID uuid)

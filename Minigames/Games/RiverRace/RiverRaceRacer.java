@@ -4,6 +4,11 @@ import java.util.UUID;
 
 import org.bukkit.entity.Boat;
 import org.bukkit.entity.Player;
+import org.bukkit.scoreboard.DisplaySlot;
+import org.bukkit.scoreboard.Objective;
+import org.bukkit.scoreboard.Score;
+import org.bukkit.scoreboard.Scoreboard;
+
 /* import org.bukkit.scoreboard.DisplaySlot;
 import org.bukkit.scoreboard.Objective;
 import org.bukkit.scoreboard.Score;
@@ -23,6 +28,7 @@ public class RiverRaceRacer
 	{
 		this.player = player;
 		this.boat = boat;
+		player.teleport(boat);
 		boat.addPassenger(player);
 		iCheckpoint = 0;
 				
@@ -51,10 +57,10 @@ public class RiverRaceRacer
 	
 	public void updateScore(int iNewScore)
 	{
-	//	Scoreboard SB = player.getScoreboard();
-	//	Objective Checks = SB.getObjective(DisplaySlot.SIDEBAR);
-	//	Score newScore = Checks.getScore(player.getName());
-	//	newScore.setScore(iNewScore);
+		Scoreboard SB = player.getScoreboard();
+		Objective Checks = SB.getObjective(DisplaySlot.SIDEBAR);
+		Score newScore = Checks.getScore(player.getName());
+		newScore.setScore(iNewScore);
 	}
 	
 	public void unBoard()

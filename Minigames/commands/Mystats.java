@@ -6,8 +6,7 @@ import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
-import Minigames.Games.Gametype;
-import Minigames.statistics.PlayerStats;
+import Minigames.statistics.HideStats;
 
 public class Mystats implements CommandExecutor 
 {
@@ -33,7 +32,7 @@ public class Mystats implements CommandExecutor
 		//No parameters given
 		if (args.length == 0)
 		{
-			PlayerStats playerstats = new PlayerStats(player.getUniqueId());
+			HideStats playerstats = new HideStats(player.getUniqueId());
 			playerstats.countTotalPoints();
 			playerstats.countGames();
 			playerstats.getTimePlayed();
@@ -49,7 +48,7 @@ public class Mystats implements CommandExecutor
 			iSecondsRemaining = iSecondsRemaining % 3600;
 			
 			int iMinutes = iSecondsRemaining / 60;
-			iSecondsRemaining = iSecondsRemaining & 60;
+			iSecondsRemaining = iSecondsRemaining % 60;
 			
 			int iSeconds = iSecondsRemaining;
 			
@@ -72,53 +71,6 @@ public class Mystats implements CommandExecutor
 			player.sendMessage("Total Points: "+playerstats.iTotalPoints);
 			player.sendMessage("Total Games Played: "+playerstats.iTotalGames);
 			player.sendMessage("Total Time Played: "+szOutput);
-		}
-		
-		//Parameters given
-		if (args.length == 1)
-		{
-			if (args[0].toLowerCase().equals("hide"))
-			{
-				PlayerStats playerstats = new PlayerStats(player.getUniqueId(), Gametype.Hide_And_Seek);
-				playerstats.countTotalPoints();
-				playerstats.countGames();
-				playerstats.getTimePlayed();
-				
-				//Get seconds played from playerstats object
-				int iSecondsRemaining = (int) playerstats.iSecondsPlayed;
-				
-				//Calculate time played in days, minutes, hours, seconds from total seconds
-				int iDays = iSecondsRemaining / 86400;
-				iSecondsRemaining = iSecondsRemaining % 86400;
-				
-				int iHours = iSecondsRemaining / 3600;
-				iSecondsRemaining = iSecondsRemaining % 3600;
-				
-				int iMinutes = iSecondsRemaining / 60;
-				iSecondsRemaining = iSecondsRemaining & 60;
-				
-				int iSeconds = iSecondsRemaining;
-				
-				//Compile output for time played
-				String szOutput = "";
-				if (iDays != 0)
-				{
-					szOutput = szOutput + iDays +" Days ";
-				}
-				if (iHours != 0)
-				{
-					szOutput = szOutput + iHours +" Hours ";
-				}
-				if (iMinutes != 0)
-				{
-					szOutput = szOutput + iMinutes +" Minutes ";
-				}
-				szOutput = szOutput + iSeconds +" Seconds";
-				
-				player.sendMessage("Total Points: "+playerstats.iTotalPoints);
-				player.sendMessage("Total Games Played: "+playerstats.iTotalGames);
-				player.sendMessage("Total Time Played: "+szOutput);
-			}
 		}
 		return true;
 	}

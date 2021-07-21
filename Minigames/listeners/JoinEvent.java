@@ -60,6 +60,12 @@ public class JoinEvent implements Listener
 		
 		if (event.getPlayer().hasPermission("Minigames.boatchecks"))
 		{
+			//Go through selection and see if there is already a wand for this player
+			for (RRSelection newMapMaker : plugin.selections)
+			{
+				if (newMapMaker.getUUID().equals(event.getPlayer().getUniqueId()))
+					return;
+			}
 			RRSelection newMapMaker = new RRSelection(event.getPlayer());
 			plugin.selections.add(newMapMaker);
 		}

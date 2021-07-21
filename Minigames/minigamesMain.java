@@ -24,7 +24,6 @@ import Minigames.Games.RiverRace.RiverRaceLobby;
 import Minigames.commands.HSBJoin;
 import Minigames.commands.HSMap;
 import Minigames.commands.Lobby;
-import Minigames.commands.Mystats;
 import Minigames.commands.RRCheck;
 import Minigames.commands.RRGrid;
 import Minigames.commands.RRMap;
@@ -222,7 +221,7 @@ public class minigamesMain extends JavaPlugin
 		//--------------------------------------
 		
 		//Handles viewing own stats
-		getCommand("mystats").setExecutor(new Mystats());
+	//	getCommand("mystats").setExecutor(new Mystats());
 		
 		//Handles joining hide and seek lobby
 		getCommand("hide").setExecutor(new HSBJoin());
@@ -571,7 +570,7 @@ public class minigamesMain extends JavaPlugin
 			//Adds a weather pref table
 			sql = "CREATE TABLE IF NOT EXISTS `"+this.Database+"`.`"+this.GAMES+"` (\n" + 
 					"  `GameID` INT NOT NULL AUTO_INCREMENT,\n" + 
-					"  `GameType` ENUM('"+Gametype.Hide_And_Seek+"', '"+Gametype.Castle_Defence +"') NOT NULL,\n" + 
+					"  `GameType` ENUM('"+Gametype.Hide_And_Seek+"', '"+Gametype.River_Race +"') NOT NULL,\n" + 
 					"  `MapID` INT NOT NULL,\n" + 
 					"  `TimeStart` TIMESTAMP NOT NULL,\n" + 
 					"  `TimeEnd` TIMESTAMP NULL DEFAULT NULL,\n" + 
@@ -648,14 +647,13 @@ public class minigamesMain extends JavaPlugin
 	
 	public boolean createRiverRaceTimesTable()
 	{
-
 		boolean bSuccess = false;
 		int iCount = -1;
 
 		try
 		{
-			//Adds a weather pref table
-			sql = "CREATE TABLE IF NOT EXISTS `MinigameStats`.`RiverRaceTimes` (\n" + 
+			//Adds a river race times table
+			sql = "CREATE TABLE IF NOT EXISTS `" +this.Database+"`.`RiverRaceTimes` (\n" + 
 					"				  `ScoreID` INT NOT NULL AUTO_INCREMENT,\n" + 
 					"				  `GameID` INT NOT NULL,\n" + 
 					"				  `Time` INT NOT NULL,\n" + 
@@ -752,7 +750,11 @@ public class minigamesMain extends JavaPlugin
 	{
 		try
 		{
-			if(connection.isClosed() || connection == null)
+			if (connection.isValid(0) && connection != null)
+			{
+				
+			}
+			else
 			{
 				connect();
 			}

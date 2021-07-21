@@ -8,12 +8,6 @@ import org.bukkit.Location;
 import org.bukkit.World;
 import org.bukkit.entity.Player;
 import org.bukkit.scheduler.BukkitTask;
-import org.bukkit.scoreboard.ScoreboardManager;
-import org.bukkit.scoreboard.Scoreboard;
-import org.bukkit.scoreboard.Team;
-import org.bukkit.scoreboard.Objective;
-import org.bukkit.scoreboard.DisplaySlot;
-import org.bukkit.scoreboard.Score;
 
 import Minigames.Announce;
 import Minigames.MainLobby;
@@ -26,16 +20,7 @@ public class HideAndSeekLobby
 	private minigamesMain CorePlugin;
 	private final Location lobbyLocation;
 	private ArrayList<Player> players;
-	
-	//Scoreboard
-	protected ScoreboardManager SBM;
-	protected Scoreboard SB;
-	protected Team TeamH;
-	protected Team TeamS;
-	protected Objective Found;
-	protected Objective Hiders;
-	protected Score Score;
-	
+		
 	//Stores amount of finders wanted
 	private int iFinders;
 	
@@ -85,17 +70,7 @@ public class HideAndSeekLobby
 		System.out.println("name 2: " +Bukkit.getWorld(lobby.getWorldName()).getName());
 		//Create a list of players
 		players = new ArrayList<Player>();
-		
-		//Get scoreboard
-		SBM = Bukkit.getScoreboardManager();
-		SB = SBM.getNewScoreboard();
-		
-		//Registers the teams
-		TeamH = SB.registerNewTeam("Hiders");
-		TeamS = SB.registerNewTeam("Seekers");
-		Found = SB.registerNewObjective("Players found", "dummy", "Seekers");
-		Hiders = SB.registerNewObjective("Hiders", "dummy", "Hiders");
-		
+				
 		//Announce
 		Bukkit.getConsoleSender().sendMessage("[Minigames] [Hide]" +ChatColor.GREEN +" Hide and seek lobby created");
 		Bukkit.getConsoleSender().sendMessage("[Minigames] [Hide]" +ChatColor.GREEN +" In world: "+lobbyLocation.getWorld().getName() +", X: "+lobbyLocation.getBlockX() + ", Y: "+lobbyLocation.getBlockY() + ", Z: "+lobbyLocation.getBlockZ());
@@ -126,33 +101,6 @@ public class HideAndSeekLobby
 		//Reset the booleans
 		gameIsRunning = false;
 		gameIsStarting = false;
-		
-		//Unregisters the teams
-		TeamH.unregister();
-		TeamS.unregister();
-		
-		//Unregisters the objecties
-		Found.unregister();
-		Hiders.unregister();
-		
-		//Registers the teams
-		TeamH = SB.registerNewTeam("Hiders");
-		TeamS = SB.registerNewTeam("Seekers");
-		
-		//Registers the objectives
-		Found = SB.registerNewObjective("Players found", "dummy", "Seekers");
-		Hiders = SB.registerNewObjective("Hiders", "dummy", "Hiders");
-
-		//Set the teams
-		TeamH.setDisplayName("Hiders");
-		TeamS.setDisplayName("Seekers");
-		
-		TeamH.setAllowFriendlyFire(false);
-		TeamS.setAllowFriendlyFire(false);
-		
-		Found.setDisplaySlot(DisplaySlot.SIDEBAR);
-		
-		Hiders.setDisplaySlot(DisplaySlot.SIDEBAR);
 		
 		iTimer = 60;
 	}
@@ -285,7 +233,7 @@ public class HideAndSeekLobby
 		//Sets finders to 1
 		iFinders = 1;
 		
-		//Creates a new game and returns the gameID		
+		//Creates a new game and returns the gameID
 		HideGame = new HideAndSeekGame((Player[]) players.toArray(new Player[players.size()]), iFinders, Map.iMapID, this.CorePlugin, this);
 		
 		//Resets player list
@@ -307,7 +255,7 @@ public class HideAndSeekLobby
 			//Adds player to lobby
 			playerJoinLobby(player);
 			//Resets their scoreboard
-			player.setScoreboard(SBM.getMainScoreboard());
+			player.setScoreboard(Bukkit.getScoreboardManager().getMainScoreboard());
 		}
 		
 		//Sets game as not running

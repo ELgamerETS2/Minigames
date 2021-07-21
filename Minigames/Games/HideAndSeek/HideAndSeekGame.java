@@ -5,8 +5,15 @@ import java.util.ArrayList;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
+import org.bukkit.Sound;
 import org.bukkit.entity.Player;
+import org.bukkit.scoreboard.DisplaySlot;
+import org.bukkit.scoreboard.Objective;
+import org.bukkit.scoreboard.RenderType;
 import org.bukkit.scoreboard.Score;
+import org.bukkit.scoreboard.Scoreboard;
+import org.bukkit.scoreboard.ScoreboardManager;
+import org.bukkit.scoreboard.Team;
 
 import Minigames.Announce;
 import Minigames.minigamesMain;
@@ -23,7 +30,8 @@ public class HideAndSeekGame
 	public int iFinders;
 	public int iStartingHiders;
 	public HideAndSeekMap Map;
-	    
+	protected Location spawnPoint;
+	
     protected HideAndSeekLobby HSL;
     
 	private final minigamesMain plugin;
@@ -36,13 +44,20 @@ public class HideAndSeekGame
 	protected boolean bTerminate;
 	private boolean bGamePlayStarted;
 	
-	private Score score;
+	//Scoreboard
+	protected ScoreboardManager SBM;
+	protected Scoreboard SB;
+	protected Team TeamH;
+	protected Team TeamS;
+	protected Objective Found;
+	protected Objective Hiders;
+	protected Score score;
 	
 	public HideAndSeekGame(Player[] players, int iFinders, int iMap, minigamesMain plugin, HideAndSeekLobby HSL) //Input to be from lobby for whatever preferences are decided
 	{
 		//Sets up the Game class
 		this.game = new Game(Gametype.Hide_And_Seek);
-		
+				
 		this.plugin = plugin;
 		this.HSL = HSL;
 		
@@ -56,6 +71,33 @@ public class HideAndSeekGame
 		registered = false;
 		
 		bGamePlayStarted = false;
+		
+		//Get scoreboard
+		SBM = Bukkit.getScoreboardManager();
+		SB = SBM.getNewScoreboard();
+				
+		//Registers the teams
+		TeamH = SB.registerNewTeam("Hiders");
+		TeamS = SB.registerNewTeam("Seekers");
+		
+		//Registers the objectives
+		Found = SB.registerNewObjective("Seekers", "dummy", "Seekers");
+		Hiders = SB.registerNewObjective("Hiders", "dummy", "Hiders");
+
+		//Set the teams
+		TeamH.setDisplayName("Hiders");
+		TeamS.setDisplayName("Seekers");
+		
+		TeamH.setAllowFriendlyFire(false);
+		TeamS.setAllowFriendlyFire(false);
+		
+		Found.setDisplayName("Found");
+		Found.setDisplaySlot(DisplaySlot.SIDEBAR);
+		Found.setRenderType(RenderType.INTEGER);
+		
+		Hiders.setDisplayName("Hiders");
+		Hiders.setDisplaySlot(DisplaySlot.SIDEBAR);
+		Hiders.setRenderType(RenderType.INTEGER);
 	}
 	
 	public Player[] getPlayers()
@@ -81,6 +123,8 @@ public class HideAndSeekGame
 		
 		//Chooses map
 		chooseMap();
+		
+		spawnPoint = new Location(Map.mapWorld, Map.spawnCoordinates[0], Map.spawnCoordinates[1], Map.spawnCoordinates[2]);
 		
 		//Starts 10 second countdown into game
         Bukkit.getScheduler().runTaskTimer(this.plugin, new Runnable()
@@ -189,10 +233,10 @@ public class HideAndSeekGame
 			if (bUnique)
 			{
 				finders.add(newFinder);
-				HSL.TeamS.addEntry(getPlayers()[iRandom].getDisplayName());
-				score = HSL.Found.getScore(getPlayers()[i].getDisplayName());
+				TeamS.addEntry(getPlayers()[iRandom].getDisplayName());
+				score = Found.getScore(getPlayers()[i].getDisplayName());
 				score.setScore(0);
-				(getPlayers()[iRandom]).setScoreboard(HSL.SB);
+				(getPlayers()[iRandom]).setScoreboard(SB);
 			//	allOriginalPlayers.add(newPlayer);
 			}
 			else //Go back and find another seeker
@@ -206,9 +250,9 @@ public class HideAndSeekGame
 			{
 				newHider = new HideAndSeekHider(getPlayers()[i]);
 				hiders.add(newHider);
-				HSL.TeamH.addEntry(getPlayers()[i].getDisplayName());
-				score = HSL.Found.getScore(getPlayers()[i].getDisplayName());
-				(getPlayers()[i]).setScoreboard(HSL.SB);
+				TeamH.addEntry(getPlayers()[i].getDisplayName());
+				score = Found.getScore(getPlayers()[i].getDisplayName());
+				(getPlayers()[i]).setScoreboard(SB);
 			}
 		}
 		
@@ -231,10 +275,12 @@ public class HideAndSeekGame
 		//If the MapID is 0 (Not already set), change the MapID to a random hide and seek map
 		if (Map.iMapID == 0)
 		{
+			//Chooses a random index from the array
 			int iTotalMaps = iMapIDs.length;
 			System.out.println("[Minigames] [SQL Maps] Maps Found = " +iTotalMaps);
-			int iRandom = 1 + ( (int) (Math.random() * iTotalMaps) );
-			Map.iMapID = iRandom;
+			int iRandom = ( (int) (Math.random() * iTotalMaps) );
+			
+			Map.iMapID = iMapIDs[iRandom];
 		}
 		
 		//Collect details of map
@@ -253,10 +299,9 @@ public class HideAndSeekGame
 	public void teleportPlayers()
 	{
 		int i;
-		Location location = new Location(Map.mapWorld, Map.spawnCoordinates[0], Map.spawnCoordinates[1], Map.spawnCoordinates[2]);
 		for (i = 0 ; i < getPlayers().length ; i++)
 		{
-			getPlayers()[i].teleport(location);
+			getPlayers()[i].teleport(spawnPoint);
 		}
 	}
 	
@@ -336,7 +381,7 @@ public class HideAndSeekGame
                     return;
                 }
 			    Announce.announce(getPlayers(), (ChatColor.DARK_PURPLE +""+time));
-			//	Announce.playNote(players, Sound.GLASS);             
+				Announce.playNote(players, Sound.BLOCK_GLASS_BREAK);             
                 this.time--;
             }
         }, (Map.iWait - 3) * 20L, 20L);
@@ -353,7 +398,7 @@ public class HideAndSeekGame
             public void run()
             {
             	int i, j;
-        	//	Announce.playNote(players, Sound.FIREWORK_BLAST);
+        		Announce.playNote(players, Sound.ENTITY_FIREWORK_ROCKET_LARGE_BLAST);
         		
     			SM.unRegister();
     			
@@ -366,6 +411,12 @@ public class HideAndSeekGame
         			{
         				finders.get(i).player.showPlayer(plugin, hiders.get(j).player);
         			}
+        		}
+        		
+        		//Sets the speed of hiders
+        		for (i = 0 ; i < hiders.size() ; i++)
+        		{
+        			hiders.get(i).player.setWalkSpeed((float) plugin.getConfig().getDouble("HiderSpeed"));
         		}
         		
         		Announce.announce(getPlayers(), (ChatColor.DARK_PURPLE +"" +ChatColor.BOLD +"The seekers have been release"));

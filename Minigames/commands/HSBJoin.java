@@ -26,17 +26,17 @@ public class HSBJoin implements CommandExecutor
 		
 		if (args.length == 0)
 		{
-			if (!sender.hasPermission("Minigames.hide.join"))
-			{
-				sender.sendMessage(ChatColor.RED +"You do not have permission to join a hide and seek lobby");
-				return true;
-			}
+			if (sender.hasPermission("Minigames.hide.start") && sender.hasPermission("Minigames.hide.end"))
+				sender.sendMessage(ChatColor.RED +"/hide [start/end]");
 			
-			if (mgM.HSLobby.gameIsRunning)
-			{
-				mgM.HSLobby.HideGame.playerLeave(player);
-			}
-			mgM.HSLobby.playerJoinLobby(player);
+			else if (sender.hasPermission("Minigames.hide.start"))
+				sender.sendMessage(ChatColor.RED +"/hide [start]");
+			
+			else if (sender.hasPermission("Minigames.hide.end"))
+				sender.sendMessage(ChatColor.RED +"/hide [end]");
+			
+			else
+				sender.sendMessage(ChatColor.RED +"You do not have the correct minigame permissions");
 			return true;
 		}
 		else if (args.length > 1)

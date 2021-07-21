@@ -238,6 +238,7 @@ public class RiverRaceMap
 		{
 			e.printStackTrace();
 		}
+		Bukkit.getConsoleSender().sendMessage("[Minigames] [Count]: "+iCount);
 		return iCount;
 	}
 	

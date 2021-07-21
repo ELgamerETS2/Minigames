@@ -37,7 +37,7 @@ public class Wand implements Listener
 		//	Do left click so interact ignored
 			return;
 		}
-		if (e.getPlayer().getInventory().getItemInHand().equals(IS))
+		if (e.getPlayer().getInventory().getItemInMainHand().equals(IS))
 		{
 			e.setCancelled(true);
 			for (int i = 0 ; i < plugin.selections.size() ; i++)

@@ -473,3 +473,35 @@ Unsuccesful-Prevents mods from starting games which are already running
 -When someone crosses the line, it records the difference and stores it in the DB
 
 -Update PlayerJoinLobby to kick them out of a game if they are in one
+
+1.13.1 - Small gameplay updates
+-Takes a player back to the spawn of the Hide map if they die
+-Adds a hider speed configurable value
+-Changes the colours of the announcement when a player is found
+-Tells player how many points they received from the game
+-Brings back fireworks at start of game and when player is found
+
+-Fixes issue where checkpoint count wasn't specifying mapID and causing all sorts of problems
+
+1.13.2
+-Fixes small compilation error in Hide and seek
+-Creation of the River Race Stats GUI
+-Adds Races Finished
+-Adds time played
+-Adds My Fasted Time for each map
+
+-Retains PlayerStats class to store variables of common use for RiverRace and Hide
+-Adds RiverRaceStats and HideStats as extensions of PlayerStats to store game specific data
+
+-Removes the mystats command
+-Removes the /hide capability to join games
+
+-When a mapmaker joins, checks to see if they already have a RRSelection wand before creating a new one
+
+1.13.2.1
+-Fixes the River Race in game leaderboard
+
+1.13.2.2
+-Fixes the hide and seek map choosing mechanism
+-Has fixes related to DB problems
+-This version will hopefully hold RiverRaceTimes DDL fixes

@@ -10,6 +10,7 @@ import org.bukkit.entity.Boat;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;import org.bukkit.scoreboard.DisplaySlot;
 import org.bukkit.scoreboard.Objective;
+import org.bukkit.scoreboard.RenderType;
 import org.bukkit.scoreboard.Score;
 import org.bukkit.scoreboard.Scoreboard;
 import org.bukkit.scoreboard.ScoreboardManager;
@@ -29,7 +30,7 @@ public class RiverRaceGame
 	protected RiverRaceLobby RRL;
 	
 	//Stores the lists of players and racers
-	private Player[] players;
+	private ArrayList<Player> players;
 	private ArrayList<RiverRaceRacer> racers = new ArrayList<RiverRaceRacer>();
 	
 	//Stores the map details
@@ -51,41 +52,42 @@ public class RiverRaceGame
 	
 	public void reset()
 	{
-		this.players = new Player[0];
+		this.players = new ArrayList<Player>();
 		racers = new ArrayList<RiverRaceRacer>();
 		map = new RiverRaceMap();
 		ListenerCheckpoints = new ArrayList<Checkpoint>();
 		FinishLine = null;
 		bTerminate = false;
 		bGamePlayStarted = false;
-		SB.clearSlot(DisplaySlot.SIDEBAR);
+		
+		objCheckpoints.setDisplaySlot(DisplaySlot.SIDEBAR);
+		objCheckpoints.setRenderType(RenderType.INTEGER);
 	}
 	
-	public Player[] getPlayers()
+	public ArrayList<Player> getPlayers()
 	{
 		return players;
 	}
 	
-	public RiverRaceGame(minigamesMain plugin, RiverRaceLobby RRL, Player[] players)
+	public RiverRaceGame(minigamesMain plugin, RiverRaceLobby RRL, ArrayList<Player> players)
 	{
+		//Scoreboard
+		SBM = Bukkit.getScoreboardManager();
+		SB = SBM.getNewScoreboard();
+		objCheckpoints = SB.registerNewObjective("Checkpoints", "dummy", ChatColor.BLUE +"Leaderboard");
+		
+		reset();
+		
 		//Sets up the Game class
 		this.game = new Game(Gametype.River_Race);
 
 		this.plugin = plugin;
 		this.RRL = RRL;
 		
-		this.players = players;
-		
-		bGamePlayStarted = false;
-		bTerminate = false;
-		
-		ListenerCheckpoints = new ArrayList<Checkpoint>();
-		
-		//Scoreboard
-		SBM = Bukkit.getScoreboardManager();
-		SB = SBM.getNewScoreboard();
-		objCheckpoints = SB.registerNewObjective("Checkpoints", "dummy", ChatColor.BLUE +"Leaderboard");
-		objCheckpoints.setDisplaySlot(DisplaySlot.SIDEBAR);
+		for (Player player : players)
+		{
+			this.players.add(player);
+		}				
 	}
 	
 	public void highGameProcesses()
@@ -136,7 +138,7 @@ public class RiverRaceGame
 		Score newScore;
 		
 		//Set up racers
-		for (i = 0 ; i < players.length ; i++)
+		for (i = 0 ; i < players.size() ; i++)
 		{
 			//Get a random grid from the list
 			iRandom = (int) (Math.random() * startGrids.size());
@@ -147,13 +149,15 @@ public class RiverRaceGame
 			Location location = new Location(map.getWorld(), newGrid.getX(), newGrid.getY(), newGrid.getZ());
 
 			//Create new racer. Pass the location into the newBoat method.
-			RiverRaceRacer newRacer = new RiverRaceRacer(players[i], newBoat(location), plugin);
+			RiverRaceRacer newRacer = new RiverRaceRacer(players.get(i), newBoat(location), plugin);
 			racers.add(newRacer);
 			
 			//Add them to scoreboard
-			newScore = objCheckpoints.getScore(players[i].getName());
+			newScore = objCheckpoints.getScore(players.get(i).getName());
 			newScore.setScore(0);
-			Bukkit.getConsoleSender().sendMessage("[Minigames] [River Race] Score for "+players[i].getName() +" added");
+			Bukkit.getConsoleSender().sendMessage("[Minigames] [River Race] Score for "+players.get(i).getName() +" added");
+			
+			players.get(i).setScoreboard(SB);
 		}
 
 		//5 Second count down
@@ -243,7 +247,7 @@ public class RiverRaceGame
 		//Goes through the racers to find the correct racer
 		for (i = 0 ; i < racers.size() ; i++)
 		{
-			//Once the racer is found
+			//Once (if) the racer is found
 			if (racers.get(i).getUUID().equals(player.getUniqueId()))
 			{
 				racers.remove(i);
@@ -260,13 +264,15 @@ public class RiverRaceGame
 		}
 		
 		//Update the players array - Used for announcements
-		//Update size
-		players = new Player[racers.size()];
 		
-		//Go through racers and add players to the array
-		for (i = 0 ; i < racers.size() ; i++)
+		//Go through players and remove player from players
+		for (i = 0 ; i < players.size() ; i++)
 		{
-			players[i] = racers.get(i).getPlayer();
+			//Once the player is found
+			if (players.get(i).getUniqueId().equals(player.getUniqueId()))
+			{
+				players.remove(i);
+			}
 		}
 		
 		if (racers.size() == 0)
@@ -282,8 +288,11 @@ public class RiverRaceGame
 			bTerminate = true;
 			Bukkit.getConsoleSender().sendMessage("[Minigames] [River Race] Game terminated. Reason: "+Reason.toString());
 			
-			FinishLine.unRegister();
-			Bukkit.getConsoleSender().sendMessage("[Minigames] [River Race] Unregistered finish line");
+			if (FinishLine != null)
+			{
+				FinishLine.unRegister();
+				Bukkit.getConsoleSender().sendMessage("[Minigames] [River Race] Unregistered finish line");
+			}
 			
 			Bukkit.getConsoleSender().sendMessage("[Minigames] [River Race] Checkpoints: " +ListenerCheckpoints.size());
 			for (int i = 0; i < ListenerCheckpoints.size() - 1; i++)
@@ -319,6 +328,10 @@ public class RiverRaceGame
 				break;
 			case No_Checkpoints_Found:
 				Announce.announce(getPlayers(), (ChatColor.GOLD +"No checkpoints for this map were found"));
+				break;
+			case No_Startgrids_Found:
+				Announce.announce(getPlayers(), (ChatColor.GOLD +"No start for this map were found"));
+				break;
 			default:
 				break;
 			}
@@ -334,9 +347,12 @@ public class RiverRaceGame
 			{
 				@Override
 				public void run()
-				{            	
+				{
 					//Notifies lobby of game ending
-					RRL.gameFinished(racers, bGamePlayStarted);
+					if (bGamePlayStarted)
+						RRL.gameFinished(racers);
+					else
+						RRL.gameFinishedEarly(players);
 				}
 			}, 120L);
 

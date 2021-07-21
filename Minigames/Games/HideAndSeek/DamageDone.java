@@ -9,13 +9,18 @@ package Minigames.Games.HideAndSeek;
 
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
+import org.bukkit.Color;
+import org.bukkit.FireworkEffect;
+import org.bukkit.FireworkEffect.Type;
 import org.bukkit.entity.EntityType;
+import org.bukkit.entity.Firework;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.HandlerList;
 import org.bukkit.event.Listener;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.entity.EntityDeathEvent;
+import org.bukkit.inventory.meta.FireworkMeta;
 
 import Minigames.Announce;
 import Minigames.minigamesMain;
@@ -64,7 +69,7 @@ public class DamageDone implements Listener
 							HideAndSeekGame.finders.set(i, updatedFinder);
 							
 							//Updates scoreboard score for finder
-							HideAndSeekGame.HSL.Found.getScore(HideAndSeekGame.finders.get(i).player.getName()).setScore(HideAndSeekGame.finders.get(i).iFound);
+							HideAndSeekGame.Found.getScore(HideAndSeekGame.finders.get(i).player.getName()).setScore(HideAndSeekGame.finders.get(i).iFound);
 							
 							int iCurrentFinders = HideAndSeekGame.finders.size();
 							
@@ -75,12 +80,33 @@ public class DamageDone implements Listener
 							HideAndSeekGame.finders.add(newFinder);
 							
 							//Set score to 0
-							HideAndSeekGame.HSL.Found.getScore(hider.getDisplayName()).setScore(0);
+							HideAndSeekGame.Found.getScore(hider.getDisplayName()).setScore(0);
 							hider.setWalkSpeed((float) mainPlugin.getConfig().getDouble("SeekerSpeed"));
 		        			
 							//Announces to all players that a player has been found
-							Announce.announce(this.HideAndSeekGame.getPlayers(), ChatColor.BLUE +hider.getDisplayName() +ChatColor.GREEN +" was found by "+ChatColor.BLUE +finder.getDisplayName());
-							Announce.announce(this.HideAndSeekGame.getPlayers(), hider.getDisplayName() +ChatColor.GOLD +" is now a seeker");
+							Announce.announce(this.HideAndSeekGame.getPlayers(), ChatColor.DARK_PURPLE +hider.getDisplayName() +ChatColor.LIGHT_PURPLE +" was found by "+ChatColor.DARK_PURPLE +finder.getDisplayName());
+							Announce.announce(this.HideAndSeekGame.getPlayers(), ChatColor.DARK_PURPLE +hider.getDisplayName() +ChatColor.LIGHT_PURPLE +" is now a seeker");
+							
+							//Global effect
+							FireworkEffect effect = FireworkEffect.builder().trail(true).with(Type.BALL_LARGE).withFlicker().withColor(Color.FUCHSIA).build();
+							
+							Firework firework1 = (Firework) finder.getWorld().spawnEntity(finder.getLocation(), EntityType.FIREWORK);
+							FireworkMeta meta1 = firework1.getFireworkMeta();							
+							meta1.addEffect(effect);
+							meta1.setPower(4);
+							firework1.setFireworkMeta(meta1);
+							
+							Firework firework2 = (Firework) finder.getWorld().spawnEntity(finder.getLocation(), EntityType.FIREWORK);
+							FireworkMeta meta2 = firework2.getFireworkMeta();
+							meta2.addEffect(effect);
+							meta2.setPower(5);
+							firework2.setFireworkMeta(meta2);
+							
+							Firework firework3 = (Firework) finder.getWorld().spawnEntity(finder.getLocation(), EntityType.FIREWORK);
+							FireworkMeta meta3 = firework2.getFireworkMeta();
+							meta3.addEffect(effect);
+							meta3.setPower(6);
+							firework3.setFireworkMeta(meta3);
 							
 							HideAndSeekGame.hiders.remove(j);
 							break;
@@ -125,13 +151,15 @@ public class DamageDone implements Listener
 					HideAndSeekGame.finders.add(newFinder);
 					
 					//Set score to 0
-					HideAndSeekGame.HSL.Found.getScore(hider.getName()).setScore(0);
+					HideAndSeekGame.Found.getScore(hider.getName()).setScore(0);
 					
 					//Announces to all players that a player has been killed
-					Announce.announce(this.HideAndSeekGame.getPlayers(), ChatColor.BLUE +hider.getDisplayName() +ChatColor.GREEN +" died");
-					Announce.announce(this.HideAndSeekGame.getPlayers(), hider.getDisplayName() +ChatColor.GOLD +" is now a seeker");
+					Announce.announce(this.HideAndSeekGame.getPlayers(), ChatColor.DARK_PURPLE +hider.getDisplayName() +ChatColor.LIGHT_PURPLE +" died");
+					Announce.announce(this.HideAndSeekGame.getPlayers(), ChatColor.DARK_PURPLE +hider.getDisplayName() +ChatColor.LIGHT_PURPLE +" is now a seeker");
 					
 					HideAndSeekGame.hiders.remove(j);
+					
+					hider.teleport(HideAndSeekGame.spawnPoint);
 					break;
 				}
 			}
